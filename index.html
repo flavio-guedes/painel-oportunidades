@@ -3,19 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPQ · Painel de Oportunidades</title>
+<title>EPQ · Boulevard de Oportunidades</title>
 <style>
   :root {
     --bg:#0b1220;
     --panel:#0f172a;
-    --panel-2:#111b2d;
     --line:#1f2d42;
     --text:#e6e9ef;
     --muted:#8a93a6;
     --blue:#3b82f6;
     --green:#10b981;
     --amber:#f59e0b;
-    --red:#ef4444;
     --purple:#7c3aed;
     --radius:14px;
   }
@@ -29,9 +27,8 @@
                 var(--bg);
     color: var(--text);
   }
-  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px; }
   header {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
     padding: 18px 18px 14px; border-bottom: 1px solid var(--line);
     background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.4));
     backdrop-filter: blur(10px);
@@ -41,164 +38,58 @@
   header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
   .section { margin-top: 22px; }
   .section h2 { font-size: 15px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .card {
-    background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(17,27,45,.75));
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    padding: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 18px; border-radius: var(--radius); font-size: 14px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(17,27,45,.75)); color: var(--text); border-color: var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.18);
   }
-  .tag { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 11px; background: rgba(59,130,246,.12); color: #cfe3ff; border: 1px solid rgba(59,130,246,.25); margin-right: 8px; }
-  .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); margin-top: 16px; }
-  table { width: 100%; border-collapse: collapse; min-width: 900px; }
-  th, td { text-align: left; padding: 10px 12px; font-size: 12px; border-bottom: 1px solid var(--line); }
-  th { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 10.5px; letter-spacing: .12em; color: #fff; text-transform: uppercase; background: rgba(59,130,246,.12); }
-  td { color: var(--muted); }
-  tr:last-child td { border-bottom: none; }
+  .btn:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
+  .btn.primary { background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; border-color: transparent; }
+  .btn.primary:hover { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
+  .query {
+    margin-top: 10px; padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5;
+  }
   .actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
   .link {
     display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent;
   }
   .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
-  .link.primary:hover { background: rgba(59,130,246,.25); }
-  .form { display: grid; gap: 10px; }
-  .form input, .form select, .form textarea { padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: rgba(15,23,42,.6); color: var(--text); font-size: 13px; }
-  .form button { padding: 10px; border-radius: 10px; border: 0; background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; font-weight: 700; cursor: pointer; }
-  .quick-add { display: flex; gap: 10px; flex-wrap: wrap; }
-  .quick-add input { flex: 1; min-width: 200px; }
-  .empty { text-align: center; color: var(--muted); padding: 20px; }
-  .count { font-size: 12px; color: var(--muted); margin-top: 4px; }
 </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div>
-        <h1>EPQ · Painel de Oportunidades</h1>
-        <p>Seu boulevard de oportunidades — adicione links e veja a lista automaticamente.</p>
+        <h1>EPQ · Boulevard de Oportunidades</h1>
+        <p>Clique no cargo para buscar vagas com contato direto.</p>
       </div>
-      <div class="tag">Manual</div>
     </header>
 
     <div class="section">
-      <h2>Adicionar ao boulevard</h2>
-      <div class="card">
-        <form class="form" id="form">
-          <input id="url" placeholder="URL da vaga/post" required>
-          <input id="plataforma" placeholder="Plataforma (LinkedIn, Instagram, etc)" required>
-          <input id="titulo" placeholder="Título da oportunidade" required>
-          <input id="contato" placeholder="Contato (nome/telefone/email)" required>
-          <input id="data" type="date" required>
-          <select id="tipo">
-            <option value="Vaga">Vaga</option>
-            <option value="Post">Post</option>
-            <option value="Campanha">Campanha</option>
-            <option value="Outro">Outro</option>
-          </select>
-          <select id="status">
-            <option value="Aberto">Aberto</option>
-            <option value="Em andamento">Em andamento</option>
-            <option value="Concluído">Concluído</option>
-            <option value="Arquivado">Arquivado</option>
-          </select>
-          <textarea id="nota" rows="3" placeholder="Nota"></textarea>
-          <button type="submit">Salvar no boulevard</button>
-        </form>
+      <h2>Buscar por cargo</h2>
+      <div class="board">
+        <a class="btn primary" href="https://www.google.com/search?q=%22designer%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Designer</a>
+        <a class="btn primary" href="https://www.google.com/search?q=%22Diretor+de+Arte%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Diretor de Arte</a>
+        <a class="btn" href="https://www.google.com/search?q=%22Social+Media%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Social Media</a>
+        <a class="btn" href="https://www.google.com/search?q=%22Designer+Gr%C3%A1fico%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Designer Gráfico</a>
+        <a class="btn" href="https://www.google.com/search?q=%22Art+Director%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Art Director</a>
+        <a class="btn" href="https://www.google.com/search?q=%22Motion+Designer%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Motion Designer</a>
+        <a class="btn" href="https://www.google.com/search?q=%22Diretor+Criativo%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">Diretor Criativo</a>
+        <a class="btn" href="https://www.google.com/search?q=%22UX+Designer%22+%22vaga%22+%22whatsapp%22+OR+%22wa.me%22" target="_blank" rel="noopener">UX Designer</a>
       </div>
     </div>
 
     <div class="section">
-      <h2>Meu boulevard</h2>
-      <div class="quick-add">
-        <input id="quick-url" placeholder="Cole aqui uma URL para adicionar rapidamente...">
-        <button onclick="quickAdd()" style="padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg, var(--green), var(--blue));color:#fff;font-weight:700;cursor:pointer;">Adicionar rápido</button>
+      <h2>Query base</h2>
+      <div class="query">
+        (cargo) AND ("vaga") AND ("whatsapp" OR "wa.me")
       </div>
-      <div class="count" id="count"></div>
-      <div class="tbl-wrap">
-        <table>
-          <tr><th>Data</th><th>Plataforma</th><th>Tipo</th><th>Título</th><th>Contato</th><th>Status</th><th>URL</th><th>Nota</th></tr>
-          <tbody id="table">
-            <tr><td colspan="8" class="empty">Nenhuma oportunidade no boulevard ainda</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão substitui o cargo automaticamente e abre a busca em nova aba.</p>
     </div>
 
     <div class="actions">
       <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Abrir repositório</a>
     </div>
   </div>
-
-  <script>
-    const STORAGE_KEY = 'painel_oportunidades_v1';
-    function load(){
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      const tbody = document.getElementById('table');
-      document.getElementById('count').textContent = data.length ? `${data.length} oportunidade(s)` : '';
-      if(!data.length){
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhuma oportunidade no boulevard ainda</td></tr>';
-        return;
-      }
-      tbody.innerHTML = data.map((item, idx)=>`
-        <tr>
-          <td>${escapeHtml(item.data)}</td>
-          <td>${escapeHtml(item.plataforma)}</td>
-          <td>${escapeHtml(item.tipo)}</td>
-          <td>${escapeHtml(item.titulo)}</td>
-          <td>${escapeHtml(item.contato)}</td>
-          <td>${escapeHtml(item.status)}</td>
-          <td><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="color:var(--blue)">Abrir</a></td>
-          <td>${escapeHtml(item.nota || '')}</td>
-        </tr>
-      `).join('');
-    }
-    function escapeHtml(str){
-      return String(str||'')
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;');
-    }
-    document.getElementById('form').addEventListener('submit', e=>{
-      e.preventDefault();
-      const item = {
-        data: document.getElementById('data').value,
-        plataforma: document.getElementById('plataforma').value.trim(),
-        tipo: document.getElementById('tipo').value,
-        titulo: document.getElementById('titulo').value.trim(),
-        contato: document.getElementById('contato').value.trim(),
-        status: document.getElementById('status').value,
-        url: document.getElementById('url').value.trim(),
-        nota: document.getElementById('nota').value.trim(),
-      };
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      data.unshift(item);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      e.target.reset();
-      load();
-    });
-    function quickAdd(){
-      const urlInput = document.getElementById('quick-url');
-      const url = urlInput.value.trim();
-      if(!url) return;
-      const item = {
-        data: new Date().toISOString().slice(0,10),
-        plataforma: url.includes('linkedin') ? 'LinkedIn' : url.includes('instagram') ? 'Instagram' : 'Web',
-        tipo: 'Post',
-        titulo: url,
-        contato: '',
-        status: 'Aberto',
-        url: url,
-        nota: 'Adicionado via quick add',
-      };
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-      data.unshift(item);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      urlInput.value = '';
-      load();
-    }
-    load();
-  </script>
 </body>
 </html>
