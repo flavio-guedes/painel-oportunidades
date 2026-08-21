@@ -65,6 +65,10 @@
   .form { display: grid; gap: 10px; }
   .form input, .form select, .form textarea { padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: rgba(15,23,42,.6); color: var(--text); font-size: 13px; }
   .form button { padding: 10px; border-radius: 10px; border: 0; background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; font-weight: 700; cursor: pointer; }
+  .quick-add { display: flex; gap: 10px; flex-wrap: wrap; }
+  .quick-add input { flex: 1; min-width: 200px; }
+  .empty { text-align: center; color: var(--muted); padding: 20px; }
+  .count { font-size: 12px; color: var(--muted); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -72,13 +76,13 @@
     <header>
       <div>
         <h1>EPQ · Painel de Oportunidades</h1>
-        <p>Adicione vagas, posts e contatos manualmente. Sem scraping automatizado.</p>
+        <p>Seu boulevard de oportunidades — adicione links e veja a lista automaticamente.</p>
       </div>
       <div class="tag">Manual</div>
     </header>
 
     <div class="section">
-      <h2>Adicionar oportunidade</h2>
+      <h2>Adicionar ao boulevard</h2>
       <div class="card">
         <form class="form" id="form">
           <input id="url" placeholder="URL da vaga/post" required>
@@ -99,18 +103,23 @@
             <option value="Arquivado">Arquivado</option>
           </select>
           <textarea id="nota" rows="3" placeholder="Nota"></textarea>
-          <button type="submit">Salvar</button>
+          <button type="submit">Salvar no boulevard</button>
         </form>
       </div>
     </div>
 
     <div class="section">
-      <h2>Oportunidades</h2>
+      <h2>Meu boulevard</h2>
+      <div class="quick-add">
+        <input id="quick-url" placeholder="Cole aqui uma URL para adicionar rapidamente...">
+        <button onclick="quickAdd()" style="padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg, var(--green), var(--blue));color:#fff;font-weight:700;cursor:pointer;">Adicionar rápido</button>
+      </div>
+      <div class="count" id="count"></div>
       <div class="tbl-wrap">
         <table>
           <tr><th>Data</th><th>Plataforma</th><th>Tipo</th><th>Título</th><th>Contato</th><th>Status</th><th>URL</th><th>Nota</th></tr>
           <tbody id="table">
-            <tr><td colspan="8" style="text-align:center;color:var(--muted)">Nenhuma oportunidade cadastrada</td></tr>
+            <tr><td colspan="8" class="empty">Nenhuma oportunidade no boulevard ainda</td></tr>
           </tbody>
         </table>
       </div>
@@ -126,8 +135,9 @@
     function load(){
       const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       const tbody = document.getElementById('table');
+      document.getElementById('count').textContent = data.length ? `${data.length} oportunidade(s)` : '';
       if(!data.length){
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted)">Nenhuma oportunidade cadastrada</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">Nenhuma oportunidade no boulevard ainda</td></tr>';
         return;
       }
       tbody.innerHTML = data.map((item, idx)=>`
@@ -168,6 +178,26 @@
       e.target.reset();
       load();
     });
+    function quickAdd(){
+      const urlInput = document.getElementById('quick-url');
+      const url = urlInput.value.trim();
+      if(!url) return;
+      const item = {
+        data: new Date().toISOString().slice(0,10),
+        plataforma: url.includes('linkedin') ? 'LinkedIn' : url.includes('instagram') ? 'Instagram' : 'Web',
+        tipo: 'Post',
+        titulo: url,
+        contato: '',
+        status: 'Aberto',
+        url: url,
+        nota: 'Adicionado via quick add',
+      };
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      data.unshift(item);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      urlInput.value = '';
+      load();
+    }
     load();
   </script>
 </body>
