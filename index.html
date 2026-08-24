@@ -81,15 +81,12 @@
     <div class="section">
       <h2>Filtros</h2>
       <div class="filter-bar" id="filters">
-        <button class="filter-chip active" data-range="all">Todos</button>
-        <button class="filter-chip" data-range="10m">10 min</button>
-        <button class="filter-chip" data-range="30m">30 min</button>
-        <button class="filter-chip" data-range="1h">1 hora</button>
-        <button class="filter-chip" data-range="2h">2 horas</button>
-        <button class="filter-chip" data-range="3h">3 horas</button>
-        <button class="filter-chip" data-range="5h">5 horas</button>
-        <button class="filter-chip" data-range="1d">1 dia</button>
-        <button class="filter-chip" data-range="2d">2 dias</button>
+        <button class="filter-chip active" data-range="24h">24 horas</button>
+        <button class="filter-chip" data-range="all">Todos</button>
+        <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
+        <button class="filter-chip" data-source="posts" id="source-posts">Publicações</button>
+        <button class="filter-chip" data-job-filter="easy-apply" id="job-easy-apply">Candidatura simplificada</button>
+        <button class="filter-chip" data-job-filter="under10" id="job-under10">Menos de 10 candidaturas</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -114,8 +111,14 @@
 
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
-    const baseUrl = 'https://www.linkedin.com/jobs/search/?keywords=';
-    const suffix = '&sortBy=dateDesc';
+    const baseUrlJobs = 'https://www.linkedin.com/jobs/search/?keywords=';
+    const baseUrlPosts = 'https://www.linkedin.com/search/results/content/?keywords=';
+    const suffixJobs = '&sortBy=dateDesc';
+    const suffixPosts = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
+
+    let currentSource = 'jobs';
+    let currentRange = '24h';
+    let currentJobFilter = 'none';
 
     const queries = [
       { label: 'Designer', keywords: 'designer OR Diretor de Arte', location: 'Brasil' },
@@ -135,10 +138,35 @@
       { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner', location: 'Brasil' }
     ];
 
+    const postQueries = [
+      { label: 'Designer', keywords: '("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Social Media', keywords: '("Social Media" OR "Designer Gráfico") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Art Director', keywords: '("Art Director" OR "Motion Designer") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Diretor Criativo', keywords: '("Diretor Criativo" OR "UX Designer") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Customer Success', keywords: '("Customer Success" OR "Account Management") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Gestão de Projetos', keywords: '("Gestão de Projetos" OR "Project Manager") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Copy e Redação', keywords: '("Copy" OR "Redação") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Community Management', keywords: '("Community Management" OR "Planejamento") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Gestor de Tráfego', keywords: '("Gestor de Tráfego" OR "Head de Comunicação") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Head de Mídia', keywords: '("Head de Mídia" OR "Design Lead") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Brand Manager', keywords: '("Brand Manager" OR "Planejamento Estratégico") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Redator', keywords: '("Redator" OR "Copywriter") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Social Media', keywords: '("Social Media" OR "Social Media Manager") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: '("Gestor de Projetos" "Marketing" OR "Project Manager" "Marketing") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
+      { label: 'Gestor de Projetos (Produto)', keywords: '("Gestor de Projetos" "Produto" OR "Project Manager" "Produto" OR "Product Owner") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' }
+    ];
+
     function buildJobUrl(keywords, location) {
       const encodedKeywords = encodeURIComponent(keywords);
       const encodedLocation = encodeURIComponent(location);
-      return `${baseUrl}${encodedKeywords}&location=${encodedLocation}${suffix}`;
+      let url = `${baseUrlJobs}${encodedKeywords}&location=${encodedLocation}${suffixJobs}`;
+      if (currentJobFilter === 'easy-apply') {
+        url += '&f_AL=true';
+      }
+      if (currentJobFilter === 'under10') {
+        url += '&f_E=2%2C3';
+      }
+      return url;
     }
 
     function loadClicks() {
@@ -175,24 +203,29 @@
       const summary = document.getElementById('summary');
       const queryBase = document.getElementById('query-base');
       const clicks = loadClicks();
-      const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
+      const map = { '24h': 1440, 'all': 0 };
       const minutes = map[range];
 
       const showAll = !range || range === 'all';
-      const visible = queries.map(q => {
+      const activeQueries = currentSource === 'jobs' ? queries : postQueries;
+      const visible = activeQueries.map(q => {
         const ts = clicks[q.label];
         const recent = showAll || (ts && within(ts, minutes));
         return { ...q, recent, ts };
       });
 
-      queryBase.textContent = visible.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me") filtrado para Brasil/Latam.';
+      const baseUrl = currentSource === 'jobs' ? baseUrlJobs : baseUrlPosts;
+      const suffix = currentSource === 'jobs' ? suffixJobs : suffixPosts;
+
+      queryBase.textContent = (currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
 
       board.innerHTML = visible.map(q => {
         const timeAgo = formatTimeAgo(q.ts);
         const isNew = q.ts && within(q.ts, 10);
         const highlight = q.recent ? 'primary' : '';
+        const href = currentSource === 'jobs' ? buildJobUrl(q.keywords, q.location) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
         return `
-          <a class="btn ${highlight}" href="${buildJobUrl(q.keywords, q.location)}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
@@ -203,22 +236,36 @@
         btn.addEventListener('click', () => saveClick(btn.dataset.label));
       });
 
-      const rangeLabel = range === 'all' ? '' : range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias';
-      summary.textContent = range === 'all'
-        ? `Mostrando ${visible.length} de ${queries.length} cargos.`
-        : `Mostrando ${visible.length} de ${queries.length} cargos. Dentro da janela (${rangeLabel}): ${visible.filter(q => q.recent).length}.`;
+      const sourceLabel = currentSource === 'jobs' ? 'Vagas' : 'Publicações';
+      const rangeLabel = range === 'all' ? 'todos os períodos' : 'nas últimas 24 horas';
+      summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel} · ${rangeLabel}.`;
     }
 
     function applyTimeFilter(range) {
-      document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+      currentRange = range;
+      document.querySelectorAll('[data-range]').forEach(b => b.classList.toggle('active', b.dataset.range === range));
       renderBoard(range);
+    }
+
+    function applySourceFilter(source) {
+      currentSource = source;
+      document.querySelectorAll('[data-source]').forEach(b => b.classList.toggle('active', b.dataset.source === source));
+      renderBoard(currentRange);
+    }
+
+    function applyJobFilter(filter) {
+      currentJobFilter = filter;
+      document.querySelectorAll('[data-job-filter]').forEach(b => b.classList.toggle('active', b.dataset.jobFilter === filter));
+      renderBoard(currentRange);
     }
 
     document.getElementById('filters').addEventListener('click', (e) => {
       if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
+      if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
+      if (e.target.dataset.jobFilter) applyJobFilter(e.target.dataset.jobFilter);
     });
 
-    renderBoard('all');
+    renderBoard('24h');
   </script>
 </body>
 </html>
