@@ -342,14 +342,12 @@ function renderBoard(range, area, fitMin, accessMin){
     if (fitMin !== 'all' && o.fit < Number(fitMin)) return false;
     if (accessMin !== 'all' && o.acesso < Number(accessMin)) return false;
     if (minutes !== null) {
-      const ts = clicks[o.id];
-      if (!ts) return false;
-      return (Date.now() - ts) <= minutes * 60 * 1000;
+      return (Date.now() - o.detected_at) <= minutes * 60 * 1000;
     }
     return true;
   });
   if (!filtered.length) {
-    board.innerHTML = '<div style="color:var(--muted);font-size:13px;">Nenhuma oportunidade para os filtros atuais.</div>';
+    board.innerHTML = `<div style="color:var(--muted);font-size:13px;">Nenhuma oportunidade para os filtros atuais. <span id="result-count" style="color:var(--text);">0 resultados</span></div>`;
     renderReport(filtered);
     return;
   }
@@ -415,6 +413,8 @@ function renderBoard(range, area, fitMin, accessMin){
       card.classList.toggle('open');
     });
   });
+  const countEl = document.getElementById('result-count');
+  if (countEl) countEl.textContent = `${filtered.length} resultado(s)`;
 }
 
 function renderReport(items){
