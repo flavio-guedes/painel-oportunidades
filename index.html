@@ -417,9 +417,6 @@ function renderBoard() {
         <div class="opp-meta">
           <b>Keywords:</b> ${escapeHtml(s.keywords)}
         </div>
-        <div class="opp-meta">
-          <b>Filtros:</b> ${escapeHtml([s.model, s.seniority, s.application, s.competition].filter(Boolean).join(' · ') || 'Sem filtros adicionais')}
-        </div>
         <div class="opp-actions">
           <button class="btn-xs" data-action="open" data-id="${s.id}">Abrir no LinkedIn</button>
           <button class="btn-xs" data-action="context" data-id="${s.id}">Ver configuração</button>
