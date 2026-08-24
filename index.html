@@ -102,9 +102,6 @@
         <button class="filter-chip" data-range="all">Todos</button>
         <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
         <button class="filter-chip active" data-source="posts" id="source-posts">Publicações</button>
-        <button class="filter-chip" data-job-filter="easy-apply" id="job-easy-apply">Candidatura simplificada</button>
-        <button class="filter-chip" data-job-filter="under10" id="job-under10">Menos de 10 candidaturas</button>
-        <button class="filter-chip" data-job-filter="remote" id="job-remote">Apenas remoto</button>
         <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
         <button class="filter-chip" data-hot="true" id="hot-toggle">Hot</button>
       </div>
@@ -148,9 +145,8 @@
     const suffixJobs = '&sortBy=dateDesc';
     const suffixPosts = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
 
-    let currentSource = 'jobs';
-    let currentRange = '24h';
-    let currentJobFilter = 'none';
+    let currentSource = 'posts';
+    let currentRange = 'all';
     let mixMode = false;
     let hotMode = false;
 
@@ -178,10 +174,7 @@
       { label: 'Head de Produto', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Produto" OR "Product Manager")', location: 'Brasil' },
       { label: 'Head de Projetos', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Projetos" OR "Project Manager")', location: 'Brasil' },
       { label: 'Head de Mídia', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Mídia" OR "Media")', location: 'Brasil' },
-      { label: 'Head de Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Conteúdo" OR "Content")', location: 'Brasil' }
-    ];
-
-    const seniorQueries = [
+      { label: 'Head de Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Conteúdo" OR "Content")', location: 'Brasil' },
       { label: 'Designer Sênior', keywords: 'Designer Sênior OR Senior Designer', location: 'Brasil' },
       { label: 'Product Designer Sênior', keywords: 'Product Designer Sênior OR Senior Product Designer', location: 'Brasil' },
       { label: 'UX Designer Sênior', keywords: 'UX Designer Sênior OR Senior UX Designer', location: 'Brasil' },
@@ -191,21 +184,21 @@
     ];
 
     const postQueries = [
-      { label: 'Designer', keywords: '("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Social Media', keywords: '("Social Media" OR "Designer Gráfico") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Art Director', keywords: '("Art Director" OR "Motion Designer") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Diretor Criativo', keywords: '("Diretor Criativo" OR "UX Designer") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Customer Success', keywords: '("Customer Success" OR "Account Management") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Gestão de Projetos', keywords: '("Gestão de Projetos" OR "Project Manager") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Copy e Redação', keywords: '("Copy" OR "Redação") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Community Management', keywords: '("Community Management" OR "Planejamento") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Gestor de Tráfego', keywords: '("Gestor de Tráfego" OR "Head de Comunicação") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Head de Mídia', keywords: '("Head de Mídia" OR "Design Lead") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Brand Manager', keywords: '("Brand Manager" OR "Planejamento Estratégico") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Redator', keywords: '("Redator" OR "Copywriter") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Social Media', keywords: '("Social Media" OR "Social Media Manager") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: '("Gestor de Projetos" "Marketing" OR "Project Manager" "Marketing") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
-      { label: 'Gestor de Projetos (Produto)', keywords: '("Gestor de Projetos" "Produto" OR "Project Manager" "Produto" OR "Product Owner") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' }
+      { label: 'Designer', keywords: '("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Social Media', keywords: '("Social Media" OR "Designer Gráfico") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Art Director', keywords: '("Art Director" OR "Motion Designer") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Diretor Criativo', keywords: '("Diretor Criativo" OR "UX Designer") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Customer Success', keywords: '("Customer Success" OR "Account Management") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Gestão de Projetos', keywords: '("Gestão de Projetos" OR "Project Manager") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Copy e Redação', keywords: '("Copy" OR "Redação") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Community Management', keywords: '("Community Management" OR "Planejamento") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Gestor de Tráfego', keywords: '("Gestor de Tráfego" OR "Head de Comunicação") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Head de Mídia', keywords: '("Head de Mídia" OR "Design Lead") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Brand Manager', keywords: '("Brand Manager" OR "Planejamento Estratégico") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Redator', keywords: '("Redator" OR "Copywriter") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Social Media', keywords: '("Social Media" OR "Social Media Manager") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: '("Gestor de Projetos" "Marketing" OR "Project Manager" "Marketing") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' },
+      { label: 'Gestor de Projetos (Produto)', keywords: '("Gestor de Projetos" "Produto" OR "Project Manager" "Produto" OR "Product Owner") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") ("Rio de Janeiro" OR "São Paulo" OR "remoto")' }
     ];
 
     const hotPostQueries = [
@@ -221,18 +214,7 @@
       const encodedKeywords = encodeURIComponent(keywords);
       const encodedLocation = encodeURIComponent(location);
       let url = `${baseUrlJobs}${encodedKeywords}&location=${encodedLocation}${suffixJobs}`;
-      if (currentJobFilter === 'easy-apply') {
-        url += '&f_AL=true';
-      }
-      if (currentJobFilter === 'under10') {
-        url += '&f_E=2%2C3';
-      }
-      if (currentJobFilter === 'remote') {
-        url += '&f_WT=2';
-      }
-      if (currentJobFilter === 'connection') {
-        url += '&f_AL=true';
-      }
+      url += '&f_AL=true&f_E=2%2C3';
       return url;
     }
 
@@ -310,8 +292,7 @@
       if (hotMode) {
         const hotJobs = hotQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
         const hotPosts = hotPostQueries.map(q => ({ ...q, source: 'posts', hot: true }));
-        const seniorJobs = seniorQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
-        activeQueries = [...hotJobs, ...hotPosts, ...seniorJobs];
+        activeQueries = [...hotJobs, ...hotPosts];
       } else if (mixMode) {
         const merged = [];
         queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
@@ -342,8 +323,9 @@
         const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
         const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
         const hotLabel = q.hot ? 'HOT' : '';
+        const clickAction = hotMode ? `window.open('${href.replace(/'/g, "\\'")}', '_blank');` : `event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')`;
         return `
-          <a class="btn ${highlight} ${cls}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')">
+          <a class="btn ${highlight} ${cls}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="${clickAction}">
             <span>${q.label}</span>
             <span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
             ${hotLabel ? `<span class="badge-source hot">${hotLabel}</span>` : ''}
@@ -373,12 +355,6 @@
       renderBoard(currentRange);
     }
 
-    function applyJobFilter(filter) {
-      currentJobFilter = filter;
-      document.querySelectorAll('[data-job-filter]').forEach(b => b.classList.toggle('active', b.dataset.jobFilter === filter));
-      renderBoard(currentRange);
-    }
-
     function applyMixFilter(enabled) {
       mixMode = enabled;
       document.getElementById('mix-toggle').classList.toggle('active', enabled);
@@ -394,12 +370,11 @@
     document.getElementById('filters').addEventListener('click', (e) => {
       if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
       if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
-      if (e.target.dataset.jobFilter) applyJobFilter(e.target.dataset.jobFilter);
       if (e.target.dataset.mix) applyMixFilter(!mixMode);
       if (e.target.dataset.hot) applyHotFilter(!hotMode);
     });
 
-    renderBoard('24h');
+    renderBoard('all');
   </script>
 </body>
 </html>
