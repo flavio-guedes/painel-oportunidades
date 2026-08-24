@@ -103,6 +103,16 @@
         <button class="filter-chip" id="mix-toggle" data-mix="true">Mix</button>
         <button class="filter-chip" id="hot-toggle" data-hot="true">Hot</button>
         <span style="font-size:12px;color:var(--muted);" id="last-updated">Atualizado agora</span>
+        <span style="font-size:12px;color:var(--muted);margin-left:8px;">Período:</span>
+        <button class="filter-chip active" data-range="all">Todos</button>
+        <button class="filter-chip" data-range="10m">10 min</button>
+        <button class="filter-chip" data-range="30m">30 min</button>
+        <button class="filter-chip" data-range="1h">1h</button>
+        <button class="filter-chip" data-range="2h">2h</button>
+        <button class="filter-chip" data-range="3h">3h</button>
+        <button class="filter-chip" data-range="5h">5h</button>
+        <button class="filter-chip" data-range="24h">24h</button>
+        <button class="filter-chip" data-range="2d">2d</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -259,11 +269,15 @@
       return `há ${days}d`;
     }
 
-    function renderBoard() {
+    function renderBoard(range) {
       const board = document.getElementById('board');
       const summary = document.getElementById('summary');
       const queryBase = document.getElementById('query-base');
       const clicks = loadClicks();
+      const map = { '24h': 1440, 'all': 0 };
+      const minutes = map[range];
+
+      const showAll = !range || range === 'all';
 
       let activeQueries = [];
       if (hotMode) {
@@ -284,7 +298,8 @@
 
       const visible = activeQueries.map(q => {
         const ts = clicks[q.label];
-        return { ...q, ts };
+        const recent = showAll || (ts && within(ts, minutes));
+        return { ...q, recent, ts };
       }).sort((a, b) => {
         if (a.ts && b.ts) return b.ts - a.ts;
         if (a.ts) return -1;
@@ -296,14 +311,17 @@
 
       board.innerHTML = visible.map(q => {
         const timeAgo = formatTimeAgo(q.ts);
+        const isNew = q.ts && within(q.ts, 10);
+        const highlight = q.recent ? 'primary' : '';
         const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location, q.hot) : buildPostUrl(q.keywords);
         const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
+        const hotLabel = q.hot ? 'HOT' : '';
         const tags = [
           `<span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>`,
           q.hot ? `<span class="badge-source hot">HOT</span>` : ''
         ].filter(Boolean).join(' ');
         return `
-          <a class="btn" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             ${tags ? `<span style="display:flex;gap:6px;flex-wrap:wrap;">${tags}</span>` : ''}
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
@@ -317,6 +335,12 @@
 
       const sourceLabel = hotMode ? 'Hot' : mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações';
       summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel}.`;
+    }
+
+    function applyTimeFilter(range) {
+      currentRange = range;
+      document.querySelectorAll('[data-range]').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+      renderBoard(range);
     }
 
     function applySourceFilter(source) {
@@ -341,6 +365,7 @@
       if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
       if (e.target.dataset.mix) applyMixFilter(!mixMode);
       if (e.target.dataset.hot) applyHotFilter(!hotMode);
+      if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
     });
 
     renderBoard();
