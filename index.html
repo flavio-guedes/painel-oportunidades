@@ -276,11 +276,15 @@
       title.textContent = q.label;
       const isJob = q.source === 'jobs';
       const isHot = q.hot === true;
+      const seniority = isHot ? 'Head/Lead · Sênior/Diretor/Executivo' : '';
+      const timeFilter = (currentRange === '24h') ? 'Últimas 24h' : '';
+      const filters = [isJob ? 'Vaga' : 'Publicação', seniority, timeFilter].filter(Boolean).join(' · ');
       meta.innerHTML = `<span class="badge-source ${isJob ? 'vaga' : 'publicacao'}">${isJob ? 'Vaga' : 'Publicação'}</span>${isHot ? ' <span class="badge-source hot">HOT</span>' : ''} · ${q.keywords}`;
       body.innerHTML = `
         <div style="color:var(--muted);font-size:12px;line-height:1.5;">
           Fonte: <strong>${isJob ? 'LinkedIn Jobs' : 'LinkedIn Publicações'}</strong><br/>
           Localização: <strong>${isJob ? q.location : 'Brasil/Latam'}</strong><br/>
+          Filtros aplicados: <strong>${escapeHtml(filters || 'Sem filtros adicionais')}</strong><br/>
           Abrir busca no LinkedIn para acompanhar as oportunidades recentes.
         </div>
       `;
