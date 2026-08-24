@@ -76,7 +76,7 @@
     <header>
       <div>
         <h1>v1 · Boulevard de Oportunidades</h1>
-        <p>Clique no cargo para buscar vagas com contato direto no LinkedIn.</p>
+        <p>Foco em vagas no Brasil e Latam. Clique no cargo para buscar no LinkedIn.</p>
       </div>
     </header>
 
@@ -104,7 +104,7 @@
     <div class="section">
       <h2>Query base</h2>
       <div class="query" id="query-base">
-        ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
+        ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me") filtrado para Brasil/Latam.
       </div>
       <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
     </div>
@@ -120,21 +120,21 @@
     const suffix = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
 
     const queries = [
-      { label: 'Designer', keywords: '%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Art Director', keywords: '%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Diretor Criativo', keywords: '%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Customer Success', keywords: '%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestão de Projetos', keywords: '%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Copy e Redação', keywords: '%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Community Management', keywords: '%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestor de Tráfego', keywords: '%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Head de Mídia', keywords: '%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Brand Manager', keywords: '%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Redator', keywords: '%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
-      { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' }
+      { label: 'Designer', keywords: '%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Art Director', keywords: '%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Diretor Criativo', keywords: '%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Customer Success', keywords: '%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Gestão de Projetos', keywords: '%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Copy e Redação', keywords: '%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Community Management', keywords: '%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Gestor de Tráfego', keywords: '%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Head de Mídia', keywords: '%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Brand Manager', keywords: '%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Redator', keywords: '%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
+      { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' }
     ];
 
     function loadClicks() {
@@ -182,7 +182,7 @@
         });
       }
 
-      queryBase.textContent = filtered.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me")';
+      queryBase.textContent = filtered.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me") filtrado para Brasil/Latam.';
 
       board.innerHTML = filtered.map(q => {
         const ts = clicks[q.label];
