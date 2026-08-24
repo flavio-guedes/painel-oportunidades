@@ -98,8 +98,6 @@
     <div class="section">
       <h2>Filtros</h2>
       <div class="filter-bar" id="filters">
-        <button class="filter-chip" data-range="24h">24 horas</button>
-        <button class="filter-chip" data-range="all">Todos</button>
         <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
         <button class="filter-chip active" data-source="posts" id="source-posts">Publicações</button>
         <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
@@ -149,38 +147,39 @@
     let currentRange = 'all';
     let mixMode = false;
     let hotMode = false;
+    const MIN_MINUTES = 20;
 
     const queries = [
-      { label: 'Designer', keywords: 'designer OR Diretor de Arte', location: 'Brasil' },
-      { label: 'Social Media', keywords: 'Social Media OR Designer Gráfico', location: 'Brasil' },
-      { label: 'Art Director', keywords: 'Art Director OR Motion Designer', location: 'Brasil' },
-      { label: 'Diretor Criativo', keywords: 'Diretor Criativo OR UX Designer', location: 'Brasil' },
-      { label: 'Customer Success', keywords: 'Customer Success OR Account Management', location: 'Brasil' },
-      { label: 'Gestão de Projetos', keywords: 'Gestão de Projetos OR Project Manager', location: 'Brasil' },
-      { label: 'Copy e Redação', keywords: 'Copy OR Redação', location: 'Brasil' },
-      { label: 'Community Management', keywords: 'Community Management OR Planejamento', location: 'Brasil' },
-      { label: 'Gestor de Tráfego', keywords: 'Gestor de Tráfego OR Head de Comunicação', location: 'Brasil' },
-      { label: 'Head de Mídia', keywords: 'Head de Mídia OR Design Lead', location: 'Brasil' },
-      { label: 'Brand Manager', keywords: 'Brand Manager OR Planejamento Estratégico', location: 'Brasil' },
-      { label: 'Redator', keywords: 'Redator OR Copywriter', location: 'Brasil' },
-      { label: 'Social Media', keywords: 'Social Media OR Social Media Manager', location: 'Brasil' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: 'Gestor de Projetos Marketing OR Project Manager Marketing', location: 'Brasil' },
-      { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner', location: 'Brasil' }
+      { label: 'Designer', keywords: 'designer OR Diretor de Arte remoto', location: 'Brasil' },
+      { label: 'Social Media', keywords: 'Social Media OR Designer Gráfico remoto', location: 'Brasil' },
+      { label: 'Art Director', keywords: 'Art Director OR Motion Designer remoto', location: 'Brasil' },
+      { label: 'Diretor Criativo', keywords: 'Diretor Criativo OR UX Designer remoto', location: 'Brasil' },
+      { label: 'Customer Success', keywords: 'Customer Success OR Account Management remoto', location: 'Brasil' },
+      { label: 'Gestão de Projetos', keywords: 'Gestão de Projetos OR Project Manager remoto', location: 'Brasil' },
+      { label: 'Copy e Redação', keywords: 'Copy OR Redação remoto', location: 'Brasil' },
+      { label: 'Community Management', keywords: 'Community Management OR Planejamento remoto', location: 'Brasil' },
+      { label: 'Gestor de Tráfego', keywords: 'Gestor de Tráfego OR Head de Comunicação remoto', location: 'Brasil' },
+      { label: 'Head de Mídia', keywords: 'Head de Mídia OR Design Lead remoto', location: 'Brasil' },
+      { label: 'Brand Manager', keywords: 'Brand Manager OR Planejamento Estratégico remoto', location: 'Brasil' },
+      { label: 'Redator', keywords: 'Redator OR Copywriter remoto', location: 'Brasil' },
+      { label: 'Social Media', keywords: 'Social Media OR Social Media Manager remoto', location: 'Brasil' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: 'Gestor de Projetos Marketing OR Project Manager Marketing remoto', location: 'Brasil' },
+      { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner remoto', location: 'Brasil' }
     ];
 
     const hotQueries = [
-      { label: 'Head de Design', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Design" OR "UX" OR "UI")', location: 'Brasil' },
-      { label: 'Head de Marketing', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Marketing" OR "Growth")', location: 'Brasil' },
-      { label: 'Head de Produto', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Produto" OR "Product Manager")', location: 'Brasil' },
-      { label: 'Head de Projetos', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Projetos" OR "Project Manager")', location: 'Brasil' },
-      { label: 'Head de Mídia', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Mídia" OR "Media")', location: 'Brasil' },
-      { label: 'Head de Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Conteúdo" OR "Content")', location: 'Brasil' },
-      { label: 'Designer Sênior', keywords: 'Designer Sênior OR Senior Designer', location: 'Brasil' },
-      { label: 'Product Designer Sênior', keywords: 'Product Designer Sênior OR Senior Product Designer', location: 'Brasil' },
-      { label: 'UX Designer Sênior', keywords: 'UX Designer Sênior OR Senior UX Designer', location: 'Brasil' },
-      { label: 'Marketing Sênior', keywords: 'Marketing Sênior OR Senior Marketing', location: 'Brasil' },
-      { label: 'Gestor de Projetos Sênior', keywords: 'Gestor de Projetos Sênior OR Senior Project Manager', location: 'Brasil' },
-      { label: 'Copy Sênior', keywords: 'Copy Sênior OR Redator Sênior OR Senior Copywriter', location: 'Brasil' }
+      { label: 'Head de Design', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
+      { label: 'Head de Marketing', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
+      { label: 'Head de Produto', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
+      { label: 'Head de Projetos', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
+      { label: 'Head de Mídia', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
+      { label: 'Head de Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' },
+      { label: 'Designer Sênior', keywords: 'Designer Sênior OR Senior Designer remoto', location: 'Brasil' },
+      { label: 'Product Designer Sênior', keywords: 'Product Designer Sênior OR Senior Product Designer remoto', location: 'Brasil' },
+      { label: 'UX Designer Sênior', keywords: 'UX Designer Sênior OR Senior UX Designer remoto', location: 'Brasil' },
+      { label: 'Marketing Sênior', keywords: 'Marketing Sênior OR Senior Marketing remoto', location: 'Brasil' },
+      { label: 'Gestor de Projetos Sênior', keywords: 'Gestor de Projetos Sênior OR Senior Project Manager remoto', location: 'Brasil' },
+      { label: 'Copy Sênior', keywords: 'Copy Sênior OR Redator Sênior OR Senior Copywriter remoto', location: 'Brasil' }
     ];
 
     const postQueries = [
@@ -232,7 +231,10 @@
     }
 
     function within(ts, minutes) {
-      return (Date.now() - ts) <= minutes * 60 * 1000;
+      if (!ts) return false;
+      const ageMinutes = (Date.now() - ts) / 60000;
+      if (ageMinutes < MIN_MINUTES) return false;
+      return ageMinutes <= minutes * 60 * 1000;
     }
 
     function formatTimeAgo(ts) {
