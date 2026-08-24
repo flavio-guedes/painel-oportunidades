@@ -64,6 +64,7 @@
     padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer;
   }
   .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
+  .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
   @media (max-width: 860px) {
     .board { grid-template-columns: 1fr; }
     .filter-bar { gap: 6px; }
@@ -93,6 +94,7 @@
         <button class="filter-chip" data-range="1d">1 dia</button>
         <button class="filter-chip" data-range="2d">2 dias</button>
       </div>
+      <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
 
     <div class="section">
@@ -115,7 +117,6 @@
 
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
-    const now = Date.now();
     const queries = [
       { label: 'Designer', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
       { label: 'Social Media', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
@@ -153,9 +154,22 @@
       return (Date.now() - ts) <= minutes * 60 * 1000;
     }
 
+    function formatTimeAgo(ts) {
+      if (!ts) return 'não clicado';
+      const diff = Date.now() - ts;
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'agora';
+      if (minutes < 60) return `há ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `há ${hours}h`;
+      const days = Math.floor(hours / 24);
+      return `há ${days}d`;
+    }
+
     function renderBoard(range) {
       currentRange = range || currentRange;
       const board = document.getElementById('board');
+      const summary = document.getElementById('summary');
       const clicks = loadClicks();
       const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
       const minutes = map[currentRange];
@@ -167,9 +181,21 @@
         return within(ts, minutes);
       });
 
-      board.innerHTML = filtered.map(q => `
-        <a class="btn" href="${q.url}" target="_blank" rel="noopener" data-label="${q.label}">${q.label}</a>
-      `).join('');
+      summary.textContent = currentRange === 'all' 
+        ? `Mostrando ${filtered.length} de ${queries.length} cargos.`
+        : `Mostrando ${filtered.length} de ${queries.length} cargos clicados ${range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias'}.`;
+
+      board.innerHTML = filtered.map(q => {
+        const ts = clicks[q.label];
+        const timeAgo = formatTimeAgo(ts);
+        const isNew = ts && within(ts, 10);
+        return `
+          <a class="btn ${isNew ? 'primary' : ''}" href="${q.url}" target="_blank" rel="noopener" data-label="${q.label}">
+            <span>${q.label}</span>
+            <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
+          </a>
+        `;
+      }).join('');
 
       board.querySelectorAll('.btn').forEach(btn => {
         btn.addEventListener('click', () => saveClick(btn.dataset.label));
