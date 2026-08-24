@@ -102,6 +102,7 @@
         <button class="filter-chip" data-job-filter="easy-apply" id="job-easy-apply">Candidatura simplificada</button>
         <button class="filter-chip" data-job-filter="under10" id="job-under10">Menos de 10 candidaturas</button>
         <button class="filter-chip" data-job-filter="connection" id="job-connection">Com conexão direta</button>
+        <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -146,6 +147,7 @@
     let currentSource = 'jobs';
     let currentRange = '24h';
     let currentJobFilter = 'none';
+    let mixMode = false;
 
     const queries = [
       { label: 'Designer', keywords: 'designer OR Diretor de Arte', location: 'Brasil' },
@@ -236,11 +238,12 @@
       const primary = document.getElementById('modal-primary');
 
       title.textContent = q.label;
-      meta.innerHTML = `<span class="badge-source ${currentSource === 'jobs' ? 'vaga' : 'publicacao'}">${currentSource === 'jobs' ? 'Vaga' : 'Publicação'}</span> · ${q.keywords}`;
+      const isJob = q.source === 'jobs';
+      meta.innerHTML = `<span class="badge-source ${isJob ? 'vaga' : 'publicacao'}">${isJob ? 'Vaga' : 'Publicação'}</span> · ${q.keywords}`;
       body.innerHTML = `
         <div style="color:var(--muted);font-size:12px;line-height:1.5;">
-          Fonte: <strong>${currentSource === 'jobs' ? 'LinkedIn Jobs' : 'LinkedIn Publicações'}</strong><br/>
-          Localização: <strong>${currentSource === 'jobs' ? q.location : 'Brasil/Latam'}</strong><br/>
+          Fonte: <strong>${isJob ? 'LinkedIn Jobs' : 'LinkedIn Publicações'}</strong><br/>
+          Localização: <strong>${isJob ? q.location : 'Brasil/Latam'}</strong><br/>
           Abrir busca no LinkedIn para acompanhar as oportunidades recentes.
         </div>
       `;
@@ -266,25 +269,40 @@
       const minutes = map[range];
 
       const showAll = !range || range === 'all';
-      const activeQueries = currentSource === 'jobs' ? queries : postQueries;
+
+      let activeQueries = [];
+      if (mixMode) {
+        const merged = [];
+        queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
+        postQueries.forEach(q => merged.push({ ...q, source: 'posts' }));
+        activeQueries = merged;
+      } else {
+        activeQueries = currentSource === 'jobs' ? queries.map(q => ({ ...q, source: 'jobs' })) : postQueries.map(q => ({ ...q, source: 'posts' }));
+      }
+
       const visible = activeQueries.map(q => {
         const ts = clicks[q.label];
         const recent = showAll || (ts && within(ts, minutes));
         return { ...q, recent, ts };
+      }).sort((a, b) => {
+        if (a.ts && b.ts) return b.ts - a.ts;
+        if (a.ts) return -1;
+        if (b.ts) return 1;
+        return 0;
       });
 
-      queryBase.textContent = (currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
+      queryBase.textContent = (mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
 
       board.innerHTML = visible.map(q => {
         const timeAgo = formatTimeAgo(q.ts);
         const isNew = q.ts && within(q.ts, 10);
         const highlight = q.recent ? 'primary' : '';
-        const href = currentSource === 'jobs' ? buildJobUrl(q.keywords, q.location) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
-        const sourceLabel = currentSource === 'jobs' ? 'Vaga' : 'Publicação';
+        const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
+        const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
         return `
           <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')">
             <span>${q.label}</span>
-            <span class="badge-source ${currentSource === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
+            <span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
         `;
@@ -294,7 +312,7 @@
         btn.addEventListener('click', () => saveClick(btn.dataset.label));
       });
 
-      const sourceLabel = currentSource === 'jobs' ? 'Vagas' : 'Publicações';
+      const sourceLabel = mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações';
       const rangeLabel = range === 'all' ? 'todos os períodos' : 'nas últimas 24 horas';
       summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel} · ${rangeLabel}.`;
     }
@@ -317,10 +335,17 @@
       renderBoard(currentRange);
     }
 
+    function applyMixFilter(enabled) {
+      mixMode = enabled;
+      document.getElementById('mix-toggle').classList.toggle('active', enabled);
+      renderBoard(currentRange);
+    }
+
     document.getElementById('filters').addEventListener('click', (e) => {
       if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
       if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
       if (e.target.dataset.jobFilter) applyJobFilter(e.target.dataset.jobFilter);
+      if (e.target.dataset.mix) applyMixFilter(!mixMode);
     });
 
     renderBoard('24h');
