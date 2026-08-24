@@ -186,9 +186,9 @@
       board.innerHTML = visible.map(q => {
         const timeAgo = formatTimeAgo(q.ts);
         const isNew = q.ts && within(q.ts, 10);
-        const opacity = q.recent ? 1 : 0.35;
+        const highlight = q.recent ? 'primary' : '';
         return `
-          <a class="btn ${isNew ? 'primary' : ''}" style="opacity:${opacity};" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn ${highlight}" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
