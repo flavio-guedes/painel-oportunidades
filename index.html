@@ -124,18 +124,6 @@
     </div>
   </div>
 
-  <div class="modal-backdrop" id="modal-backdrop">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <div class="modal-meta" id="modal-meta"></div>
-      <h3 id="modal-title"></h3>
-      <div id="modal-body"></div>
-      <div class="modal-actions">
-        <a class="link primary" id="modal-primary" href="#" target="_blank" rel="noopener">Abrir busca</a>
-        <button class="btn" id="modal-close">Fechar</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
     const baseUrlJobs = 'https://www.linkedin.com/jobs/search/?keywords=';
@@ -252,37 +240,6 @@
       return `há ${days}d`;
     }
 
-    function openModal(q, href) {
-      const backdrop = document.getElementById('modal-backdrop');
-      const title = document.getElementById('modal-title');
-      const meta = document.getElementById('modal-meta');
-      const body = document.getElementById('modal-body');
-      const primary = document.getElementById('modal-primary');
-
-      title.textContent = q.label;
-      const isJob = q.source === 'jobs';
-      const isHot = q.hot === true;
-      meta.innerHTML = `<span class="badge-source ${isJob ? 'vaga' : 'publicacao'}">${isJob ? 'Vaga' : 'Publicação'}</span>${isHot ? ' <span class="badge-source hot">HOT</span>' : ''} · ${q.keywords}`;
-      body.innerHTML = `
-        <div style="color:var(--muted);font-size:12px;line-height:1.5;">
-          Fonte: <strong>${isJob ? 'LinkedIn Jobs' : 'LinkedIn Publicações'}</strong><br/>
-          Localização: <strong>${isJob ? q.location : 'Brasil/Latam'}</strong><br/>
-          Abrir busca no LinkedIn para acompanhar as oportunidades recentes.
-        </div>
-      `;
-      primary.href = href;
-      backdrop.style.display = 'flex';
-    }
-
-    function closeModal() {
-      document.getElementById('modal-backdrop').style.display = 'none';
-    }
-
-    document.getElementById('modal-close').addEventListener('click', closeModal);
-    document.getElementById('modal-backdrop').addEventListener('click', (e) => {
-      if (e.target.id === 'modal-backdrop') closeModal();
-    });
-
     function renderBoard(range) {
       const board = document.getElementById('board');
       const summary = document.getElementById('summary');
@@ -326,9 +283,8 @@
         const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location, q.hot) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
         const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
         const hotLabel = q.hot ? 'HOT' : '';
-        const clickAction = q.hot ? `window.open('${href.replace(/'/g, "\\'")}', '_blank');` : `event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')`;
         return `
-          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="${clickAction}">
+          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             <span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
             ${hotLabel ? `<span class="badge-source hot">${hotLabel}</span>` : ''}
