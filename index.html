@@ -48,6 +48,8 @@
   .btn:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
   .btn.primary { background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; border-color: transparent; }
   .btn.primary:hover { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
+  .btn.hot { background: linear-gradient(90deg, var(--red), var(--amber)); color: #fff; border-color: transparent; }
+  .btn.hot:hover { background: linear-gradient(90deg, #ef4444, #f59e0b); }
   .query {
     margin-top: 10px; padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5;
   }
@@ -66,6 +68,7 @@
   }
   .badge-source.vaga { background: rgba(59,130,246,.15); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
   .badge-source.publicacao { background: rgba(16,185,129,.15); color: #e8f1ff; border-color: rgba(16,185,129,.35); }
+  .badge-source.hot { background: rgba(239,68,68,.15); color: #ffd8d4; border-color: rgba(239,68,68,.35); }
   .modal-backdrop {
     position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px;
   }
@@ -101,8 +104,8 @@
         <button class="filter-chip" data-source="posts" id="source-posts">Publicações</button>
         <button class="filter-chip" data-job-filter="easy-apply" id="job-easy-apply">Candidatura simplificada</button>
         <button class="filter-chip" data-job-filter="under10" id="job-under10">Menos de 10 candidaturas</button>
-        <button class="filter-chip" data-job-filter="connection" id="job-connection">Com conexão direta</button>
         <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
+        <button class="filter-chip" data-hot="true" id="hot-toggle">Hot</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -148,6 +151,7 @@
     let currentRange = '24h';
     let currentJobFilter = 'none';
     let mixMode = false;
+    let hotMode = false;
 
     const queries = [
       { label: 'Designer', keywords: 'designer OR Diretor de Arte', location: 'Brasil' },
@@ -167,6 +171,24 @@
       { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner', location: 'Brasil' }
     ];
 
+    const hotQueries = [
+      { label: 'Head de Design', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Design" OR "UX" OR "UI")', location: 'Brasil' },
+      { label: 'Head de Marketing', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Marketing" OR "Growth")', location: 'Brasil' },
+      { label: 'Head de Produto', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Produto" OR "Product Manager")', location: 'Brasil' },
+      { label: 'Head de Projetos', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Projetos" OR "Project Manager")', location: 'Brasil' },
+      { label: 'Head de Mídia', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Mídia" OR "Media")', location: 'Brasil' },
+      { label: 'Head de Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor") AND ("Conteúdo" OR "Content")', location: 'Brasil' }
+    ];
+
+    const seniorQueries = [
+      { label: 'Designer Sênior', keywords: 'Designer Sênior OR Senior Designer', location: 'Brasil' },
+      { label: 'Product Designer Sênior', keywords: 'Product Designer Sênior OR Senior Product Designer', location: 'Brasil' },
+      { label: 'UX Designer Sênior', keywords: 'UX Designer Sênior OR Senior UX Designer', location: 'Brasil' },
+      { label: 'Marketing Sênior', keywords: 'Marketing Sênior OR Senior Marketing', location: 'Brasil' },
+      { label: 'Gestor de Projetos Sênior', keywords: 'Gestor de Projetos Sênior OR Senior Project Manager', location: 'Brasil' },
+      { label: 'Copy Sênior', keywords: 'Copy Sênior OR Redator Sênior OR Senior Copywriter', location: 'Brasil' }
+    ];
+
     const postQueries = [
       { label: 'Designer', keywords: '("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
       { label: 'Social Media', keywords: '("Social Media" OR "Designer Gráfico") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
@@ -183,6 +205,15 @@
       { label: 'Social Media', keywords: '("Social Media" OR "Social Media Manager") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
       { label: 'Gestor de Projetos (Marketing)', keywords: '("Gestor de Projetos" "Marketing" OR "Project Manager" "Marketing") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' },
       { label: 'Gestor de Projetos (Produto)', keywords: '("Gestor de Projetos" "Produto" OR "Project Manager" "Produto" OR "Product Owner") and ("vaga") AND ("whatsapp" OR "wa.me") Brasil OR Latam OR "São Paulo" OR "Rio de Janeiro"' }
+    ];
+
+    const hotPostQueries = [
+      { label: 'Head de Design (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
+      { label: 'Head de Marketing (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
+      { label: 'Head de Produto (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
+      { label: 'Head de Projetos (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
+      { label: 'Head de Mídia (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
+      { label: 'Head de Conteúdo (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' }
     ];
 
     function buildJobUrl(keywords, location) {
@@ -239,7 +270,8 @@
 
       title.textContent = q.label;
       const isJob = q.source === 'jobs';
-      meta.innerHTML = `<span class="badge-source ${isJob ? 'vaga' : 'publicacao'}">${isJob ? 'Vaga' : 'Publicação'}</span> · ${q.keywords}`;
+      const isHot = q.hot === true;
+      meta.innerHTML = `<span class="badge-source ${isJob ? 'vaga' : 'publicacao'}">${isJob ? 'Vaga' : 'Publicação'}</span>${isHot ? ' <span class="badge-source hot">HOT</span>' : ''} · ${q.keywords}`;
       body.innerHTML = `
         <div style="color:var(--muted);font-size:12px;line-height:1.5;">
           Fonte: <strong>${isJob ? 'LinkedIn Jobs' : 'LinkedIn Publicações'}</strong><br/>
@@ -271,7 +303,12 @@
       const showAll = !range || range === 'all';
 
       let activeQueries = [];
-      if (mixMode) {
+      if (hotMode) {
+        const hotJobs = hotQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
+        const hotPosts = hotPostQueries.map(q => ({ ...q, source: 'posts', hot: true }));
+        const seniorJobs = seniorQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
+        activeQueries = [...hotJobs, ...hotPosts, ...seniorJobs];
+      } else if (mixMode) {
         const merged = [];
         queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
         postQueries.forEach(q => merged.push({ ...q, source: 'posts' }));
@@ -291,18 +328,21 @@
         return 0;
       });
 
-      queryBase.textContent = (mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
+      queryBase.textContent = (hotMode ? 'Hot' : mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
 
       board.innerHTML = visible.map(q => {
         const timeAgo = formatTimeAgo(q.ts);
         const isNew = q.ts && within(q.ts, 10);
         const highlight = q.recent ? 'primary' : '';
+        const cls = q.hot ? 'hot' : '';
         const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
         const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
+        const hotLabel = q.hot ? 'HOT' : '';
         return `
-          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')">
+          <a class="btn ${highlight} ${cls}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')">
             <span>${q.label}</span>
             <span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
+            ${hotLabel ? `<span class="badge-source hot">${hotLabel}</span>` : ''}
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
         `;
@@ -312,7 +352,7 @@
         btn.addEventListener('click', () => saveClick(btn.dataset.label));
       });
 
-      const sourceLabel = mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações';
+      const sourceLabel = hotMode ? 'Hot' : mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações';
       const rangeLabel = range === 'all' ? 'todos os períodos' : 'nas últimas 24 horas';
       summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel} · ${rangeLabel}.`;
     }
@@ -341,11 +381,18 @@
       renderBoard(currentRange);
     }
 
+    function applyHotFilter(enabled) {
+      hotMode = enabled;
+      document.getElementById('hot-toggle').classList.toggle('active', enabled);
+      renderBoard(currentRange);
+    }
+
     document.getElementById('filters').addEventListener('click', (e) => {
       if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
       if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
       if (e.target.dataset.jobFilter) applyJobFilter(e.target.dataset.jobFilter);
       if (e.target.dataset.mix) applyMixFilter(!mixMode);
+      if (e.target.dataset.hot) applyHotFilter(!hotMode);
     });
 
     renderBoard('24h');
