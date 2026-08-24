@@ -125,11 +125,6 @@
     </div>
   </div>
 
-  <div class="actions">
-    <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Abrir repositório</a>
-  </div>
-</div>
-
 <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
     const baseUrlJobs = 'linkedin://jobs/search/?keywords=';
@@ -227,6 +222,11 @@
       return url;
     }
 
+    function buildPostUrl(keywords) {
+      const encodedKeywords = encodeURIComponent(keywords);
+      return `${baseUrlPosts}${encodedKeywords}${suffixPosts}&f_TP=1`;
+    }
+
     function loadClicks() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -271,7 +271,11 @@
 
       let activeQueries = [];
       if (hotMode) {
-        activeQueries = hotQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
+        const merged = [];
+        queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
+        hotQueries.forEach(q => merged.push({ ...q, source: 'jobs', hot: true }));
+        postQueries.forEach(q => merged.push({ ...q, source: 'posts', hot: true }));
+        activeQueries = merged;
       } else if (mixMode) {
         const merged = [];
         queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
@@ -299,14 +303,16 @@
         const timeAgo = formatTimeAgo(q.ts);
         const isNew = q.ts && within(q.ts, 10);
         const highlight = q.recent ? 'primary' : '';
-        const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location, q.hot) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
+        const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location, q.hot) : buildPostUrl(q.keywords);
         const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
-        const hotLabel = q.hot ? 'HOT' : '';
+        const tags = [
+          `<span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>`,
+          q.hot ? `<span class="badge-source hot">HOT</span>` : ''
+        ].filter(Boolean).join(' ');
         return `
           <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
-            <span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
-            ${hotLabel ? `<span class="badge-source hot">${hotLabel}</span>` : ''}
+            ${tags ? `<span style="display:flex;gap:6px;flex-wrap:wrap;">${tags}</span>` : ''}
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
         `;
