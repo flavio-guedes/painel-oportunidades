@@ -100,8 +100,9 @@
       <div class="filter-bar" id="filters">
         <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
         <button class="filter-chip active" data-source="posts" id="source-posts">Publicações</button>
-        <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
-        <button class="filter-chip" data-hot="true" id="hot-toggle">Hot</button>
+        <button class="filter-chip" id="mix-toggle" data-mix="true">Mix</button>
+        <button class="filter-chip" id="hot-toggle" data-hot="true">Hot</button>
+        <span style="font-size:12px;color:var(--muted);" id="last-updated">Atualizado agora</span>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -163,22 +164,35 @@
       { label: 'Redator', keywords: 'Redator OR Copywriter remoto', location: 'Brasil' },
       { label: 'Social Media', keywords: 'Social Media OR Social Media Manager remoto', location: 'Brasil' },
       { label: 'Gestor de Projetos (Marketing)', keywords: 'Gestor de Projetos Marketing OR Project Manager Marketing remoto', location: 'Brasil' },
-      { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner remoto', location: 'Brasil' }
+      { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner remoto', location: 'Brasil' },
+      { label: 'Product Designer', keywords: 'Product Designer OR UX Researcher remoto', location: 'Brasil' },
+      { label: 'Growth', keywords: 'Growth OR Growth Marketing OR Performance Marketing remoto', location: 'Brasil' },
+      { label: 'Revenue Operations', keywords: 'RevOps OR Revenue Operations OR Sales Operations remoto', location: 'Brasil' },
+      { label: 'Business Intelligence', keywords: 'BI OR Business Intelligence OR Data Analyst remoto', location: 'Brasil' },
+      { label: 'Operations', keywords: 'Operations OR COO OR Head of Operations remoto', location: 'Brasil' }
     ];
 
     const hotQueries = [
-      { label: 'Head/Lead/Diretor Design', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Marketing', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Produto', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Projetos', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Mídia', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Design', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Marketing', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Produto', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Projetos', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Mídia', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Conteúdo', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' }
+      { label: 'Head/Lead/Diretor Design', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Design" OR "UX" OR "UI" OR "Product Design") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Marketing', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Marketing" OR "Growth" OR "Performance") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Produto', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Produto" OR "Product Manager" OR "Head of Product") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Projetos', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Projetos" OR "Project Manager" OR "Program Manager") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Mídia', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Mídia" OR "Media" OR "Mídias") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Conteúdo" OR "Content" OR "Brand Content") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Criativo', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Criativo" OR "Creative" OR "Diretor de Arte") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Customer Success', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Customer Success" OR "CS Manager") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Revenue', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Revenue" OR "Sales" OR "Vendas") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Data', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Data" OR "Analytics" OR "BI") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Design', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Design" OR "UX" OR "UI" OR "Product Design") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Marketing', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Marketing" OR "Growth" OR "Performance") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Produto', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Produto" OR "Product Manager" OR "Head of Product") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Projetos', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Projetos" OR "Project Manager" OR "Program Manager") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Mídia', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Mídia" OR "Media" OR "Mídias") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Conteúdo', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Conteúdo" OR "Content" OR "Brand Content") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Criativo', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Criativo" OR "Creative" OR "Diretor de Arte") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Customer Success', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Customer Success" OR "CS Manager") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Revenue', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Revenue" OR "Sales" OR "Vendas") remoto', location: 'Brasil' },
+      { label: 'Pleno/Sênior Data', keywords: '("Pleno" OR "Sênior" OR "Senior" OR "Lead") AND ("Data" OR "Analytics" OR "BI") remoto', location: 'Brasil' }
     ];
 
     const postQueries = [
