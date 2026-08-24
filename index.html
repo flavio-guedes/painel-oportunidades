@@ -93,6 +93,7 @@
         <button class="filter-chip" data-range="5h">5 horas</button>
         <button class="filter-chip" data-range="1d">1 dia</button>
         <button class="filter-chip" data-range="2d">2 dias</button>
+        <button class="filter-chip" data-range="unclicked">Não clicados</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -193,16 +194,31 @@
 
       const filtered = queries.filter(q => {
         if (currentRange === 'all') return true;
+        if (currentRange === 'unclicked') {
+          const ts = clicks[q.label];
+          return !ts || within(ts, 0) === false;
+        }
         const ts = clicks[q.label];
         if (!ts) return false;
         return within(ts, minutes);
       });
 
-      summary.textContent = currentRange === 'all' 
-        ? `Mostrando ${filtered.length} de ${queries.length} cargos.`
-        : `Mostrando ${filtered.length} de ${queries.length} cargos clicados ${range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias'}.`;
+      const ordered = filtered.slice().sort((a, b) => {
+        const ta = clicks[a.label];
+        const tb = clicks[b.label];
+        if (ta && tb) return tb - ta;
+        if (ta) return -1;
+        if (tb) return 1;
+        return 0;
+      });
 
-      board.innerHTML = filtered.map(q => {
+      summary.textContent = currentRange === 'all'
+        ? `Mostrando ${ordered.length} de ${queries.length} cargos.`
+        : currentRange === 'unclicked'
+          ? `Mostrando ${ordered.length} de ${queries.length} cargos não clicados.`
+          : `Mostrando ${ordered.length} de ${queries.length} cargos clicados ${range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias'}.`;
+
+      board.innerHTML = ordered.map(q => {
         const ts = clicks[q.label];
         const timeAgo = formatTimeAgo(ts);
         const isNew = ts && within(ts, 10);
