@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPQ · Boulevard de Oportunidades v2</title>
+<title>v1 · Boulevard de Oportunidades</title>
 <style>
   :root {
     --bg:#0b1220;
     --panel:#0f172a;
-    --panel-2:#131f33;
     --line:#1f2d42;
     --text:#e6e9ef;
     --muted:#8a93a6;
     --blue:#3b82f6;
-    --blue-bright:#6FB1FF;
     --green:#10b981;
     --amber:#f59e0b;
     --red:#ef4444;
@@ -32,426 +30,192 @@
     color: var(--text);
   }
   .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-  header { padding: 18px 18px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.4)); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
+  header {
+    padding: 18px 18px 14px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.4));
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 50;
+  }
   header h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
   header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
-
   .section { margin-top: 18px; }
   .section h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; }
-
-  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .filter-chip { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer; }
-  .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
-  .filter-select { background: var(--panel); border:1px solid var(--line); color: var(--text); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
-
-  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
-  .opp { background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(17,27,45,.75)); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.18); cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease; }
-  .opp:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
-  .opp-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
-  .opp h4 { margin: 0; font-size: 14px; }
-  .opp .company { color: var(--muted); font-size: 12px; margin-top: 4px; }
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .badge { font-size: 10.5px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,0.04); }
-  .badge.fit { color: #e8f1ff; border-color: rgba(111,177,255,.4); background: rgba(59,130,246,.12); }
-  .badge.access { color: #fde68a; border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10); }
-  .badge.heat-cool { color: #a5b4fc; border-color: rgba(124,58,237,.35); background: rgba(124,58,237,.10); }
-  .badge.heat-warm { color: #fde68a; border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); }
-  .badge.heat-hot { color: #ffd8d4; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10); }
-  .opp-meta { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.45; }
-  .opp-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .link { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent; }
-  .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
-  .btn-xs { padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; text-decoration: none; }
-
-  .detail { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); display: none; }
-  .opp.open .detail { display: block; }
-  .detail-row { display: flex; gap: 10px; justify-content: space-between; font-size: 12.5px; color: var(--muted); padding: 4px 0; }
-  .detail-row b { color: var(--text); font-weight: 600; }
-  .detail-section { margin-top: 8px; }
-  .detail-section:first-child { margin-top: 0; }
-  .detail-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
-  .detail-text { font-size: 12.5px; color: var(--text); line-height: 1.5; }
-
-  .report { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
-  .report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-  .report-metric { background: var(--panel-2); border: 1px solid var(--line); padding: 10px; border-radius: 10px; }
-  .report-metric .num { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 700; font-size: 18px; color: #e8f1ff; }
-  .report-metric .lbl { color: var(--muted); font-size: 11px; margin-top: 4px; }
-
-  .query-base { padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(17,27,45,.75)); color: var(--text); border-color: var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  }
+  .btn:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
+  .btn.primary { background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; border-color: transparent; }
+  .btn.primary:hover { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
+  .btn.random { background: linear-gradient(90deg, var(--green), var(--blue)); color: #fff; border-color: transparent; }
+  .btn.random:hover { background: linear-gradient(90deg, #10b981, #3b82f6); }
+  .query {
+    margin-top: 10px; padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5;
+  }
   .actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .link {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent;
+  }
   .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
-
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer;
+  }
+  .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
+  .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
   @media (max-width: 860px) {
     .board { grid-template-columns: 1fr; }
     .filter-bar { gap: 6px; }
-    .filter-chip, .filter-select { padding: 5px 8px; font-size: 11px; }
+    .filter-chip { padding: 5px 8px; font-size: 11px; }
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div>
-      <h1>EPQ · Boulevard de Oportunidades v2</h1>
-      <p>Resultados priorizados por fit, acesso e recência. Clique no card para expandir detalhes.</p>
-    </div>
-  </header>
-
-  <div class="section">
-    <h2>Filtros</h2>
-    <div class="filter-bar" id="filters">
-      <button class="filter-chip active" data-range="all">Todos</button>
-      <button class="filter-chip" data-range="10m">10 min</button>
-      <button class="filter-chip" data-range="30m">30 min</button>
-      <button class="filter-chip" data-range="1h">1 hora</button>
-      <button class="filter-chip" data-range="3h">3 horas</button>
-      <button class="filter-chip" data-range="1d">1 dia</button>
-      <select class="filter-select" id="area-filter">
-        <option value="all">Todas áreas</option>
-        <option value="produto">Produto</option>
-        <option value="design">Design</option>
-        <option value="marketing">Marketing</option>
-        <option value="growth">Growth</option>
-        <option value="estrategia">Estratégia</option>
-        <option value="ia">IA</option>
-      </select>
-      <select class="filter-select" id="fit-filter">
-        <option value="all">Qualquer FIT</option>
-        <option value="9">FIT 9–10</option>
-        <option value="7">FIT 7–8</option>
-        <option value="5">FIT 5–6</option>
-      </select>
-      <select class="filter-select" id="access-filter">
-        <option value="all">Qualquer acesso</option>
-        <option value="5">Conexão direta</option>
-        <option value="4">Gestor</option>
-        <option value="3">Recrutador</option>
-        <option value="1">Sem contato</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Oportunidades</h2>
-    <div class="board" id="board"></div>
-  </div>
-
-  <div class="section">
-    <h2>Relatório rápido</h2>
-    <div class="report" id="report"></div>
-  </div>
-
-  <div class="section">
-    <h2>Query base</h2>
-    <div class="query-base" id="query-base">
-      ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
-    </div>
-    <p style="color:var(--muted);font-size:12px;margin-top:8px;">A v2 adiciona scoring e detalhes. Em breve: histórico de cliques, origem por query e modo de contato recomendado.</p>
-  </div>
-
-  <div class="actions">
-    <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Repositório</a>
-  </div>
-</div>
-
-<script>
-const STORAGE_KEY = 'painel_oportunidades_v2';
-const now = Date.now();
-
-const OPPORTUNITIES = [
-  {
-    id: 'opp-01',
-    titulo: 'Product Designer',
-    empresa: 'Fintech',
-    local: 'Remoto',
-    modelo: 'Remoto',
-    area: 'design',
-    fit: 9,
-    acesso: 5,
-    acesso_label: 'Conexão direta',
-    contato: 'Ex-colega',
-    canal: 'LinkedIn',
-    canal_seq: 'Conexão → interação contextual → abordagem',
-    query_id: 'q-design-01',
-    query_label: 'Design Core',
-    fonte: 'LINKEDIN_POSTS',
-    posted_at: now - 1000 * 60 * 8,
-    detected_at: now - 1000 * 60 * 8,
-    urgency: false,
-    resumo: 'Vaga com foco em produto digital, fluxos de onboarding e design system.',
-    sinal: 'Novo time de produto crescendo'
-  },
-  {
-    id: 'opp-02',
-    titulo: 'Growth Marketing Manager',
-    empresa: 'Scale-up',
-    local: 'São Paulo, SP',
-    modelo: 'Híbrido',
-    area: 'growth',
-    fit: 8,
-    acesso: 4,
-    acesso_label: 'Gestor identificado',
-    contato: 'Head of Growth',
-    canal: 'LinkedIn',
-    canal_seq: 'LinkedIn → Candidatura',
-    query_id: 'q-growth-01',
-    query_label: 'Growth Core',
-    fonte: 'LINKEDIN_JOBS',
-    posted_at: now - 1000 * 60 * 45,
-    detected_at: now - 1000 * 60 * 45,
-    urgency: false,
-    resumo: 'Crescimento com foco em paid media, experimentação e lifecycle.',
-    sinal: 'Expansão de receita'
-  },
-  {
-    id: 'opp-03',
-    titulo: 'Head of Marketing',
-    empresa: 'Agência',
-    local: 'Rio de Janeiro, RJ',
-    modelo: 'Presencial',
-    area: 'marketing',
-    fit: 7,
-    acesso: 3,
-    acesso_label: 'Recrutador identificado',
-    contato: 'Recrutamento',
-    canal: 'E-mail',
-    canal_seq: 'E-mail → Candidatura',
-    query_id: 'q-mkt-01',
-    query_label: 'Marketing Digital',
-    fonte: 'CAREER_PAGE',
-    posted_at: now - 1000 * 60 * 60 * 2,
-    detected_at: now - 1000 * 60 * 60 * 2,
-    urgency: false,
-    resumo: 'Liderança de marketing com integração de performance e conteúdo.',
-    sinal: 'Rebranding + novas contas'
-  },
-  {
-    id: 'opp-04',
-    titulo: 'Product Manager',
-    empresa: 'Empresa de Tecnologia',
-    local: 'Remoto',
-    modelo: 'Remoto',
-    area: 'produto',
-    fit: 8,
-    acesso: 5,
-    acesso_label: 'Conexão direta',
-    contato: 'Ex-colega',
-    canal: 'LinkedIn',
-    canal_seq: 'Conexão → interação contextual → abordagem',
-    query_id: 'q-prod-01',
-    query_label: 'Product Core',
-    fonte: 'LINKEDIN_POSTS',
-    posted_at: now - 1000 * 60 * 12,
-    detected_at: now - 1000 * 60 * 12,
-    urgency: false,
-    resumo: 'Produto digital com integração de IA e automação de funis.',
-    sinal: 'Novo produto'
-  },
-  {
-    id: 'opp-05',
-    titulo: 'Digital Strategist',
-    empresa: 'Consultoria',
-    local: 'São Paulo, SP',
-    modelo: 'Híbrido',
-    area: 'estrategia',
-    fit: 7,
-    acesso: 2,
-    acesso_label: 'Contato público genérico',
-    contato: 'Atendimento',
-    canal: 'Formal application',
-    canal_seq: 'Candidatura formal',
-    query_id: 'q-pt-01',
-    query_label: 'Marketing PT',
-    fonte: 'WEB_SEARCH',
-    posted_at: now - 1000 * 60 * 60 * 5,
-    detected_at: now - 1000 * 60 * 60 * 5,
-    urgency: false,
-    resumo: 'Estratégia digital com foco em GTM, posicionamento e canais pagos.',
-    sinal: 'Novo cliente do segmento'
-  },
-  {
-    id: 'opp-06',
-    titulo: 'AI Automation Lead',
-    empresa: 'Scale-up',
-    local: 'Remoto',
-    modelo: 'Remoto',
-    area: 'ia',
-    fit: 9,
-    acesso: 4,
-    acesso_label: 'Gestor identificado',
-    contato: 'CTO',
-    canal: 'LinkedIn',
-    canal_seq: 'LinkedIn → Candidatura',
-    query_id: 'q-ia-01',
-    query_label: 'IA + Negócio',
-    fonte: 'LINKEDIN_JOBS',
-    posted_at: now - 1000 * 60 * 18,
-    detected_at: now - 1000 * 60 * 18,
-    urgency: true,
-    resumo: 'Automação com agentes IA aplicados a marketing e operações.',
-    sinal: 'Investimento em IA'
-  }
-];
-
-const HEAT_LABELS = [
-  { max: 5*60, label: 'Ultra Hot', cls: 'heat-hot' },
-  { max: 15*60, label: 'Hot', cls: 'heat-hot' },
-  { max: 30*60, label: 'Very Fresh', cls: 'heat-warm' },
-  { max: 60*60, label: 'Fresh', cls: 'heat-warm' },
-  { max: 3*60*60, label: 'Early', cls: 'heat-cool' },
-  { max: 12*60*60, label: 'Standard', cls: 'heat-cool' },
-  { max: 24*60*60, label: 'Aged', cls: 'heat-cool' },
-];
-const HEAT_DEFAULT = { label: 'Old', cls: 'heat-cool' };
-function heatBucket(ts){
-  const mins = (Date.now() - ts) / 60000;
-  const found = HEAT_LABELS.find(h => mins <= h.max);
-  return found || HEAT_DEFAULT;
-}
-function fmtAge(ts){
-  const mins = Math.floor((Date.now() - ts) / 60000);
-  if (mins < 60) return mins + ' min';
-  const h = Math.floor(mins/60);
-  const m = mins % 60;
-  return h + 'h' + (m ? ' ' + m + 'm' : '');
-}
-
-const urlMap = {
-  'q-prod-01': 'https://www.linkedin.com/search/results/content/?keywords=%22Product%20Manager%22%20OR%20%22Product%20Owner%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-prod-02': 'https://www.linkedin.com/search/results/content/?keywords=%22Product%20Manager%22%20AND%20growth&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-design-01': 'https://www.linkedin.com/search/results/content/?keywords=%22Product%20Designer%22%20OR%20%22UX%20Designer%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-design-02': 'https://www.linkedin.com/search/results/content/?keywords=%22Design%20Lead%22%20OR%20%22Art%20Director%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-growth-01': 'https://www.linkedin.com/search/results/content/?keywords=%22Growth%22%20AND%20marketing&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-mkt-01': 'https://www.linkedin.com/search/results/content/?keywords=%22Marketing%20Manager%22%20OR%20%22Head%20of%20Marketing%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-ia-01': 'https://www.linkedin.com/search/results/content/?keywords=AI%20AND%20marketing&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-pt-01': 'https://www.linkedin.com/search/results/content/?keywords=%22gerente%20de%20marketing%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D',
-  'q-posts-01': 'https://www.linkedin.com/search/results/content/?keywords=hiring%20OR%20%22we%27re%20hiring%22&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D'
-};
-
-function loadClicks(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; } }
-function saveClick(id){ const c=loadClicks(); c[id]=Date.now(); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
-
-function renderBoard(range, area, fitMin, accessMin){
-  const clicks = loadClicks();
-  const map = { '10m': 10, '30m': 30, '1h': 60, '3h': 180, '1d': 1440 };
-  const minutes = range === 'all' ? null : map[range];
-  const board = document.getElementById('board');
-  const filtered = OPPORTUNITIES.filter(o => {
-    if (area !== 'all' && o.area !== area) return false;
-    if (fitMin !== 'all' && o.fit < Number(fitMin)) return false;
-    if (accessMin !== 'all' && o.acesso < Number(accessMin)) return false;
-    if (minutes !== null) {
-      return (Date.now() - o.detected_at) <= minutes * 60 * 1000;
-    }
-    return true;
-  });
-  if (!filtered.length) {
-    board.innerHTML = `<div style="color:var(--muted);font-size:13px;">Nenhuma oportunidade para os filtros atuais. <span id="result-count" style="color:var(--text);">0 resultados</span></div>`;
-    renderReport(filtered);
-    return;
-  }
-  board.innerHTML = filtered.map(o => {
-    const heat = heatBucket(o.detected_at);
-    return `
-      <div class="opp" data-id="${o.id}">
-        <div class="opp-head">
-          <div>
-            <h4>${o.titulo}</h4>
-            <div class="company">${o.empresa} · ${o.local}</div>
-          </div>
-          <span class="badge ${heat.cls}">${heat.label}</span>
-        </div>
-        <div class="badges">
-          <span class="badge fit">FIT ${o.fit}</span>
-          <span class="badge access">Acesso ${o.acesso}</span>
-          <span class="badge">${o.modelo}</span>
-          <span class="badge">${o.canal}</span>
-        </div>
-        <div class="opp-meta">
-          <div>${o.resumo}</div>
-          <div style="margin-top:6px;">Contato: ${o.contato} · ${o.acesso_label}</div>
-          <div style="margin-top:4px;">Idade: ${fmtAge(o.detected_at)} · Query: ${o.query_label}</div>
-        </div>
-        <div class="opp-actions">
-          <a class="link primary" href="${urlMap[o.query_id] || '#'}" target="_blank" rel="noopener">Abrir busca</a>
-          <button class="btn-xs" data-action="toggle" data-id="${o.id}">Detalhes</button>
-        </div>
-        <div class="detail">
-          <div class="detail-section">
-            <div class="detail-label">Sinal</div>
-            <div class="detail-text">${o.sinal || '—'}</div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-label">Sequência recomendada</div>
-            <div class="detail-text">${o.canal_seq || '—'}</div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-label">Fonte</div>
-            <div class="detail-text">${o.fonte} · ${o.query_id}</div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-label">Timestamps</div>
-            <div class="detail-text">Postado: ${new Date(o.posted_at).toLocaleString('pt-BR')} · Detectado: ${new Date(o.detected_at).toLocaleString('pt-BR')}</div>
-          </div>
-        </div>
+  <div class="container">
+    <header>
+      <div>
+        <h1>v1 · Boulevard de Oportunidades</h1>
+        <p>Clique no cargo para buscar vagas com contato direto no LinkedIn.</p>
       </div>
-    `;
-  }).join('');
-  renderReport(filtered);
-  board.querySelectorAll('[data-action="toggle"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const card = document.querySelector(`.opp[data-id="${btn.dataset.id}"]`);
-      if (card) card.classList.toggle('open');
-    });
-  });
-  board.querySelectorAll('.opp').forEach(card => {
-    card.addEventListener('click', () => {
-      const id = card.dataset.id;
-      saveClick(id);
-      card.classList.toggle('open');
-    });
-  });
-  const countEl = document.getElementById('result-count');
-  if (countEl) countEl.textContent = `${filtered.length} resultado(s)`;
-}
+    </header>
 
-function renderReport(items){
-  const el = document.getElementById('report');
-  const total = items.length;
-  const hot = items.filter(o => heatBucket(o.detected_at).label === 'Hot' || heatBucket(o.detected_at).label === 'Ultra Hot').length;
-  const avgFit = total ? (items.reduce((s,o)=>s+o.fit,0)/total).toFixed(1) : '0.0';
-  const accessDirect = items.filter(o => o.acesso >= 4).length;
-  const byArea = items.reduce((acc,o)=>{ acc[o.area]=(acc[o.area]||0)+1; return acc; }, {});
-  const topArea = Object.entries(byArea).sort((a,b)=>b[1]-a[1])[0];
-  el.innerHTML = `
-    <div class="report-grid">
-      <div class="report-metric"><div class="num">${total}</div><div class="lbl">Oportunidades</div></div>
-      <div class="report-metric"><div class="num">${hot}</div><div class="lbl">Hot/Very Fresh</div></div>
-      <div class="report-metric"><div class="num">${avgFit}</div><div class="lbl">FIT médio</div></div>
-      <div class="report-metric"><div class="num">${accessDirect}</div><div class="lbl">Acesso alto</div></div>
-      <div class="report-metric"><div class="num">${topArea ? topArea[0] : '—'}</div><div class="lbl">Área top</div></div>
+    <div class="section">
+      <h2>Filtros</h2>
+      <div class="filter-bar" id="filters">
+        <button class="filter-chip active" data-range="all">Todos</button>
+        <button class="filter-chip" data-range="10m">10 min</button>
+        <button class="filter-chip" data-range="30m">30 min</button>
+        <button class="filter-chip" data-range="1h">1 hora</button>
+        <button class="filter-chip" data-range="2h">2 horas</button>
+        <button class="filter-chip" data-range="3h">3 horas</button>
+        <button class="filter-chip" data-range="5h">5 horas</button>
+        <button class="filter-chip" data-range="1d">1 dia</button>
+        <button class="filter-chip" data-range="2d">2 dias</button>
+      </div>
+      <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
-  `;
-}
 
-function applyTimeFilter(range){
-  document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
-  const area = document.getElementById('area-filter').value;
-  const fit = document.getElementById('fit-filter').value;
-  const access = document.getElementById('access-filter').value;
-  renderBoard(range, area, fit, access);
-}
+    <div class="section">
+      <h2>Buscar por cargo</h2>
+      <div class="board" id="board"></div>
+    </div>
 
-document.getElementById('filters').addEventListener('click', (e) => {
-  if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
-});
-['area-filter','fit-filter','access-filter'].forEach(id => {
-  document.getElementById(id).addEventListener('change', () => applyTimeFilter(document.querySelector('#filters .filter-chip.active')?.dataset.range || 'all'));
-});
+    <div class="section">
+      <h2>Query base</h2>
+      <div class="query" id="query-base">
+        ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
+    </div>
 
-renderBoard('all');
-</script>
+    <div class="actions">
+      <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Abrir repositório</a>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'painel_oportunidades_v1';
+    const baseUrl = 'https://www.linkedin.com/search/results/content/?keywords=';
+    const suffix = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
+
+    const queries = [
+      { label: 'Designer', keywords: '%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Art Director', keywords: '%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Diretor Criativo', keywords: '%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Customer Success', keywords: '%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestão de Projetos', keywords: '%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Copy e Redação', keywords: '%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Community Management', keywords: '%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestor de Tráfego', keywords: '%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Head de Mídia', keywords: '%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Brand Manager', keywords: '%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Redator', keywords: '%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' },
+      { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' }
+    ];
+
+    function loadClicks() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch { return {}; }
+    }
+
+    function saveClick(label) {
+      const clicks = loadClicks();
+      clicks[label] = Date.now();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
+    }
+
+    function within(ts, minutes) {
+      return (Date.now() - ts) <= minutes * 60 * 1000;
+    }
+
+    function formatTimeAgo(ts) {
+      if (!ts) return 'não clicado';
+      const diff = Date.now() - ts;
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'agora';
+      if (minutes < 60) return `há ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `há ${hours}h`;
+      const days = Math.floor(hours / 24);
+      return `há ${days}d`;
+    }
+
+    function renderBoard(range) {
+      const board = document.getElementById('board');
+      const summary = document.getElementById('summary');
+      const queryBase = document.getElementById('query-base');
+      const clicks = loadClicks();
+      const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
+      const minutes = map[range];
+
+      let filtered = queries;
+      if (range && range !== 'all') {
+        filtered = queries.filter(q => {
+          const ts = clicks[q.label];
+          return ts && within(ts, minutes);
+        });
+      }
+
+      queryBase.textContent = filtered.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me")';
+
+      board.innerHTML = filtered.map(q => {
+        const ts = clicks[q.label];
+        const timeAgo = formatTimeAgo(ts);
+        const isNew = ts && within(ts, 10);
+        return `
+          <a class="btn ${isNew ? 'primary' : ''}" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
+            <span>${q.label}</span>
+            <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
+          </a>
+        `;
+      }).join('');
+
+      board.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', () => saveClick(btn.dataset.label));
+      });
+
+      const rangeLabel = range === 'all' ? '' : range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias';
+      summary.textContent = range === 'all'
+        ? `Mostrando ${filtered.length} de ${queries.length} cargos.`
+        : `Mostrando ${filtered.length} de ${queries.length} cargos clicados ${rangeLabel}.`;
+    }
+
+    function applyTimeFilter(range) {
+      document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+      renderBoard(range);
+    }
+
+    document.getElementById('filters').addEventListener('click', (e) => {
+      if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
+    });
+
+    renderBoard('all');
+  </script>
 </body>
 </html>
