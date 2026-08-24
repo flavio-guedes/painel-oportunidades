@@ -174,22 +174,21 @@
       const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
       const minutes = map[range];
 
-      let filtered = queries;
-      if (range && range !== 'all') {
-        filtered = queries.filter(q => {
-          const ts = clicks[q.label];
-          return ts && within(ts, minutes);
-        });
-      }
-
-      queryBase.textContent = filtered.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me") filtrado para Brasil/Latam.';
-
-      board.innerHTML = filtered.map(q => {
+      const showAll = !range || range === 'all';
+      const visible = queries.map(q => {
         const ts = clicks[q.label];
-        const timeAgo = formatTimeAgo(ts);
-        const isNew = ts && within(ts, 10);
+        const recent = showAll || (ts && within(ts, minutes));
+        return { ...q, recent, ts };
+      });
+
+      queryBase.textContent = visible.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me") filtrado para Brasil/Latam.';
+
+      board.innerHTML = visible.map(q => {
+        const timeAgo = formatTimeAgo(q.ts);
+        const isNew = q.ts && within(q.ts, 10);
+        const opacity = q.recent ? 1 : 0.35;
         return `
-          <a class="btn ${isNew ? 'primary' : ''}" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn ${isNew ? 'primary' : ''}" style="opacity:${opacity};" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
@@ -202,8 +201,8 @@
 
       const rangeLabel = range === 'all' ? '' : range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias';
       summary.textContent = range === 'all'
-        ? `Mostrando ${filtered.length} de ${queries.length} cargos.`
-        : `Mostrando ${filtered.length} de ${queries.length} cargos clicados ${rangeLabel}.`;
+        ? `Mostrando ${visible.length} de ${queries.length} cargos.`
+        : `Mostrando ${visible.length} de ${queries.length} cargos. Dentro da janela (${rangeLabel}): ${visible.filter(q => q.recent).length}.`;
     }
 
     function applyTimeFilter(range) {
