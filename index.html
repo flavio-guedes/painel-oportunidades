@@ -101,6 +101,7 @@
         <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
         <button class="filter-chip active" data-source="posts" id="source-posts">Publicações</button>
         <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
+        <button class="filter-chip" data-hot="true" id="hot-toggle">Hot</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -144,6 +145,7 @@
 
     let currentSource = 'posts';
     let mixMode = false;
+    let hotMode = false;
     const MIN_MINUTES = 20;
 
     const queries = [
@@ -165,12 +167,12 @@
     ];
 
     const hotQueries = [
-      { label: 'Diretor de Design', keywords: '("Diretor" OR "Executivo") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
-      { label: 'Diretor de Marketing', keywords: '("Diretor" OR "Executivo") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
-      { label: 'Diretor de Produto', keywords: '("Diretor" OR "Executivo") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
-      { label: 'Diretor de Projetos', keywords: '("Diretor" OR "Executivo") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
-      { label: 'Diretor de Mídia', keywords: '("Diretor" OR "Executivo") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
-      { label: 'Diretor de Conteúdo', keywords: '("Diretor" OR "Executivo") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Design', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Marketing', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Produto', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Projetos', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Mídia', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
+      { label: 'Head/Lead/Diretor Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' },
       { label: 'Pleno/Sênior Design', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
       { label: 'Pleno/Sênior Marketing', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
       { label: 'Pleno/Sênior Produto', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
@@ -292,7 +294,9 @@
       const showAll = !range || range === 'all';
 
       let activeQueries = [];
-      if (mixMode) {
+      if (hotMode) {
+        activeQueries = hotQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
+      } else if (mixMode) {
         const merged = [];
         queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
         postQueries.forEach(q => merged.push({ ...q, source: 'posts' }));
@@ -360,9 +364,16 @@
       renderBoard();
     }
 
+    function applyHotFilter(enabled) {
+      hotMode = enabled;
+      document.getElementById('hot-toggle').classList.toggle('active', enabled);
+      renderBoard();
+    }
+
     document.getElementById('filters').addEventListener('click', (e) => {
       if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
       if (e.target.dataset.mix) applyMixFilter(!mixMode);
+      if (e.target.dataset.hot) applyHotFilter(!hotMode);
     });
 
     renderBoard();
