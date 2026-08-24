@@ -220,9 +220,9 @@
       const encodedLocation = encodeURIComponent(location);
       let url = `${baseUrlJobs}${encodedKeywords}&location=${encodedLocation}${useFallback ? '' : suffixJobs}`;
       if (!useFallback) {
-        url += '&f_AL=true&f_E=2%2C3';
+        url += '&f_AL=true&f_E=2%2C3&f_C=1';
       } else {
-        url += '&f_E=2%2C3&f_TP=1';
+        url += '&f_E=2%2C3&f_TP=1&f_C=1';
       }
       return url;
     }
