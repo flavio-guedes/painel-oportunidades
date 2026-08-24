@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>v1 · Boulevard de Oportunidades</title>
+<title>EPQ · Painel de Oportunidades</title>
 <style>
   :root {
     --bg:#0b1220;
     --panel:#0f172a;
+    --panel-2:#131f33;
     --line:#1f2d42;
     --text:#e6e9ef;
     --muted:#8a93a6;
     --blue:#3b82f6;
+    --blue-bright:#6FB1FF;
     --green:#10b981;
     --amber:#f59e0b;
     --red:#ef4444;
@@ -30,309 +32,710 @@
     color: var(--text);
   }
   .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-  header {
-    padding: 18px 18px 14px; border-bottom: 1px solid var(--line);
-    background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.4));
-    backdrop-filter: blur(10px);
-    position: sticky; top: 0; z-index: 50;
-  }
+  header { padding: 18px 18px 14px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, rgba(15,23,42,.7), rgba(15,23,42,.4)); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 50; }
   header h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
   header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
   .section { margin-top: 18px; }
   .section h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; }
-  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-  .btn {
-    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
-    background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(17,27,45,.75)); color: var(--text); border-color: var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.18);
-  }
-  .btn:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
-  .btn.primary { background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; border-color: transparent; }
-  .btn.primary:hover { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
-  .btn.hot { background: linear-gradient(90deg, var(--red), var(--amber)); color: #fff; border-color: transparent; }
-  .btn.hot:hover { background: linear-gradient(90deg, #ef4444, #f59e0b); }
-  .query {
-    margin-top: 10px; padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5;
-  }
-  .actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-  .link {
-    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent;
-  }
-  .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
+
   .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .filter-chip {
-    padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer;
-  }
+  .filter-chip { padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer; }
   .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
-  .badge-source {
-    display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; border: 1px solid transparent;
-  }
-  .badge-source.vaga { background: rgba(59,130,246,.15); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
-  .badge-source.publicacao { background: rgba(16,185,129,.18); color: #fff; border-color: rgba(16,185,129,.45); box-shadow: 0 0 0 1px rgba(16,185,129,.25); }
-  .badge-source.hot { background: rgba(239,68,68,.15); color: #ffd8d4; border-color: rgba(239,68,68,.35); }
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px;
-  }
-  .modal {
-    background: linear-gradient(180deg, rgba(15,23,42,.98), rgba(17,27,45,.95)); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.4);
-  }
-  .modal h3 { margin: 0 0 8px; font-size: 16px; }
-  .modal-meta { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
-  .modal-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-  .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .filter-select { background: var(--panel); border:1px solid var(--line); color: var(--text); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+  .search-input { background: var(--panel); border:1px solid var(--line); color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 13px; min-width: 240px; }
+
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .opp { background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(17,27,45,.75)); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.18); cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease; }
+  .opp:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
+  .opp-head { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+  .opp h4 { margin: 0; font-size: 14px; }
+  .opp .company { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .badge { font-size: 10.5px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,0.04); }
+  .badge.fit { color: #e8f1ff; border-color: rgba(111,177,255,.4); background: rgba(59,130,246,.12); }
+  .badge.access { color: #fde68a; border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10); }
+  .badge.heat-cool { color: #a5b4fc; border-color: rgba(124,58,237,.35); background: rgba(124,58,237,.10); }
+  .badge.heat-warm { color: #fde68a; border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); }
+  .badge.heat-hot { color: #ffd8d4; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10); }
+  .badge.source-vaga { color: #e8f1ff; border-color: rgba(59,130,246,.35); background: rgba(59,130,246,.15); }
+  .badge.source-publicacao { color: #fff; border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.18); box-shadow: 0 0 0 1px rgba(16,185,129,.25); }
+  .badge.source-hot { color: #ffd8d4; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.15); }
+  .badge.network { color: #fde68a; border-color: rgba(251,191,36,.35); background: rgba(251,191,36,.10); }
+  .opp-meta { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.45; }
+  .opp-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .link { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent; }
+  .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
+  .btn-xs { padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); cursor: pointer; text-decoration: none; }
+  .btn-xs:hover { border-color: #2a3a55; }
+
+  .detail { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); display: none; }
+  .opp.open .detail { display: block; }
+  .detail-row { display: flex; gap: 10px; justify-content: space-between; font-size: 12.5px; color: var(--muted); padding: 4px 0; }
+  .detail-row b { color: var(--text); font-weight: 600; }
+  .detail-section { margin-top: 8px; }
+  .detail-section:first-child { margin-top: 0; }
+  .detail-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+  .detail-text { font-size: 12.5px; color: var(--text); line-height: 1.5; }
+
+  .query-base { padding: 12px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5; }
+  .actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Search context panel */
+  .search-context { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-top: 10px; }
+  .search-context-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .search-context h3 { margin: 0; font-size: 14px; }
+  .search-context .close-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 0 4px; }
+  .context-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .context-item { padding: 8px 10px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; }
+  .context-item .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 3px; }
+  .context-item .value { font-size: 12.5px; color: var(--text); font-weight: 600; word-break: break-word; }
+  .context-item .value.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  .context-item .value.muted { color: var(--muted); font-weight: 400; }
+
+  /* Configurator form */
+  .config-form { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-top: 10px; display: none; }
+  .config-form.open { display: block; }
+  .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+  .form-group input, .form-group select, .form-group textarea { background: var(--panel-2); border: 1px solid var(--line); color: var(--text); padding: 7px 10px; border-radius: 8px; font-size: 12.5px; }
+  .form-group textarea { min-height: 60px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  .form-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  /* Comparison */
+  .compare-bar { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; margin-top: 10px; display: none; }
+  .compare-bar.open { display: block; }
+  .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+
   @media (max-width: 860px) {
     .board { grid-template-columns: 1fr; }
     .filter-bar { gap: 6px; }
-    .filter-chip { padding: 5px 8px; font-size: 11px; }
+    .filter-chip, .filter-select, .search-input { padding: 5px 8px; font-size: 11px; }
+    .context-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>v1 · Boulevard de Oportunidades</h1>
-        <p>Foco em vagas no Brasil e Latam. Clique no cargo para buscar no LinkedIn Jobs.</p>
-      </div>
-    </header>
-
-    <div class="section">
-      <h2>Filtros</h2>
-      <div class="filter-bar" id="filters">
-        <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
-        <button class="filter-chip active" data-source="posts" id="source-posts">Publicações</button>
-        <button class="filter-chip" data-mix="true" id="mix-toggle">Mix</button>
-        <button class="filter-chip" data-hot="true" id="hot-toggle">Hot</button>
-      </div>
-      <div class="summary" id="summary">Mostrando todos os cargos.</div>
+<div class="container">
+  <header>
+    <div>
+      <h1>EPQ · Painel de Oportunidades</h1>
+      <p>Rastreabilidade de busca no LinkedIn: keywords, filtros, recência e rede.</p>
     </div>
+  </header>
 
-    <div class="section">
-      <h2>Buscar por cargo</h2>
-      <div class="board" id="board"></div>
-    </div>
-
-    <div class="section">
-      <h2>Query base</h2>
-      <div class="query" id="query-base">
-        ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me") filtrado para Brasil/Latam.
-      </div>
-      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão abre a busca diretamente no LinkedIn Jobs, ordenada por data de publicação.</p>
-    </div>
-
-    <div class="actions">
-      <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Abrir repositório</a>
+  <div class="section">
+    <h2>Ferramentas</h2>
+    <div class="filter-bar">
+      <input class="search-input" id="search-input" placeholder="Buscar por nome, keyword ou cargo...">
+      <button class="filter-chip active" id="btn-all" data-filter="all">Todas</button>
+      <button class="filter-chip" id="btn-jobs" data-filter="jobs">Vagas</button>
+      <button class="filter-chip" id="btn-posts" data-filter="posts">Publicações</button>
+      <button class="filter-chip" id="btn-compare" data-action="compare">Comparar selecionados</button>
+      <button class="filter-chip" id="btn-new" data-action="new">+ Nova busca</button>
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = 'painel_oportunidades_v1';
-    const baseUrlJobs = 'linkedin://jobs/search/?keywords=';
-    const baseUrlPosts = 'linkedin://search/results/content/?keywords=';
-    const suffixJobs = '&sortBy=dateDesc';
-    const suffixPosts = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
+  <div class="section">
+    <h2>Registros de busca</h2>
+    <div class="board" id="board"></div>
+  </div>
 
-    let currentSource = 'posts';
-    let mixMode = false;
-    let hotMode = false;
-    const MIN_MINUTES = 20;
+  <div class="section">
+    <h2>Contexto da busca selecionada</h2>
+    <div class="search-context" id="search-context" style="display:none;"></div>
+  </div>
 
-    const queries = [
-      { label: 'Designer', keywords: 'designer OR Diretor de Arte remoto', location: 'Brasil' },
-      { label: 'Social Media', keywords: 'Social Media OR Designer Gráfico remoto', location: 'Brasil' },
-      { label: 'Art Director', keywords: 'Art Director OR Motion Designer remoto', location: 'Brasil' },
-      { label: 'Diretor Criativo', keywords: 'Diretor Criativo OR UX Designer remoto', location: 'Brasil' },
-      { label: 'Customer Success', keywords: 'Customer Success OR Account Management remoto', location: 'Brasil' },
-      { label: 'Gestão de Projetos', keywords: 'Gestão de Projetos OR Project Manager remoto', location: 'Brasil' },
-      { label: 'Copy e Redação', keywords: 'Copy OR Redação remoto', location: 'Brasil' },
-      { label: 'Community Management', keywords: 'Community Management OR Planejamento remoto', location: 'Brasil' },
-      { label: 'Gestor de Tráfego', keywords: 'Gestor de Tráfego OR Head de Comunicação remoto', location: 'Brasil' },
-      { label: 'Head de Mídia', keywords: 'Head de Mídia OR Design Lead remoto', location: 'Brasil' },
-      { label: 'Brand Manager', keywords: 'Brand Manager OR Planejamento Estratégico remoto', location: 'Brasil' },
-      { label: 'Redator', keywords: 'Redator OR Copywriter remoto', location: 'Brasil' },
-      { label: 'Social Media', keywords: 'Social Media OR Social Media Manager remoto', location: 'Brasil' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: 'Gestor de Projetos Marketing OR Project Manager Marketing remoto', location: 'Brasil' },
-      { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner remoto', location: 'Brasil' }
-    ];
+  <div class="section">
+    <div class="config-form" id="config-form">
+      <h3 id="config-title">Nova busca</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome da busca</label>
+          <input id="cfg-label" placeholder="Ex: Design Core">
+        </div>
+        <div class="form-group">
+          <label>Fonte</label>
+          <select id="cfg-source">
+            <option value="jobs">Vagas</option>
+            <option value="posts">Publicações</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Keywords / expressão booleana</label>
+          <textarea id="cfg-keywords" placeholder='Ex: ("Product Designer" OR "UX") AND ("IA" OR "AI")'></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Localização</label>
+          <input id="cfg-location" placeholder="Rio de Janeiro, RJ">
+        </div>
+        <div class="form-group">
+          <label>País</label>
+          <input id="cfg-country" placeholder="Brasil">
+        </div>
+        <div class="form-group">
+          <label>Modelo de trabalho</label>
+          <input id="cfg-model" placeholder="Remoto · Híbrido · Presencial">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Senioridade</label>
+          <input id="cfg-seniority" placeholder="Head · Lead · Senior">
+        </div>
+        <div class="form-group">
+          <label>Tipo de candidatura</label>
+          <input id="cfg-application" placeholder="Candidatura simplificada">
+        </div>
+        <div class="form-group">
+          <label>Concorrência</label>
+          <input id="cfg-competition" placeholder="Menos de 10 candidaturas">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Filtro de rede</label>
+          <select id="cfg-network">
+            <option value="none">Não aplicado</option>
+            <option value="1st">1º grau</option>
+            <option value="2nd">2º grau</option>
+            <option value="my_network">Pessoas da minha rede</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Recência</label>
+          <select id="cfg-recency">
+            <option value="unknown">Não identificada</option>
+            <option value="minutes">Últimos minutos</option>
+            <option value="hours">Últimas horas</option>
+            <option value="today">Hoje</option>
+            <option value="old">+24h</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Observações</label>
+          <textarea id="cfg-notes" placeholder="Contexto adicional da busca..."></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="link primary" id="cfg-save">Salvar busca</button>
+        <button class="btn-xs" id="cfg-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-    const hotQueries = [
-      { label: 'Head/Lead/Diretor Design', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Marketing', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Produto', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Projetos', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Mídia', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
-      { label: 'Head/Lead/Diretor Conteúdo', keywords: '("Head" OR "Lead" OR "Diretor" OR "Executivo") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Design', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Design" OR "UX" OR "UI") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Marketing', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Marketing" OR "Growth") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Produto', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Produto" OR "Product Manager") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Projetos', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Projetos" OR "Project Manager") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Mídia', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Mídia" OR "Media") remoto', location: 'Brasil' },
-      { label: 'Pleno/Sênior Conteúdo', keywords: '("Pleno" OR "Sênior" OR "Senior") AND ("Conteúdo" OR "Content") remoto', location: 'Brasil' }
-    ];
+  <div class="section">
+    <h2>Comparação</h2>
+    <div class="compare-bar" id="compare-bar"></div>
+  </div>
 
-    const postQueries = [
-      { label: 'Designer', keywords: '("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Social Media', keywords: '("Social Media" OR "Designer Gráfico") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Art Director', keywords: '("Art Director" OR "Motion Designer") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Diretor Criativo', keywords: '("Diretor Criativo" OR "UX Designer") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Customer Success', keywords: '("Customer Success" OR "Account Management") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Gestão de Projetos', keywords: '("Gestão de Projetos" OR "Project Manager") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Copy e Redação', keywords: '("Copy" OR "Redação") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Community Management', keywords: '("Community Management" OR "Planejamento") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Gestor de Tráfego', keywords: '("Gestor de Tráfego" OR "Head de Comunicação") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Head de Mídia', keywords: '("Head de Mídia" OR "Design Lead") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Brand Manager', keywords: '("Brand Manager" OR "Planejamento Estratégico") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Redator', keywords: '("Redator" OR "Copywriter") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Social Media', keywords: '("Social Media" OR "Social Media Manager") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: '("Gestor de Projetos" "Marketing" OR "Project Manager" "Marketing") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' },
-      { label: 'Gestor de Projetos (Produto)', keywords: '("Gestor de Projetos" "Produto" OR "Project Manager" "Produto" OR "Product Owner") and ("vaga") AND ("whatsapp" OR "wa.me" OR "e-mail" OR "email") Brasil remoto' }
-    ];
+  <div class="section">
+    <h2>Query base</h2>
+    <div class="query-base" id="query-base">Selecione uma busca para ver a configuração exata.</div>
+    <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada card abre a busca no LinkedIn e preserva os parâmetros utilizados.</p>
+  </div>
 
-    const hotPostQueries = [
-      { label: 'Head de Design (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
-      { label: 'Head de Marketing (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
-      { label: 'Head de Produto (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
-      { label: 'Head de Projetos (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
-      { label: 'Head de Mídia (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' },
-      { label: 'Head de Conteúdo (Pub)', keywords: '("vaga") AND ("copy" OR "redator") AND ("remoto" OR "Rio de Janeiro") AND ("Head" OR "Lead")' }
-    ];
+  <div class="actions">
+    <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Repositório</a>
+  </div>
+</div>
 
-    function buildJobUrl(keywords, location, useFallback = false) {
-      const encodedKeywords = encodeURIComponent(keywords);
-      const encodedLocation = encodeURIComponent(location);
-      let url = `${baseUrlJobs}${encodedKeywords}&location=${encodedLocation}${useFallback ? '' : suffixJobs}`;
-      if (!useFallback) {
-        url += '&f_AL=true&f_E=2%2C3';
-      } else {
-        url += '&f_E=2%2C3&f_TP=1';
+<script>
+const STORAGE_KEY = 'painel_oportunidades_v3';
+const baseUrlJobs = 'linkedin://jobs/search/?keywords=';
+const baseUrlPosts = 'linkedin://search/results/content/?keywords=';
+const suffixJobs = '&sortBy=dateDesc';
+const suffixPosts = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
+
+const NETWORK_LABELS = {
+  none: 'Não aplicado',
+  1st: '1º grau',
+  2nd: '2º grau',
+  my_network: 'Pessoas da minha rede'
+};
+
+const HEAT_LABELS = {
+  unknown: 'Não identificada',
+  minutes: '🔥 Muito quente',
+  hours: '🟠 Recente',
+  today: '🟡 Hoje',
+  old: '⚪ Antiga'
+};
+
+function loadSearches() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : getDefaultSearches();
+  } catch { return getDefaultSearches(); }
+}
+
+function saveSearches(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function getDefaultSearches() {
+  const now = Date.now();
+  return [
+    {
+      id: 'search-01',
+      label: 'Design Core',
+      source: 'posts',
+      keywords: '("designer" OR "Diretor de Arte") AND ("vaga")',
+      location: 'Rio de Janeiro, RJ',
+      country: 'Brasil',
+      model: 'Remoto',
+      seniority: 'Head · Lead',
+      application: 'Candidatura simplificada',
+      competition: 'Menos de 10 candidaturas',
+      network: 'none',
+      recency: 'hours',
+      notes: 'Foco em oportunidades com contato direto.',
+      created_at: now - 1000 * 60 * 60 * 24 * 3,
+      last_used_at: now - 1000 * 60 * 45,
+      use_count: 7
+    },
+    {
+      id: 'search-02',
+      label: 'Marketing Core',
+      source: 'jobs',
+      keywords: '("Marketing" OR "Growth") AND ("Head" OR "Lead")',
+      location: 'São Paulo, SP',
+      country: 'Brasil',
+      model: 'Híbrido',
+      seniority: 'Head · Lead · Director',
+      application: 'Candidatura simplificada',
+      competition: '10 a 50 candidaturas',
+      network: '1st',
+      recency: 'today',
+      notes: 'Busca com filtro de 1º grau.',
+      created_at: now - 1000 * 60 * 60 * 24 * 5,
+      last_used_at: now - 1000 * 60 * 60 * 6,
+      use_count: 4
+    },
+    {
+      id: 'search-03',
+      label: 'Copy e Redação (Pub)',
+      source: 'posts',
+      keywords: '("Copy" OR "Redação") AND ("vaga") AND ("remoto" OR "Rio de Janeiro")',
+      location: 'Rio de Janeiro, RJ',
+      country: 'Brasil',
+      model: 'Remoto · Híbrido',
+      seniority: 'Head · Lead · Sênior',
+      application: 'Candidatura simplificada',
+      competition: '< 10 candidaturas',
+      network: 'my_network',
+      recency: 'minutes',
+      notes: 'Publicações recentes com foco em copy/redação.',
+      created_at: now - 1000 * 60 * 60 * 2,
+      last_used_at: now - 1000 * 60 * 12,
+      use_count: 2
+    }
+  ];
+}
+
+function buildJobUrl(keywords, location) {
+  const encodedKeywords = encodeURIComponent(keywords);
+  const encodedLocation = encodeURIComponent(location);
+  return `${baseUrlJobs}${encodedKeywords}&location=${encodedLocation}${suffixJobs}`;
+}
+
+function buildPostUrl(keywords) {
+  return `${baseUrlPosts}${encodeURIComponent(keywords)}${suffixPosts}`;
+}
+
+function formatTimeAgo(ts) {
+  if (!ts) return 'não utilizado';
+  const diff = Date.now() - ts;
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return 'agora';
+  if (minutes < 60) return `há ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `há ${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `há ${days}d`;
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  const queryBase = document.getElementById('query-base');
+  const search = document.getElementById('search-input').value.toLowerCase().trim();
+  const activeFilter = document.querySelector('.filter-chip.active[data-filter]')?.dataset.filter || 'all';
+
+  let data = loadSearches();
+
+  if (activeFilter !== 'all') {
+    data = data.filter(s => s.source === activeFilter);
+  }
+
+  if (search) {
+    data = data.filter(s =>
+      s.label.toLowerCase().includes(search) ||
+      s.keywords.toLowerCase().includes(search) ||
+      (s.location && s.location.toLowerCase().includes(search)) ||
+      (s.seniority && s.seniority.toLowerCase().includes(search))
+    );
+  }
+
+  data.sort((a, b) => (b.last_used_at || 0) - (a.last_used_at || 0));
+
+  if (data.length === 0) {
+    board.innerHTML = '<div style="color:var(--muted);font-size:13px;">Nenhuma busca encontrada.</div>';
+    queryBase.textContent = 'Nenhuma busca selecionada.';
+    return;
+  }
+
+  queryBase.textContent = data.map(s => s.label + ': ' + s.keywords).join('\n');
+
+  board.innerHTML = data.map(s => {
+    const sourceLabel = s.source === 'jobs' ? 'Vaga' : 'Publicação';
+    const sourceClass = s.source === 'jobs' ? 'source-vaga' : 'source-publicacao';
+    const networkLabel = NETWORK_LABELS[s.network] || 'Não aplicado';
+    const networkBadge = s.network !== 'none' ? `<span class="badge network">Rede: ${networkLabel}</span>` : '';
+    const heatLabel = HEAT_LABELS[s.recency] || 'Não identificada';
+    return `
+      <a class="opp" href="${s.source === 'jobs' ? buildJobUrl(s.keywords, s.location) : buildPostUrl(s.keywords)}" target="_blank" rel="noopener" data-id="${s.id}">
+        <div class="opp-head">
+          <div>
+            <h4>${escapeHtml(s.label)}</h4>
+            <div class="company">${escapeHtml(sourceLabel)} · ${escapeHtml(s.location || 'Sem local')} · ${formatTimeAgo(s.last_used_at)}</div>
+          </div>
+          <span class="badge ${sourceClass}">${sourceLabel}</span>
+        </div>
+        <div class="badges">
+          <span class="badge">${escapeHtml(heatLabel)}</span>
+          ${networkBadge}
+          ${s.competition ? `<span class="badge">${escapeHtml(s.competition)}</span>` : ''}
+        </div>
+        <div class="opp-meta">
+          <b>Keywords:</b> ${escapeHtml(s.keywords)}
+        </div>
+        <div class="opp-actions">
+          <button class="btn-xs" data-action="open" data-id="${s.id}">Abrir no LinkedIn</button>
+          <button class="btn-xs" data-action="context" data-id="${s.id}">Ver configuração</button>
+          <button class="btn-xs" data-action="edit" data-id="${s.id}">Editar</button>
+          <button class="btn-xs" data-action="select" data-id="${s.id}">Selecionar</button>
+        </div>
+      </a>
+    `;
+  }).join('');
+
+  board.querySelectorAll('[data-action="open"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const s = data.find(x => x.id === id);
+      if (s) {
+        s.last_used_at = Date.now();
+        s.use_count = (s.use_count || 0) + 1;
+        saveSearches(loadSearches().map(x => x.id === id ? s : x));
+        renderBoard();
+        window.open(s.source === 'jobs' ? buildJobUrl(s.keywords, s.location) : buildPostUrl(s.keywords), '_blank');
       }
-      return url;
-    }
-
-    function loadClicks() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch { return {}; }
-    }
-
-    function saveClick(label) {
-      const clicks = loadClicks();
-      clicks[label] = Date.now();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
-    }
-
-    function within(ts, minutes) {
-      if (!ts) return false;
-      const ageMinutes = (Date.now() - ts) / 60000;
-      if (ageMinutes < MIN_MINUTES) return false;
-      return ageMinutes <= minutes * 60 * 1000;
-    }
-
-    function formatTimeAgo(ts) {
-      if (!ts) return 'não clicado';
-      const diff = Date.now() - ts;
-      const minutes = Math.floor(diff / 60000);
-      if (minutes < 1) return 'agora';
-      if (minutes < 60) return `há ${minutes} min`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `há ${hours}h`;
-      const days = Math.floor(hours / 24);
-      return `há ${days}d`;
-    }
-
-    function renderBoard(range) {
-      const board = document.getElementById('board');
-      const summary = document.getElementById('summary');
-      const queryBase = document.getElementById('query-base');
-      const clicks = loadClicks();
-      const map = { '24h': 1440, 'all': 0 };
-      const minutes = map[range];
-
-      const showAll = !range || range === 'all';
-
-      let activeQueries = [];
-      if (hotMode) {
-        activeQueries = hotQueries.map(q => ({ ...q, source: 'jobs', hot: true }));
-      } else if (mixMode) {
-        const merged = [];
-        queries.forEach(q => merged.push({ ...q, source: 'jobs' }));
-        postQueries.forEach(q => merged.push({ ...q, source: 'posts' }));
-        hotQueries.forEach(q => merged.push({ ...q, source: 'jobs', hot: true }));
-        activeQueries = merged;
-      } else {
-        activeQueries = currentSource === 'jobs' ? queries.map(q => ({ ...q, source: 'jobs' })) : postQueries.map(q => ({ ...q, source: 'posts' }));
-      }
-
-      const visible = activeQueries.map(q => {
-        const ts = clicks[q.label];
-        const recent = showAll || (ts && within(ts, minutes));
-        return { ...q, recent, ts };
-      }).sort((a, b) => {
-        if (a.ts && b.ts) return b.ts - a.ts;
-        if (a.ts) return -1;
-        if (b.ts) return 1;
-        return 0;
-      });
-
-      queryBase.textContent = (mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
-
-      board.innerHTML = visible.map(q => {
-        const timeAgo = formatTimeAgo(q.ts);
-        const isNew = q.ts && within(q.ts, 10);
-        const highlight = q.recent ? 'primary' : '';
-        const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location, q.hot) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
-        const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
-        const hotLabel = q.hot ? 'HOT' : '';
-        return `
-          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
-            <span>${q.label}</span>
-            <span class="badge-source ${q.source === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
-            ${hotLabel ? `<span class="badge-source hot">${hotLabel}</span>` : ''}
-            <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
-          </a>
-        `;
-      }).join('');
-
-      board.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', () => saveClick(btn.dataset.label));
-      });
-
-      const sourceLabel = hotMode ? 'Hot' : mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações';
-      const rangeLabel = range === 'all' ? 'todos os períodos' : 'nas últimas 24 horas';
-      summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel} · ${rangeLabel}.`;
-    }
-
-    function applyTimeFilter(range) {
-      currentRange = range;
-      document.querySelectorAll('[data-range]').forEach(b => b.classList.toggle('active', b.dataset.range === range));
-      renderBoard(range);
-    }
-
-    function applySourceFilter(source) {
-      currentSource = source;
-      document.querySelectorAll('[data-source]').forEach(b => b.classList.toggle('active', b.dataset.source === source));
-      renderBoard(currentRange);
-    }
-
-    function applyMixFilter(enabled) {
-      mixMode = enabled;
-      document.getElementById('mix-toggle').classList.toggle('active', enabled);
-      renderBoard();
-    }
-
-    function applyHotFilter(enabled) {
-      hotMode = enabled;
-      document.getElementById('hot-toggle').classList.toggle('active', enabled);
-      renderBoard();
-    }
-
-    document.getElementById('filters').addEventListener('click', (e) => {
-      if (e.target.dataset.source) applySourceFilter(e.target.dataset.source);
-      if (e.target.dataset.mix) applyMixFilter(!mixMode);
-      if (e.target.dataset.hot) applyHotFilter(!hotMode);
     });
+  });
 
+  board.querySelectorAll('[data-action="context"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      showContext(id);
+    });
+  });
+
+  board.querySelectorAll('[data-action="edit"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      openConfig(id);
+    });
+  });
+
+  board.querySelectorAll('[data-action="select"]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      toggleSelect(id);
+    });
+  });
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function showContext(id) {
+  const data = loadSearches();
+  const s = data.find(x => x.id === id);
+  if (!s) return;
+
+  const ctx = document.getElementById('search-context');
+  const networkLabel = NETWORK_LABELS[s.network] || 'Não aplicado';
+  const heatLabel = HEAT_LABELS[s.recency] || 'Não identificada';
+
+  ctx.style.display = 'block';
+  ctx.innerHTML = `
+    <div class="search-context-header">
+      <h3>🔥 Configuração da busca · ${escapeHtml(s.label)}</h3>
+      <button class="close-btn" id="ctx-close">×</button>
+    </div>
+    <div class="context-grid">
+      <div class="context-item">
+        <div class="label">Keywords</div>
+        <div class="value mono">${escapeHtml(s.keywords || 'Não identificado')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Fonte</div>
+        <div class="value">${s.source === 'jobs' ? 'Vagas' : 'Publicações'}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Senioridade</div>
+        <div class="value">${escapeHtml(s.seniority || 'Não identificado')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Localização</div>
+        <div class="value">${escapeHtml(s.location || 'Não identificado')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">País</div>
+        <div class="value">${escapeHtml(s.country || 'Não identificado')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Modelo</div>
+        <div class="value">${escapeHtml(s.model || 'Não identificado')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Candidatura</div>
+        <div class="value">${escapeHtml(s.application || 'Não identificado')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Concorrência</div>
+        <div class="value">${escapeHtml(s.competition || 'Não identificada')}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Recência</div>
+        <div class="value">${heatLabel}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Rede</div>
+        <div class="value">${networkLabel}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Criada em</div>
+        <div class="value muted">${s.created_at ? new Date(s.created_at).toLocaleDateString('pt-BR') : 'Não identificado'}</div>
+      </div>
+      <div class="context-item">
+        <div class="label">Usos</div>
+        <div class="value muted">${s.use_count || 0} vezes</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <div class="detail-label">Observações</div>
+      <div class="detail-text">${escapeHtml(s.notes || 'Sem observações.')}</div>
+    </div>
+  `;
+
+  document.getElementById('ctx-close').addEventListener('click', () => {
+    ctx.style.display = 'none';
+  });
+}
+
+function openConfig(id) {
+  const form = document.getElementById('config-form');
+  const title = document.getElementById('config-title');
+  form.classList.add('open');
+
+  if (id) {
+    const data = loadSearches();
+    const s = data.find(x => x.id === id);
+    if (!s) return;
+    title.textContent = 'Editar busca';
+    document.getElementById('cfg-label').value = s.label || '';
+    document.getElementById('cfg-source').value = s.source || 'posts';
+    document.getElementById('cfg-keywords').value = s.keywords || '';
+    document.getElementById('cfg-location').value = s.location || '';
+    document.getElementById('cfg-country').value = s.country || '';
+    document.getElementById('cfg-model').value = s.model || '';
+    document.getElementById('cfg-seniority').value = s.seniority || '';
+    document.getElementById('cfg-application').value = s.application || '';
+    document.getElementById('cfg-competition').value = s.competition || '';
+    document.getElementById('cfg-network').value = s.network || 'none';
+    document.getElementById('cfg-recency').value = s.recency || 'unknown';
+    document.getElementById('cfg-notes').value = s.notes || '';
+    form.dataset.editId = id;
+  } else {
+    title.textContent = 'Nova busca';
+    document.getElementById('cfg-label').value = '';
+    document.getElementById('cfg-source').value = 'posts';
+    document.getElementById('cfg-keywords').value = '';
+    document.getElementById('cfg-location').value = '';
+    document.getElementById('cfg-country').value = '';
+    document.getElementById('cfg-model').value = '';
+    document.getElementById('cfg-seniority').value = '';
+    document.getElementById('cfg-application').value = '';
+    document.getElementById('cfg-competition').value = '';
+    document.getElementById('cfg-network').value = 'none';
+    document.getElementById('cfg-recency').value = 'unknown';
+    document.getElementById('cfg-notes').value = '';
+    delete form.dataset.editId;
+  }
+}
+
+function saveConfig() {
+  const label = document.getElementById('cfg-label').value.trim();
+  const keywords = document.getElementById('cfg-keywords').value.trim();
+  if (!label || !keywords) {
+    alert('Preencha pelo menos o nome e as keywords.');
+    return;
+  }
+
+  const data = loadSearches();
+  const form = document.getElementById('config-form');
+  const editId = form.dataset.editId;
+
+  if (editId) {
+    const idx = data.findIndex(x => x.id === editId);
+    if (idx >= 0) {
+      data[idx] = {
+        ...data[idx],
+        label,
+        source: document.getElementById('cfg-source').value,
+        keywords,
+        location: document.getElementById('cfg-location').value.trim(),
+        country: document.getElementById('cfg-country').value.trim(),
+        model: document.getElementById('cfg-model').value.trim(),
+        seniority: document.getElementById('cfg-seniority').value.trim(),
+        application: document.getElementById('cfg-application').value.trim(),
+        competition: document.getElementById('cfg-competition').value.trim(),
+        network: document.getElementById('cfg-network').value,
+        recency: document.getElementById('cfg-recency').value,
+        notes: document.getElementById('cfg-notes').value.trim()
+      };
+    }
+  } else {
+    data.push({
+      id: 'search-' + Date.now(),
+      label,
+      source: document.getElementById('cfg-source').value,
+      keywords,
+      location: document.getElementById('cfg-location').value.trim(),
+      country: document.getElementById('cfg-country').value.trim(),
+      model: document.getElementById('cfg-model').value.trim(),
+      seniority: document.getElementById('cfg-seniority').value.trim(),
+      application: document.getElementById('cfg-application').value.trim(),
+      competition: document.getElementById('cfg-competition').value.trim(),
+      network: document.getElementById('cfg-network').value,
+      recency: document.getElementById('cfg-recency').value,
+      notes: document.getElementById('cfg-notes').value.trim(),
+      created_at: Date.now(),
+      last_used_at: null,
+      use_count: 0
+    });
+  }
+
+  saveSearches(data);
+  form.classList.remove('open');
+  renderBoard();
+}
+
+let selectedIds = [];
+
+function toggleSelect(id) {
+  const idx = selectedIds.indexOf(id);
+  if (idx >= 0) {
+    selectedIds.splice(idx, 1);
+  } else {
+    if (selectedIds.length >= 4) {
+      alert('Selecione até 4 buscas para comparação.');
+      return;
+    }
+    selectedIds.push(id);
+  }
+  renderCompare();
+  renderBoard();
+}
+
+function renderCompare() {
+  const bar = document.getElementById('compare-bar');
+  const data = loadSearches();
+  const selected = data.filter(s => selectedIds.includes(s.id));
+
+  if (selected.length < 2) {
+    bar.classList.remove('open');
+    return;
+  }
+
+  bar.classList.add('open');
+  bar.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <b>Comparando ${selected.length} buscas</b>
+      <button class="btn-xs" id="compare-clear">Limpar seleção</button>
+    </div>
+    <div class="compare-grid">
+      ${selected.map(s => `
+        <div class="context-item">
+          <div class="label">${escapeHtml(s.label)}</div>
+          <div class="value mono" style="font-size:11px;">${escapeHtml(s.keywords)}</div>
+          <div class="value" style="font-size:11px;margin-top:4px;">Local: ${escapeHtml(s.location || '—')}</div>
+          <div class="value" style="font-size:11px;">Modelo: ${escapeHtml(s.model || '—')}</div>
+          <div class="value" style="font-size:11px;">Senioridade: ${escapeHtml(s.seniority || '—')}</div>
+          <div class="value" style="font-size:11px;">Candidatura: ${escapeHtml(s.application || '—')}</div>
+          <div class="value" style="font-size:11px;">Concorrência: ${escapeHtml(s.competition || '—')}</div>
+          <div class="value" style="font-size:11px;">Rede: ${NETWORK_LABELS[s.network] || '—'}</div>
+          <div class="value" style="font-size:11px;">Recência: ${HEAT_LABELS[s.recency] || '—'}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  document.getElementById('compare-clear').addEventListener('click', () => {
+    selectedIds = [];
+    renderCompare();
     renderBoard();
-  </script>
+  });
+}
+
+document.getElementById('btn-new').addEventListener('click', () => {
+  openConfig(null);
+});
+
+document.getElementById('cfg-save').addEventListener('click', saveConfig);
+document.getElementById('cfg-cancel').addEventListener('click', () => {
+  document.getElementById('config-form').classList.remove('open');
+});
+
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderBoard();
+  });
+});
+
+document.getElementById('search-input').addEventListener('input', renderBoard);
+
+document.getElementById('board').addEventListener('click', (e) => {
+  const opp = e.target.closest('.opp');
+  if (!opp) return;
+  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+  const id = opp.dataset.id;
+  if (id) showContext(id);
+});
+
+renderBoard();
+</script>
 </body>
 </html>
