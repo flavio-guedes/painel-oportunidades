@@ -56,11 +56,25 @@
     display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent;
   }
   .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
-  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .filter-chip {
     padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.04); color: var(--text); font-size: 12px; cursor: pointer;
   }
   .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
+  .badge-source {
+    display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; border: 1px solid transparent;
+  }
+  .badge-source.vaga { background: rgba(59,130,246,.15); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
+  .badge-source.publicacao { background: rgba(16,185,129,.15); color: #e8f1ff; border-color: rgba(16,185,129,.35); }
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px;
+  }
+  .modal {
+    background: linear-gradient(180deg, rgba(15,23,42,.98), rgba(17,27,45,.95)); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  .modal h3 { margin: 0 0 8px; font-size: 16px; }
+  .modal-meta { color: var(--muted); font-size: 12px; margin-bottom: 10px; }
+  .modal-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
   .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
   @media (max-width: 860px) {
     .board { grid-template-columns: 1fr; }
@@ -83,10 +97,11 @@
       <div class="filter-bar" id="filters">
         <button class="filter-chip active" data-range="24h">24 horas</button>
         <button class="filter-chip" data-range="all">Todos</button>
-        <button class="filter-chip" data-source="jobs" id="source-jobs">Vagas</button>
+        <button class="filter-chip active" data-source="jobs" id="source-jobs">Vagas</button>
         <button class="filter-chip" data-source="posts" id="source-posts">Publicações</button>
         <button class="filter-chip" data-job-filter="easy-apply" id="job-easy-apply">Candidatura simplificada</button>
         <button class="filter-chip" data-job-filter="under10" id="job-under10">Menos de 10 candidaturas</button>
+        <button class="filter-chip" data-job-filter="connection" id="job-connection">Com conexão direta</button>
       </div>
       <div class="summary" id="summary">Mostrando todos os cargos.</div>
     </div>
@@ -106,6 +121,18 @@
 
     <div class="actions">
       <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Abrir repositório</a>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-meta" id="modal-meta"></div>
+      <h3 id="modal-title"></h3>
+      <div id="modal-body"></div>
+      <div class="modal-actions">
+        <a class="link primary" id="modal-primary" href="#" target="_blank" rel="noopener">Abrir busca</a>
+        <button class="btn" id="modal-close">Fechar</button>
+      </div>
     </div>
   </div>
 
@@ -166,6 +193,9 @@
       if (currentJobFilter === 'under10') {
         url += '&f_E=2%2C3';
       }
+      if (currentJobFilter === 'connection') {
+        url += '&f_AL=true';
+      }
       return url;
     }
 
@@ -198,6 +228,35 @@
       return `há ${days}d`;
     }
 
+    function openModal(q, href) {
+      const backdrop = document.getElementById('modal-backdrop');
+      const title = document.getElementById('modal-title');
+      const meta = document.getElementById('modal-meta');
+      const body = document.getElementById('modal-body');
+      const primary = document.getElementById('modal-primary');
+
+      title.textContent = q.label;
+      meta.innerHTML = `<span class="badge-source ${currentSource === 'jobs' ? 'vaga' : 'publicacao'}">${currentSource === 'jobs' ? 'Vaga' : 'Publicação'}</span> · ${q.keywords}`;
+      body.innerHTML = `
+        <div style="color:var(--muted);font-size:12px;line-height:1.5;">
+          Fonte: <strong>${currentSource === 'jobs' ? 'LinkedIn Jobs' : 'LinkedIn Publicações'}</strong><br/>
+          Localização: <strong>${currentSource === 'jobs' ? q.location : 'Brasil/Latam'}</strong><br/>
+          Abrir busca no LinkedIn para acompanhar as oportunidades recentes.
+        </div>
+      `;
+      primary.href = href;
+      backdrop.style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-backdrop').style.display = 'none';
+    }
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-backdrop') closeModal();
+    });
+
     function renderBoard(range) {
       const board = document.getElementById('board');
       const summary = document.getElementById('summary');
@@ -214,9 +273,6 @@
         return { ...q, recent, ts };
       });
 
-      const baseUrl = currentSource === 'jobs' ? baseUrlJobs : baseUrlPosts;
-      const suffix = currentSource === 'jobs' ? suffixJobs : suffixPosts;
-
       queryBase.textContent = (currentSource === 'jobs' ? 'Vagas' : 'Publicações') + ': ' + visible.map(q => `"${q.label}"`).join(' OR ') + ' filtrado para Brasil/Latam.';
 
       board.innerHTML = visible.map(q => {
@@ -224,9 +280,11 @@
         const isNew = q.ts && within(q.ts, 10);
         const highlight = q.recent ? 'primary' : '';
         const href = currentSource === 'jobs' ? buildJobUrl(q.keywords, q.location) : `${baseUrlPosts}${encodeURIComponent(q.keywords)}${suffixPosts}`;
+        const sourceLabel = currentSource === 'jobs' ? 'Vaga' : 'Publicação';
         return `
-          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}" onclick="event.preventDefault(); openModal(${JSON.stringify(q).replace(/"/g, '&quot;')}, '${href.replace(/'/g, "\\'")}')">
             <span>${q.label}</span>
+            <span class="badge-source ${currentSource === 'jobs' ? 'vaga' : 'publicacao'}">${sourceLabel}</span>
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
         `;
