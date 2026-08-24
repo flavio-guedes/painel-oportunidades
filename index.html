@@ -215,16 +215,16 @@
       const encodedLocation = encodeURIComponent(location);
       let url = `${baseUrlJobs}${encodedKeywords}&location=${encodedLocation}${useFallback ? '' : suffixJobs}`;
       if (!useFallback) {
-        url += '&f_AL=true&f_E=2%2C3&f_C=1&f_TP=1';
+        url += '&f_AL=true&f_E=2%2C3&f_C=1';
       } else {
-        url += '&f_E=2%2C3&f_TP=1&f_C=1';
+        url += '&f_E=2%2C3&f_C=1';
       }
       return url;
     }
 
     function buildPostUrl(keywords) {
       const encodedKeywords = encodeURIComponent(keywords);
-      return `${baseUrlPosts}${encodedKeywords}${suffixPosts}&f_TP=1`;
+      return `${baseUrlPosts}${encodedKeywords}${suffixPosts}`;
     }
 
     function loadClicks() {
@@ -259,15 +259,11 @@
       return `há ${days}d`;
     }
 
-    function renderBoard(range) {
+    function renderBoard() {
       const board = document.getElementById('board');
       const summary = document.getElementById('summary');
       const queryBase = document.getElementById('query-base');
       const clicks = loadClicks();
-      const map = { '24h': 1440, 'all': 0 };
-      const minutes = map[range];
-
-      const showAll = !range || range === 'all';
 
       let activeQueries = [];
       if (hotMode) {
@@ -288,8 +284,7 @@
 
       const visible = activeQueries.map(q => {
         const ts = clicks[q.label];
-        const recent = showAll || (ts && within(ts, minutes));
-        return { ...q, recent, ts };
+        return { ...q, ts };
       }).sort((a, b) => {
         if (a.ts && b.ts) return b.ts - a.ts;
         if (a.ts) return -1;
@@ -301,8 +296,6 @@
 
       board.innerHTML = visible.map(q => {
         const timeAgo = formatTimeAgo(q.ts);
-        const isNew = q.ts && within(q.ts, 10);
-        const highlight = q.recent ? 'primary' : '';
         const href = q.source === 'jobs' ? buildJobUrl(q.keywords, q.location, q.hot) : buildPostUrl(q.keywords);
         const sourceLabel = q.source === 'jobs' ? 'Vaga' : 'Publicação';
         const tags = [
@@ -310,7 +303,7 @@
           q.hot ? `<span class="badge-source hot">HOT</span>` : ''
         ].filter(Boolean).join(' ');
         return `
-          <a class="btn ${highlight}" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn" href="${href}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             ${tags ? `<span style="display:flex;gap:6px;flex-wrap:wrap;">${tags}</span>` : ''}
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
@@ -323,14 +316,7 @@
       });
 
       const sourceLabel = hotMode ? 'Hot' : mixMode ? 'Mix' : currentSource === 'jobs' ? 'Vagas' : 'Publicações';
-      const rangeLabel = range === 'all' ? 'todos os períodos' : 'nas últimas 24 horas';
-      summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel} · ${rangeLabel}.`;
-    }
-
-    function applyTimeFilter(range) {
-      currentRange = range;
-      document.querySelectorAll('[data-range]').forEach(b => b.classList.toggle('active', b.dataset.range === range));
-      renderBoard(range);
+      summary.textContent = `Mostrando ${visible.length} de ${activeQueries.length} cargos em ${sourceLabel}.`;
     }
 
     function applySourceFilter(source) {
