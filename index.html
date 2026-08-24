@@ -106,7 +106,7 @@
       <div class="query" id="query-base">
         ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
       </div>
-      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão altera os cargos e abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
     </div>
 
     <div class="actions">
@@ -115,6 +115,7 @@
   </div>
 
   <script>
+    const STORAGE_KEY = 'painel_oportunidades_v1';
     const baseUrl = 'https://www.linkedin.com/search/results/content/?keywords=';
     const suffix = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
 
@@ -136,30 +137,82 @@
       { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29' }
     ];
 
-    function buildUrl(keywords) {
-      return baseUrl + keywords + suffix;
+    function loadClicks() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch { return {}; }
+    }
+
+    function saveClick(label) {
+      const clicks = loadClicks();
+      clicks[label] = Date.now();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
+    }
+
+    function within(ts, minutes) {
+      return (Date.now() - ts) <= minutes * 60 * 1000;
+    }
+
+    function formatTimeAgo(ts) {
+      if (!ts) return 'não clicado';
+      const diff = Date.now() - ts;
+      const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'agora';
+      if (minutes < 60) return `há ${minutes} min`;
+      const hours = Math.floor(minutes / 60);
+      if (hours < 24) return `há ${hours}h`;
+      const days = Math.floor(hours / 24);
+      return `há ${days}d`;
     }
 
     function renderBoard(range) {
       const board = document.getElementById('board');
       const summary = document.getElementById('summary');
       const queryBase = document.getElementById('query-base');
+      const clicks = loadClicks();
+      const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
+      const minutes = map[range];
 
-      const selectedKeywords = queries.map(q => q.keywords).join('%20OR%20');
-      queryBase.textContent = queries.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me")';
+      let filtered = queries;
+      if (range && range !== 'all') {
+        filtered = queries.filter(q => {
+          const ts = clicks[q.label];
+          return ts && within(ts, minutes);
+        });
+      }
 
-      board.innerHTML = queries.map(q => `
-        <a class="btn" href="${buildUrl(q.keywords)}" target="_blank" rel="noopener">${q.label}</a>
-      `).join('');
+      queryBase.textContent = filtered.map(q => `"${q.label}"`).join(' OR ') + ' and ("vaga") AND ("whatsapp" OR "wa.me")';
 
-      summary.textContent = `Mostrando ${queries.length} cargos. Clique para buscar no LinkedIn com ordenação por data.`;
+      board.innerHTML = filtered.map(q => {
+        const ts = clicks[q.label];
+        const timeAgo = formatTimeAgo(ts);
+        const isNew = ts && within(ts, 10);
+        return `
+          <a class="btn ${isNew ? 'primary' : ''}" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
+            <span>${q.label}</span>
+            <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
+          </a>
+        `;
+      }).join('');
+
+      board.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', () => saveClick(btn.dataset.label));
+      });
+
+      const rangeLabel = range === 'all' ? '' : range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias';
+      summary.textContent = range === 'all'
+        ? `Mostrando ${filtered.length} de ${queries.length} cargos.`
+        : `Mostrando ${filtered.length} de ${queries.length} cargos clicados ${rangeLabel}.`;
+    }
+
+    function applyTimeFilter(range) {
+      document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+      renderBoard(range);
     }
 
     document.getElementById('filters').addEventListener('click', (e) => {
-      if (e.target.dataset.range) {
-        document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === e.target.dataset.range));
-        renderBoard(e.target.dataset.range);
-      }
+      if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
     });
 
     renderBoard('all');
