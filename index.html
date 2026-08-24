@@ -76,7 +76,7 @@
     <header>
       <div>
         <h1>v1 · Boulevard de Oportunidades</h1>
-        <p>Foco em vagas no Brasil e Latam. Clique no cargo para buscar no LinkedIn.</p>
+        <p>Foco em vagas no Brasil e Latam. Clique no cargo para buscar no LinkedIn Jobs.</p>
       </div>
     </header>
 
@@ -116,26 +116,32 @@
 
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
-    const baseUrl = 'https://www.linkedin.com/search/results/content/?keywords=';
-    const suffix = '&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D';
+    const baseUrl = 'https://www.linkedin.com/jobs/search/?keywords=';
+    const suffix = '&sortBy=dateDesc';
 
     const queries = [
-      { label: 'Designer', keywords: '%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Art Director', keywords: '%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Diretor Criativo', keywords: '%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Customer Success', keywords: '%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Gestão de Projetos', keywords: '%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Copy e Redação', keywords: '%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Community Management', keywords: '%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Gestor de Tráfego', keywords: '%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Head de Mídia', keywords: '%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Brand Manager', keywords: '%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Redator', keywords: '%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Social Media', keywords: '%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Gestor de Projetos (Marketing)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' },
-      { label: 'Gestor de Projetos (Produto)', keywords: '%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29%20AND%20%28%20%22Brasil%22%20OR%20%22Brazil%22%20OR%20%22Latam%22%20OR%20%22Am%C3%A9rica%20Latina%22%20OR%20%22S%C3%A3o%20Paulo%22%20OR%20%22Rio%20de%20Janeiro%22%20%29' }
+      { label: 'Designer', keywords: 'designer OR Diretor de Arte', location: 'Brasil' },
+      { label: 'Social Media', keywords: 'Social Media OR Designer Gráfico', location: 'Brasil' },
+      { label: 'Art Director', keywords: 'Art Director OR Motion Designer', location: 'Brasil' },
+      { label: 'Diretor Criativo', keywords: 'Diretor Criativo OR UX Designer', location: 'Brasil' },
+      { label: 'Customer Success', keywords: 'Customer Success OR Account Management', location: 'Brasil' },
+      { label: 'Gestão de Projetos', keywords: 'Gestão de Projetos OR Project Manager', location: 'Brasil' },
+      { label: 'Copy e Redação', keywords: 'Copy OR Redação', location: 'Brasil' },
+      { label: 'Community Management', keywords: 'Community Management OR Planejamento', location: 'Brasil' },
+      { label: 'Gestor de Tráfego', keywords: 'Gestor de Tráfego OR Head de Comunicação', location: 'Brasil' },
+      { label: 'Head de Mídia', keywords: 'Head de Mídia OR Design Lead', location: 'Brasil' },
+      { label: 'Brand Manager', keywords: 'Brand Manager OR Planejamento Estratégico', location: 'Brasil' },
+      { label: 'Redator', keywords: 'Redator OR Copywriter', location: 'Brasil' },
+      { label: 'Social Media', keywords: 'Social Media OR Social Media Manager', location: 'Brasil' },
+      { label: 'Gestor de Projetos (Marketing)', keywords: 'Gestor de Projetos Marketing OR Project Manager Marketing', location: 'Brasil' },
+      { label: 'Gestor de Projetos (Produto)', keywords: 'Gestor de Projetos Produto OR Project Manager Produto OR Product Owner', location: 'Brasil' }
     ];
+
+    function buildJobUrl(keywords, location) {
+      const encodedKeywords = encodeURIComponent(keywords);
+      const encodedLocation = encodeURIComponent(location);
+      return `${baseUrl}${encodedKeywords}&location=${encodedLocation}${suffix}`;
+    }
 
     function loadClicks() {
       try {
@@ -188,7 +194,7 @@
         const isNew = q.ts && within(q.ts, 10);
         const highlight = q.recent ? 'primary' : '';
         return `
-          <a class="btn ${highlight}" href="${baseUrl}${q.keywords}${suffix}" target="_blank" rel="noopener" data-label="${q.label}">
+          <a class="btn ${highlight}" href="${buildJobUrl(q.keywords, q.location)}" target="_blank" rel="noopener" data-label="${q.label}">
             <span>${q.label}</span>
             <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
           </a>
