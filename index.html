@@ -16,6 +16,7 @@
     --amber:#f59e0b;
     --red:#ef4444;
     --purple:#7c3aed;
+    --gold:#c8a96e;
     --radius:14px;
   }
   * { box-sizing: border-box; }
@@ -65,7 +66,63 @@
   }
   .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
   .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* Motors */
+  .motors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .motor-btn {
+    padding: 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid transparent; color: #fff; text-align: left; position: relative; overflow: hidden;
+  }
+  .motor-btn .motor-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .motor-btn .motor-desc { font-size: 11px; opacity: 0.85; line-height: 1.4; }
+  .motor-btn.silver { background: linear-gradient(135deg, #b45309, #78350f); }
+  .motor-btn.silver:hover { background: linear-gradient(135deg, #c27817, #8c5a1f); }
+  .motor-btn.lucky { background: linear-gradient(135deg, #059669, #064e3b); }
+  .motor-btn.lucky:hover { background: linear-gradient(135deg, #10b981, #065f46); }
+  .motor-btn.spy { background: linear-gradient(135deg, #7c3aed, #4c1d95); }
+  .motor-btn.spy:hover { background: linear-gradient(135deg, #8b5cf6, #5b21b6); }
+  .motor-btn.scanning { opacity: 0.85; }
+  .motor-btn .scan-line {
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: scan 1.6s infinite;
+  }
+  @keyframes scan { to { left: 100%; } }
+
+  /* Radar status */
+  .radar {
+    margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+    background: rgba(15,23,42,.6); border: 1px solid var(--line); font-size: 12px; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .radar .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px rgba(16,185,129,.6); }
+  .radar .stat { display: inline-flex; gap: 6px; align-items: center; }
+  .radar .stat b { color: var(--text); font-weight: 600; }
+
+  /* Results */
+  .result-card {
+    padding: 18px; border-radius: var(--radius); background: rgba(15,23,42,.6); border: 1px solid var(--line);
+    margin-bottom: 10px;
+  }
+  .result-card .rc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+  .result-card .rc-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .result-card .rc-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .result-card .rc-why { font-size: 12px; color: var(--text); margin-bottom: 6px; }
+  .result-card .rc-why b { color: var(--green); }
+  .result-card .rc-gap { font-size: 12px; color: var(--amber); margin-bottom: 8px; }
+  .result-card .rc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .result-card .rc-actions a { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(59,130,246,.12); color: #e8f1ff; border: 1px solid rgba(59,130,246,.25); text-decoration: none; }
+  .result-card .rc-actions button { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--line); cursor: pointer; }
+  .score-pill { font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 999px; background: rgba(16,185,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,.35); }
+
+  /* Feedback toast */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; padding: 12px 16px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--line); color: var(--text); font-size: 12px; z-index: 200;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+
   @media (max-width: 860px) {
+    .motors { grid-template-columns: 1fr; }
     .board { grid-template-columns: 1fr; }
     .filter-bar { gap: 6px; }
     .filter-chip { padding: 5px 8px; font-size: 11px; }
@@ -77,9 +134,35 @@
     <header>
       <div>
         <h1>EPQ · Boulevard de Oportunidades</h1>
-        <p>Clique no cargo para buscar vagas com contato direto no LinkedIn.</p>
+        <p>Motor inteligente de descoberta: Bala de Prata, Estou com Sorte e Espião.</p>
       </div>
     </header>
+
+    <div class="section">
+      <h2>Motores</h2>
+      <div class="motors" id="motors">
+        <button class="motor-btn silver" data-motor="silver">
+          <div class="motor-title">✦ Bala de Prata</div>
+          <div class="motor-desc">Máxima aderência · últimas 2h</div>
+        </button>
+        <button class="motor-btn lucky" data-motor="lucky">
+          <div class="motor-title">⚡ Estou com Sorte</div>
+          <div class="motor-desc">Descobertas · últimos 20 min</div>
+        </button>
+        <button class="motor-btn spy" data-motor="spy">
+          <div class="motor-title">◉ Espião</div>
+          <div class="motor-desc">Alto valor · radar ampliado</div>
+        </button>
+      </div>
+      <div class="radar" id="radar">
+        <span class="status-dot"></span>
+        <span class="stat">🟢 <b>RADAR ATIVO</b></span>
+        <span class="stat">Última varredura: <b id="radar-last">--</b></span>
+        <span class="stat">Analisadas: <b id="radar-analyzed">0</b></span>
+        <span class="stat">Novas: <b id="radar-new">0</b></span>
+        <span class="stat">Alta aderência: <b id="radar-high">0</b></span>
+      </div>
+    </div>
 
     <div class="section">
       <h2>Filtros</h2>
@@ -111,6 +194,11 @@
     </div>
 
     <div class="section">
+      <h2>Resultados do motor</h2>
+      <div id="motor-results"></div>
+    </div>
+
+    <div class="section">
       <h2>Query base</h2>
       <div class="query" id="query-base">
         ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
@@ -125,6 +213,7 @@
 
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
+    const MEMORY_KEY = 'painel_memory_v1';
     const queries = [
       { label: 'Designer', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
       { label: 'Social Media', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
@@ -160,36 +249,54 @@
       { label: 'Content Producer', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Producer%22%20OR%20%22Produtor%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' }
     ];
 
+    const profileVectors = {
+      lideranca: ['Coordenação de Criação','Creative Lead','Design Lead','Head de Conteúdo','Head of Creative','Head of Design','Creative Strategy','liderança de times','gestão de projetos criativos'],
+      conteudo: ['Content Strategy','Content Lead','Brand Content','Branded Content','Content Director','estratégia editorial','storytelling','conteúdo multiplataforma','social/content','audiovisual'],
+      design: ['Design Leadership','Art Direction','Design Strategy','Brand Design','Creative Direction','sistemas de design','direção visual','branding'],
+      estrategia: ['estratégia de marca','comunicação','marketing','inovação','IA aplicada','transformação digital','growth','performance','negócios']
+    };
+
     let currentLevel = 'all';
     let currentRange = 'all';
+    let activeMotor = null;
+    let motorResults = [];
+    let lastScan = null;
+    let scanStats = { analyzed: 0, new: 0, high: 0 };
 
     function loadClicks() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
-      } catch { return {}; }
+      try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
     }
-
     function saveClick(label) {
-      const clicks = loadClicks();
-      clicks[label] = Date.now();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
+      const clicks = loadClicks(); clicks[label] = Date.now(); localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
     }
-
-    function within(ts, minutes) {
-      return (Date.now() - ts) <= minutes * 60 * 1000;
+    function loadMemory() {
+      try { const raw = localStorage.getItem(MEMORY_KEY); return raw ? JSON.parse(raw) : { seen: {}, feedback: {}, preferences: {} }; } catch { return { seen: {}, feedback: {}, preferences: {} }; }
     }
-
+    function saveMemory(mem) { localStorage.setItem(MEMORY_KEY, JSON.stringify(mem)); }
+    function within(ts, minutes) { return (Date.now() - ts) <= minutes * 60 * 1000; }
     function formatTimeAgo(ts) {
       if (!ts) return 'não clicado';
-      const diff = Date.now() - ts;
-      const minutes = Math.floor(diff / 60000);
-      if (minutes < 1) return 'agora';
-      if (minutes < 60) return `há ${minutes} min`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `há ${hours}h`;
-      const days = Math.floor(hours / 24);
-      return `há ${days}d`;
+      const diff = Date.now() - ts; const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'agora'; if (minutes < 60) return `há ${minutes} min`;
+      const hours = Math.floor(minutes / 60); if (hours < 24) return `há ${hours}h`; const days = Math.floor(hours / 24); return `há ${days}d`;
+    }
+
+    function scoreOpportunity(query, memory) {
+      let fit = 50;
+      const label = query.label.toLowerCase();
+      Object.entries(profileVectors).forEach(([k, terms]) => {
+        terms.forEach(t => { if (label.includes(t.toLowerCase())) fit += 6; });
+      });
+      if (query.level === 'head') fit += 12; else if (query.level === 'lider') fit += 9; else if (query.level === 'gerente') fit += 6;
+      const fb = memory.feedback[query.label];
+      if (fb) {
+        if (fb === 'apply') fit += 10; else if (fb === 'interesting') fit += 5; else if (fb === 'dream') fit += 8; else if (fb === 'reject') fit -= 15;
+      }
+      return Math.min(100, Math.max(0, fit));
+    }
+
+    function opportunityScore(fit, salaryHint = 0, recencyHours = 999, locationMatch = 0) {
+      return Math.min(100, Math.max(0, fit * 0.55 + locationMatch * 0.15 + (salaryHint > 10000 ? 10 : 0) + (recencyHours <= 2 ? 15 : 0) + 10));
     }
 
     function renderBoard(range) {
@@ -197,52 +304,26 @@
       const board = document.getElementById('board');
       const summary = document.getElementById('summary');
       const clicks = loadClicks();
+      const mem = loadMemory();
       const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
       const minutes = map[currentRange];
-
       const filtered = queries.filter(q => {
         if (currentLevel !== 'all' && q.level !== currentLevel) return false;
         if (currentRange === 'all') return true;
-        if (currentRange === 'unclicked') {
-          const ts = clicks[q.label];
-          return !ts || within(ts, 0) === false;
-        }
-        const ts = clicks[q.label];
-        if (!ts) return false;
-        return within(ts, minutes);
+        if (currentRange === 'unclicked') { const ts = clicks[q.label]; return !ts || within(ts, 0) === false; }
+        const ts = clicks[q.label]; if (!ts) return false; return within(ts, minutes);
       });
-
       const ordered = filtered.slice().sort((a, b) => {
-        const ta = clicks[a.label];
-        const tb = clicks[b.label];
-        if (ta && tb) return tb - ta;
-        if (ta) return -1;
-        if (tb) return 1;
-        return 0;
+        const ta = clicks[a.label]; const tb = clicks[b.label];
+        if (ta && tb) return tb - ta; if (ta) return -1; if (tb) return 1; return 0;
       });
-
       const levelLabel = currentLevel === 'all' ? '' : currentLevel === 'coordenador' ? 'Coordenador · ' : currentLevel === 'lider' ? 'Líder · ' : currentLevel === 'gerente' ? 'Gerente · ' : currentLevel === 'head' ? 'Head · ' : '';
-      summary.textContent = currentRange === 'all'
-        ? `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos.`
-        : currentRange === 'unclicked'
-          ? `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos não clicados.`
-          : `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos clicados ${range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias'}.`;
-
+      summary.textContent = currentRange === 'all' ? `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos.` : currentRange === 'unclicked' ? `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos não clicados.` : `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos clicados ${range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias'}.`;
       board.innerHTML = ordered.map(q => {
-        const ts = clicks[q.label];
-        const timeAgo = formatTimeAgo(ts);
-        const isNew = ts && within(ts, 10);
-        return `
-          <a class="btn ${isNew ? 'primary' : ''}" href="${q.url}" target="_blank" rel="noopener" data-label="${q.label}">
-            <span>${q.label}</span>
-            <span style="font-size:11px;opacity:.85;">${timeAgo}</span>
-          </a>
-        `;
+        const ts = clicks[q.label]; const timeAgo = formatTimeAgo(ts); const isNew = ts && within(ts, 10);
+        return `<a class="btn ${isNew ? 'primary' : ''}" href="${q.url}" target="_blank" rel="noopener" data-label="${q.label}"><span>${q.label}</span><span style="font-size:11px;opacity:.85;">${timeAgo}</span></a>`;
       }).join('');
-
-      board.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', () => saveClick(btn.dataset.label));
-      });
+      board.querySelectorAll('.btn').forEach(btn => { btn.addEventListener('click', () => saveClick(btn.dataset.label)); });
     }
 
     function applyLevelFilter(level) {
@@ -250,22 +331,120 @@
       document.querySelectorAll('#level-filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.level === level));
       renderBoard(currentRange);
     }
-
     function applyTimeFilter(range) {
       currentRange = range;
       document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
       renderBoard(range);
     }
+    document.getElementById('level-filters').addEventListener('click', (e) => { if (e.target.dataset.level) applyLevelFilter(e.target.dataset.level); });
+    document.getElementById('filters').addEventListener('click', (e) => { if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range); });
 
-    document.getElementById('level-filters').addEventListener('click', (e) => {
-      if (e.target.dataset.level) applyLevelFilter(e.target.dataset.level);
-    });
+    function getMotorUrls(motor) {
+      if (motor === 'silver') {
+        return queries.filter(q => q.level === 'head' || q.level === 'lider').slice(0, 5).map(q => q.url);
+      }
+      if (motor === 'lucky') {
+        return queries.filter(q => ['lider','gerente','head','coordenador'].includes(q.level)).slice(0, 8).map(q => q.url);
+      }
+      return queries.slice(0, 10).map(q => q.url);
+    }
 
-    document.getElementById('filters').addEventListener('click', (e) => {
-      if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range);
+    function scoreMotorResults(motor) {
+      const mem = loadMemory();
+      return queries.map(q => ({ ...q, score: scoreOpportunity(q, mem), oppScore: opportunityScore(scoreOpportunity(q, mem), 0, 1, 70) }))
+        .sort((a, b) => b.oppScore - a.oppScore)
+        .slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
+    }
+
+    function renderMotorResults(motor) {
+      const container = document.getElementById('motor-results');
+      if (!motor) { container.innerHTML = ''; return; }
+      motorResults = scoreMotorResults(motor);
+      const mem = loadMemory();
+      scanStats.analyzed = queries.length;
+      scanStats.new = motorResults.filter(r => !mem.seen[r.label]).length;
+      scanStats.high = motorResults.filter(r => r.oppScore >= 80).length;
+      lastScan = new Date();
+      updateRadar();
+      if (!motorResults.length) { container.innerHTML = '<div class="summary">Nenhuma oportunidade encontrada para este motor.</div>'; return; }
+      container.innerHTML = motorResults.map(r => {
+        const seen = mem.seen[r.label];
+        const why = [];
+        if (r.level === 'head') why.push('liderança');
+        if (r.level === 'lider') why.push('liderança');
+        if (r.level === 'gerente') why.push('gestão');
+        if (r.label.toLowerCase().includes('conteúdo')) why.push('conteúdo');
+        if (r.label.toLowerCase().includes('design')) why.push('design');
+        if (r.label.toLowerCase().includes('growth')) why.push('growth');
+        if (r.label.toLowerCase().includes('marketing')) why.push('marketing');
+        if (!why.length) why.push('aderência ao perfil');
+        const gap = r.score < 85 ? 'Revisar requisitos de senioridade/idioma' : 'Sem gaps aparentes';
+        const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
+        return `<div class="result-card">
+          <div class="rc-header">
+            <div class="rc-title">${r.label}</div>
+            <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
+          </div>
+          <div class="rc-meta">${r.level.toUpperCase()} · ${seen ? 'Vista ' + formatTimeAgo(seen.ts) : 'Nova'}</div>
+          <div class="rc-why"><b>POR QUE:</b> + ${why.join(' · ')}</div>
+          <div class="rc-gap"><b>GAP:</b> ${gap}</div>
+          <div class="rc-actions">
+            <a href="${r.url}" target="_blank" rel="noopener">Abrir busca</a>
+            <button data-fb="interesting">👍 Interessante</button>
+            <button data-fb="apply">🔥 Aplicaria</button>
+            <button data-fb="reject">👎 Não é para mim</button>
+            <button data-fb="dream">⭐ Sonho</button>
+            <button data-fb="applied">✓ Apliquei</button>
+          </div>
+        </div>`;
+      }).join('');
+      container.querySelectorAll('button[data-fb]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fb = btn.dataset.fb;
+          const label = btn.closest('.result-card').querySelector('.rc-title').textContent;
+          const mem = loadMemory();
+          mem.feedback[label] = fb;
+          mem.seen[label] = { ts: Date.now(), motor };
+          saveMemory(mem);
+          showToast('Feedback salvo: ' + btn.textContent.trim());
+          renderMotorResults(activeMotor);
+        });
+      });
+      motorResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
+    }
+
+    function updateRadar() {
+      document.getElementById('radar-last').textContent = lastScan ? lastScan.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      document.getElementById('radar-analyzed').textContent = scanStats.analyzed;
+      document.getElementById('radar-new').textContent = scanStats.new;
+      document.getElementById('radar-high').textContent = scanStats.high;
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+      setTimeout(() => t.remove(), 1800);
+    }
+
+    function runMotor(motor) {
+      activeMotor = motor;
+      const btn = document.querySelector(`.motor-btn[data-motor="${motor}"]`);
+      if (!btn) return;
+      document.querySelectorAll('.motor-btn').forEach(b => b.classList.remove('scanning'));
+      btn.classList.add('scanning');
+      const line = document.createElement('div'); line.className = 'scan-line'; btn.appendChild(line);
+      setTimeout(() => {
+        btn.classList.remove('scanning'); if (line.parentNode) line.remove();
+        renderMotorResults(motor);
+        showToast(`${motor === 'silver' ? 'Bala de Prata' : motor === 'lucky' ? 'Estou com Sorte' : 'Espião'} varreu ${queries.length} oportunidades.`);
+      }, 1200);
+    }
+
+    document.getElementById('motors').addEventListener('click', (e) => {
+      const btn = e.target.closest('.motor-btn'); if (!btn) return; runMotor(btn.dataset.motor);
     });
 
     renderBoard('all');
+    updateRadar();
   </script>
 </body>
 </html>
