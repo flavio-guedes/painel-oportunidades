@@ -638,8 +638,20 @@
     });
 
     const FOLLOWUP_KEY = 'painel_followup_v1';
+    const FOLLOWUP_SEED = [
+      { id: 'seed-1', name: '', role: 'Lead Audiovisual Editor', company: '', contact: '21986168728', createdAt: new Date(Date.now() - 1000*60*60*2).toISOString() },
+      { id: 'seed-2', name: '', role: 'Copy / Redação', company: '', contact: '31998654672', createdAt: new Date(Date.now() - 1000*60*60*2).toISOString() },
+      { id: 'seed-3', name: '', role: 'Product Owner de Dados', company: 'DOMVS IT', contact: '11911876264', createdAt: new Date(Date.now() - 1000*60*60*3).toISOString() },
+      { id: 'seed-4', name: '', role: 'Vagas A PROSPER & CONTAS', company: 'A PROSPER & CONTAS', contact: '244929560455', createdAt: new Date(Date.now() - 1000*60*60*4).toISOString() },
+      { id: 'seed-5', name: '', role: 'Gerente de Marketing', company: '', contact: '11944740968', createdAt: new Date(Date.now() - 1000*60*60*5).toISOString() },
+      { id: 'seed-6', name: '', role: 'Growth Analyst', company: 'Saint Germain', contact: '47991015327', createdAt: new Date(Date.now() - 1000*60*60*6).toISOString() },
+      { id: 'seed-7', name: '', role: 'Product Owner II', company: 'Stefanini Group', contact: '11979732117', createdAt: new Date(Date.now() - 1000*60*60*7).toISOString() },
+      { id: 'seed-8', name: '', role: 'Customer Success Analyst', company: '4juris', contact: '8892030258', createdAt: new Date(Date.now() - 1000*60*60*8).toISOString() },
+      { id: 'seed-9', name: '', role: 'Head de Marketing', company: '', contact: '85920098075', createdAt: new Date(Date.now() - 1000*60*60*9).toISOString() }
+    ];
     function loadFollowup() {
-      try { const raw = localStorage.getItem(FOLLOWUP_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+      try { const raw = localStorage.getItem(FOLLOWUP_KEY); if (raw) return JSON.parse(raw); } catch {}
+      return [...FOLLOWUP_SEED];
     }
     function saveFollowup(items) { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(items)); }
     function addFollowup(item) {
