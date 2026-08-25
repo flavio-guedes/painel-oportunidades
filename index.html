@@ -313,6 +313,21 @@
       setTimeout(() => t.remove(), 1800);
     }
 
+    function getSearchCount() {
+      try { const raw = localStorage.getItem('v2_search_count'); const obj = JSON.parse(raw); if (obj && obj.date === new Date().toDateString()) return obj.count; } catch {}
+      return 0;
+    }
+
+    function incrementSearchCount() {
+      const count = getSearchCount() + 1;
+      localStorage.setItem('v2_search_count', JSON.stringify({ date: new Date().toDateString(), count }));
+      return count;
+    }
+
+    function resetSearchCount() {
+      localStorage.removeItem('v2_search_count');
+    }
+
     document.getElementById('v2-city-group').addEventListener('change', (e) => {
       v2State.cityGroup = e.target.value ? Number(e.target.value) : null;
       updateV2Preview();
@@ -353,8 +368,11 @@
     });
 
     document.getElementById('v2-search-btn').addEventListener('click', () => {
+      const count = getSearchCount();
+      if (count >= 6) { showToast('Limite de 6 buscas atingido para hoje.'); return; }
       const url = buildV2URL();
       if (!url || url === '#') { showToast('Selecione ao menos 1 filtro'); return; }
+      incrementSearchCount();
       window.open(url, '_blank');
     });
 
