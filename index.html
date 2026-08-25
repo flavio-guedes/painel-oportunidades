@@ -553,9 +553,18 @@
           const mem = loadMemory();
           mem.feedback[label] = fb;
           mem.seen[label] = { ts: Date.now(), motor };
+          if (fb === 'reject') {
+            mem.rejected = mem.rejected || {};
+            mem.rejected[label] = Date.now();
+            const card = btn.closest('.result-card');
+            card.style.transition = 'opacity .25s ease, transform .25s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(8px)';
+            setTimeout(() => card.remove(), 260);
+          }
           saveMemory(mem);
           showToast('Feedback salvo: ' + btn.textContent.trim());
-          renderMotorResults(activeMotor);
+          if (fb !== 'reject') renderMotorResults(activeMotor);
         });
       });
       motorResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
