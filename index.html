@@ -128,6 +128,7 @@
       <select id="v2-city-group" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:260px;">
         <option value="">Selecione o grupo de cidades</option>
       </select>
+      <div class="filter-bar" id="v2-city-terms" style="margin-top:10px;display:none;"></div>
       <div class="query" id="v2-geo-preview" style="margin-top:8px;display:none;"></div>
       <div style="margin-top:10px;display:flex;gap:8px;">
         <input id="v2-extra-location" placeholder="Adicionar cidade/bairro" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);">
@@ -239,6 +240,7 @@
 
     let v2State = {
       cityGroup: null,
+      selectedCityTerms: [],
       extraLocations: [],
       roles: [],
       remote: true,
@@ -251,6 +253,17 @@
       const select = document.getElementById('v2-city-group');
       select.innerHTML = '<option value="">Selecione o grupo de cidades</option>' +
         CITY_GROUPS.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
+    }
+
+    function renderCityTerms() {
+      const container = document.getElementById('v2-city-terms');
+      const group = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
+      if (!group) { container.innerHTML = ''; container.style.display = 'none'; return; }
+      container.style.display = '';
+      container.innerHTML = group.terms.map(term => {
+        const active = v2State.selectedCityTerms.includes(term) ? 'active' : '';
+        return `<button class="filter-chip ${active}" data-city="${term}">${term}</button>`;
+      }).join('');
     }
 
     function renderRolePresets() {
@@ -310,12 +323,9 @@
 
     function buildV2Query() {
       const blocks = ['("vaga")'];
-      const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
-      const geoTerms = geo ? geo.terms : [];
-      const allGeo = [...geoTerms, ...v2State.extraLocations];
-      const uniqueGeo = Array.from(new Set(allGeo));
-      if (uniqueGeo.length) blocks.push(`(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})`);
-      if (v2State.roles.length) blocks.push(`(${v2State.roles.map(t => `"${t}"`).join(' OR ')})`);
+      const selectedGeo = v2State.selectedCityTerms.length ? v2State.selectedCityTerms : (v2State.cityGroup ? (CITY_GROUPS.find(g => g.id === v2State.cityGroup) || {}).terms || [] : []);
+      [...selectedGeo, ...v2State.extraLocations].forEach(t => blocks.push(`("${t}")`));
+      v2State.roles.forEach(t => blocks.push(`("${t}")`));
       if (v2State.remote) blocks.push(`("Remoto")`);
       if (v2State.whatsapp) blocks.push(`("whatsapp")`);
       if (v2State.wa) blocks.push(`("wa.me")`);
@@ -358,6 +368,18 @@
 
     document.getElementById('v2-city-group').addEventListener('change', (e) => {
       v2State.cityGroup = e.target.value ? Number(e.target.value) : null;
+      v2State.selectedCityTerms = [];
+      renderCityTerms();
+      updateV2Preview();
+    });
+
+    document.getElementById('v2-city-terms').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-city]'); if (!btn) return;
+      const term = btn.dataset.city;
+      const idx = v2State.selectedCityTerms.indexOf(term);
+      if (idx >= 0) v2State.selectedCityTerms.splice(idx, 1);
+      else v2State.selectedCityTerms.push(term);
+      renderCityTerms();
       updateV2Preview();
     });
 
@@ -501,6 +523,7 @@
     renderRolePresets();
     renderRoles();
     renderExtraLocations();
+    renderCityTerms();
     updateV2Preview();
     renderFollowup();
   </script>
