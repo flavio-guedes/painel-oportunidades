@@ -121,6 +121,12 @@
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
   }
 
+  /* Debug */
+  .debug-log {
+    margin-top: 10px; padding: 10px; border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid var(--line);
+    color: var(--muted); font-size: 11px; line-height: 1.6;
+  }
+
   @media (max-width: 860px) {
     .motors { grid-template-columns: 1fr; }
     .board { grid-template-columns: 1fr; }
@@ -196,14 +202,15 @@
     <div class="section">
       <h2>Resultados do motor</h2>
       <div id="motor-results"></div>
+      <div class="debug-log" id="debug-log"></div>
     </div>
 
     <div class="section">
       <h2>Query base</h2>
       <div class="query" id="query-base">
-        ("designer" OR "Diretor de Arte") and ("vaga") AND ("whatsapp" OR "wa.me")
+        ("Creative Director" OR "Creative Lead" OR "Head of Creative" OR "Design Lead" OR "Head of Design" OR "Diretor de Criação" OR "Coordenador de Criação" OR "Head de Conteúdo" OR "Content Lead" OR "Content Director" OR "Content Strategy" OR "Head of Content" OR "Marketing Manager" OR "Head de Marketing" OR "Marketing Director" OR "Brand Manager" OR "Marketing Strategy") NOT ("Social Media" OR "Account Manager" OR "Account Executive" OR "Copywriter" OR "Redator" OR "Content Writer" OR "Graphic Designer" OR "Designer Senior" OR "Media Buyer" OR "Paid Media" OR "SEO Analyst" OR "Marketing Analyst")
       </div>
-      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Cada botão altera os cargos e abre a busca diretamente no LinkedIn, ordenada por data de publicação.</p>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Busca booleana efetiva aplicada aos motores: CRIAÇÃO / CONTEÚDO / GESTÃO DE MARKETING, com exclusões operacionais.</p>
     </div>
 
     <div class="actions">
@@ -214,39 +221,53 @@
   <script>
     const STORAGE_KEY = 'painel_oportunidades_v1';
     const MEMORY_KEY = 'painel_memory_v1';
+    const DOMAINS = {
+      creative: ['Creative Director','Diretor de Criação','Creative Lead','Creative Manager','Head of Creative','Head de Criação','Coordenador de Criação','Coordenação Criativa','Design Director','Design Lead','Design Manager','Head of Design','Head de Design','Diretor de Design','Coordenador de Design','Art Director','Diretor de Arte','Design Strategy','Creative Strategy','Brand Creative','Creative Strategy Lead','Creative Operations','Innovation Creative'],
+      content: ['Head de Conteúdo','Head of Content','Content Director','Content Lead','Content Manager','Content Strategy','Content Strategy Lead','Diretor de Conteúdo','Coordenador de Conteúdo','Gerente de Conteúdo','Estratégia de Conteúdo','Branded Content','Brand Content','Content Marketing','Content Operations','Editorial Strategy','Creative Content','Content & Brand','Content & Creative'],
+      marketing: ['Marketing Manager','Gerente de Marketing','Marketing Lead','Head de Marketing','Head of Marketing','Diretor de Marketing','Marketing Director','Coordenador de Marketing','Marketing Strategy Lead','Brand Marketing Manager','Brand Manager','Brand Strategy','Communication & Marketing Manager','Creative Marketing Lead','Content Marketing Manager','Marketing & Brand','Growth Marketing Lead']
+    };
+    const NEGATIVE = {
+      social: ['Social Media','Social Media Analyst','Social Media Manager','Social Media Coordinator','Community Manager','Community Specialist','Social Content Creator','Social Media Specialist'],
+      account: ['Account Executive','Account Manager','Account Director','Atendimento','Executivo de Contas','Gerente de Contas','Coordenador de Contas','Client Services','Customer Success','Client Success','Customer Experience'],
+      writing: ['Redator','Copywriter','Copywriter Senior','Content Writer','Writer','UX Writer','Technical Writer','Editor','Proofreader'],
+      design_ops: ['Graphic Designer','Designer Gráfico','Designer Jr','Designer Pleno','Designer Senior','Visual Designer','Production Designer','Layout Designer'],
+      production_ops: ['Produtor','Production Assistant','Editor de Vídeo','Video Editor','Motion Designer','Motion Graphics','Fotógrafo','Videomaker','Content Creator'],
+      performance_ops: ['Analista de Mídia','Media Buyer','Paid Media Analyst','Tráfego Pago','SEO Analyst','SEM Analyst','Performance Analyst','CRM Analyst','Marketing Analyst']
+    };
+
     const queries = [
-      { label: 'Designer', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Social Media', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Art Director', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Diretor Criativo', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Customer Success', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Gestão de Projetos', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Copy e Redação', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Community Management', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Gestor de Tráfego', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Head de Mídia', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Brand Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Redator', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Social Media', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Gestor de Projetos (Marketing)', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Gestor de Projetos (Produto)', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Customer Success', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Account Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Account%20Manager%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Gestor de Projetos', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Analista de Marketing', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Analista%20de%20Marketing%22%20OR%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Head de Marketing', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Marketing%22%20OR%20%22Head%20of%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Design Lead', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Design%20Lead%22%20OR%20%22Lead%20Designer%22%20OR%20%22UX%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Growth Marketing', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Marketing%22%20OR%20%22Performance%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Growth Hacker', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Hacker%22%20OR%20%22Growth%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Product Marketing Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Product%20Marketing%20Manager%22%20OR%20%22PMM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Content Strategist', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Strategist%22%20OR%20%22Estrategista%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Head de Conteúdo', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Conte%C3%BAdo%22%20OR%20%22Head%20of%20Content%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Content Marketing Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Marketing%20Manager%22%20OR%20%22Marketing%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Marketing Digital', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Digital%22%20OR%20%22Digital%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Performance Marketing', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Performance%20Marketing%22%20OR%20%22Marketing%20de%20Performance%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'CRM Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22CRM%20Manager%22%20OR%20%22Especialista%20CRM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Marketing Automation', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Automation%22%20OR%20%22Automa%C3%A7%C3%A3o%20de%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' },
-      { label: 'Content Producer', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Producer%22%20OR%20%22Produtor%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D' }
+      { label: 'Designer', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Social Media', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Art Director', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Diretor Criativo', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Customer Success', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Gestão de Projetos', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Copy e Redação', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
+      { label: 'Community Management', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Gestor de Tráfego', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Head de Mídia', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Brand Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Redator', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
+      { label: 'Social Media', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Gestor de Projetos (Marketing)', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Gestor de Projetos (Produto)', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Customer Success', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Account Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Account%20Manager%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Gestor de Projetos', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Analista de Marketing', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Analista%20de%20Marketing%22%20OR%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Head de Marketing', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Marketing%22%20OR%20%22Head%20of%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Design Lead', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Design%20Lead%22%20OR%20%22Lead%20Designer%22%20OR%20%22UX%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Growth Marketing', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Marketing%22%20OR%20%22Performance%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Growth Hacker', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Hacker%22%20OR%20%22Growth%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Product Marketing Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Product%20Marketing%20Manager%22%20OR%20%22PMM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Content Strategist', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Strategist%22%20OR%20%22Estrategista%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
+      { label: 'Head de Conteúdo', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Conte%C3%BAdo%22%20OR%20%22Head%20of%20Content%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
+      { label: 'Content Marketing Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Marketing%20Manager%22%20OR%20%22Marketing%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Marketing Digital', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Digital%22%20OR%20%22Digital%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Performance Marketing', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Performance%20Marketing%22%20OR%20%22Marketing%20de%20Performance%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'CRM Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22CRM%20Manager%22%20OR%20%22Especialista%20CRM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Marketing Automation', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Automation%22%20OR%20%22Automa%C3%A7%C3%A3o%20de%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Content Producer', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Producer%22%20OR%20%22Produtor%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' }
     ];
 
     const profileVectors = {
@@ -261,7 +282,8 @@
     let activeMotor = null;
     let motorResults = [];
     let lastScan = null;
-    let scanStats = { analyzed: 0, new: 0, high: 0 };
+    let scanStats = { analyzed: 0, new: 0, high: 0, rejected: 0 };
+    let debugLog = [];
 
     function loadClicks() {
       try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
@@ -279,6 +301,34 @@
       const diff = Date.now() - ts; const minutes = Math.floor(diff / 60000);
       if (minutes < 1) return 'agora'; if (minutes < 60) return `há ${minutes} min`;
       const hours = Math.floor(minutes / 60); if (hours < 24) return `há ${hours}h`; const days = Math.floor(hours / 24); return `há ${days}d`;
+    }
+
+    function classificarDominio(query) {
+      const label = query.label.toLowerCase();
+      const domain = query.domain || '';
+      const creativeKeywords = ['creative','diretor de criação','design lead','design director','art director','diretor de arte','head of design','head de design','coordenador de criação','coordenação criativa','design strategy','creative strategy','brand creative','innovation creative'];
+      const contentKeywords = ['content','conteúdo','branded content','content strategy','editorial','storytelling','audiovisual','content marketing'];
+      const marketingKeywords = ['marketing','head de marketing','head of marketing','diretor de marketing','marketing manager','brand manager','marketing strategy','communication & marketing','creative marketing','growth marketing lead'];
+      const negativeKeywords = {
+        social: ['social media','community manager','social content creator','community specialist'],
+        account: ['account manager','account executive','customer success','client success','customer experience','atendimento'],
+        writing: ['redator','copywriter','content writer','writer','ux writer','technical writer','editor','proofreader'],
+        design_ops: ['designer gráfico','designer junior','designer pleno','designer senior','visual designer','production designer','layout designer','graphic designer'],
+        production_ops: ['produtor','production assistant','editor de vídeo','video editor','motion designer','motion graphics','fotógrafo','videomaker','content creator'],
+        performance_ops: ['analista de mídia','media buyer','paid media','tráfego pago','seo analyst','sem analyst','performance analyst','crm analyst','marketing analyst']
+      };
+
+      if (domain === 'social' || negativeKeywords.social.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = SOCIAL_MEDIA' };
+      if (domain === 'account' || negativeKeywords.account.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = ACCOUNT' };
+      if (domain === 'writing' || negativeKeywords.writing.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = WRITING' };
+      if (domain === 'design_ops' || negativeKeywords.design_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = DESIGN_OPERACIONAL' };
+      if (domain === 'production_ops' || negativeKeywords.production_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = PRODUÇÃO_OPERACIONAL' };
+      if (domain === 'performance_ops' || negativeKeywords.performance_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = PERFORMANCE_OPERACIONAL' };
+
+      if (creativeKeywords.some(k => label.includes(k))) return { primaryDomain: 'CREATIVE', scopeScore: 95, reason: '' };
+      if (contentKeywords.some(k => label.includes(k))) return { primaryDomain: 'CONTENT', scopeScore: 95, reason: '' };
+      if (marketingKeywords.some(k => label.includes(k))) return { primaryDomain: 'MARKETING_MANAGEMENT', scopeScore: 90, reason: '' };
+      return { primaryDomain: 'REJECTED', scopeScore: 40, reason: 'FORA DOS DOMÍNIOS: CRIAÇÃO / CONTEÚDO / GESTÃO DE MARKETING' };
     }
 
     function scoreOpportunity(query, memory) {
@@ -308,6 +358,8 @@
       const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
       const minutes = map[currentRange];
       const filtered = queries.filter(q => {
+        const classification = classificarDominio(q);
+        if (classification.primaryDomain === 'REJECTED') return false;
         if (currentLevel !== 'all' && q.level !== currentLevel) return false;
         if (currentRange === 'all') return true;
         if (currentRange === 'unclicked') { const ts = clicks[q.label]; return !ts || within(ts, 0) === false; }
@@ -351,53 +403,77 @@
 
     function scoreMotorResults(motor) {
       const mem = loadMemory();
-      return queries.map(q => ({ ...q, score: scoreOpportunity(q, mem), oppScore: opportunityScore(scoreOpportunity(q, mem), 0, 1, 70) }))
+      return queries.map(q => {
+        const classification = classificarDominio(q);
+        const scopeScore = classification.scopeScore;
+        const fit = scopeScore < 80 ? 0 : scoreOpportunity(q, mem);
+        const oppScore = scopeScore < 80 ? 0 : opportunityScore(fit, 0, 1, 70);
+        return { ...q, scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason };
+      }).filter(r => r.primaryDomain !== 'REJECTED')
         .sort((a, b) => b.oppScore - a.oppScore)
         .slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
     }
 
     function renderMotorResults(motor) {
       const container = document.getElementById('motor-results');
-      if (!motor) { container.innerHTML = ''; return; }
-      motorResults = scoreMotorResults(motor);
+      const debug = document.getElementById('debug-log');
+      if (!motor) { container.innerHTML = ''; debug.innerHTML = ''; return; }
+      const allClassified = queries.map(q => {
+        const classification = classificarDominio(q);
+        const mem = loadMemory();
+        const fit = classification.scopeScore < 80 ? 0 : scoreOpportunity(q, mem);
+        const oppScore = classification.scopeScore < 80 ? 0 : opportunityScore(fit, 0, 1, 70);
+        return { ...q, scopeScore: classification.scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason };
+      });
+      const rejected = allClassified.filter(r => r.primaryDomain === 'REJECTED');
+      motorResults = allClassified.filter(r => r.primaryDomain !== 'REJECTED').sort((a, b) => b.oppScore - a.oppScore).slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
       const mem = loadMemory();
       scanStats.analyzed = queries.length;
       scanStats.new = motorResults.filter(r => !mem.seen[r.label]).length;
       scanStats.high = motorResults.filter(r => r.oppScore >= 80).length;
+      scanStats.rejected = rejected.length;
       lastScan = new Date();
       updateRadar();
-      if (!motorResults.length) { container.innerHTML = '<div class="summary">Nenhuma oportunidade encontrada para este motor.</div>'; return; }
-      container.innerHTML = motorResults.map(r => {
-        const seen = mem.seen[r.label];
-        const why = [];
-        if (r.level === 'head') why.push('liderança');
-        if (r.level === 'lider') why.push('liderança');
-        if (r.level === 'gerente') why.push('gestão');
-        if (r.label.toLowerCase().includes('conteúdo')) why.push('conteúdo');
-        if (r.label.toLowerCase().includes('design')) why.push('design');
-        if (r.label.toLowerCase().includes('growth')) why.push('growth');
-        if (r.label.toLowerCase().includes('marketing')) why.push('marketing');
-        if (!why.length) why.push('aderência ao perfil');
-        const gap = r.score < 85 ? 'Revisar requisitos de senioridade/idioma' : 'Sem gaps aparentes';
-        const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
-        return `<div class="result-card">
-          <div class="rc-header">
-            <div class="rc-title">${r.label}</div>
-            <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
-          </div>
-          <div class="rc-meta">${r.level.toUpperCase()} · ${seen ? 'Vista ' + formatTimeAgo(seen.ts) : 'Nova'}</div>
-          <div class="rc-why"><b>POR QUE:</b> + ${why.join(' · ')}</div>
-          <div class="rc-gap"><b>GAP:</b> ${gap}</div>
-          <div class="rc-actions">
-            <a href="${r.url}" target="_blank" rel="noopener">Abrir busca</a>
-            <button data-fb="interesting">👍 Interessante</button>
-            <button data-fb="apply">🔥 Aplicaria</button>
-            <button data-fb="reject">👎 Não é para mim</button>
-            <button data-fb="dream">⭐ Sonho</button>
-            <button data-fb="applied">✓ Apliquei</button>
-          </div>
-        </div>`;
-      }).join('');
+      if (!motorResults.length) { container.innerHTML = '<div class="summary">Nenhuma oportunidade dentro do escopo para este motor.</div>'; }
+      else {
+        container.innerHTML = motorResults.map(r => {
+          const seen = mem.seen[r.label];
+          const why = [];
+          if (r.level === 'head') why.push('liderança');
+          if (r.level === 'lider') why.push('liderança');
+          if (r.level === 'gerente') why.push('gestão');
+          if (r.label.toLowerCase().includes('conteúdo')) why.push('conteúdo');
+          if (r.label.toLowerCase().includes('design')) why.push('design');
+          if (r.label.toLowerCase().includes('growth')) why.push('growth');
+          if (r.label.toLowerCase().includes('marketing')) why.push('marketing');
+          if (!why.length) why.push('aderência ao perfil');
+          const gap = r.fit < 85 ? 'Revisar requisitos de senioridade/idioma' : 'Sem gaps aparentes';
+          const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
+          const domainLabel = r.primaryDomain === 'CREATIVE' ? '🎨 CRIAÇÃO' : r.primaryDomain === 'CONTENT' ? '🎯 CONTEÚDO' : '📈 GESTÃO DE MARKETING';
+          return `<div class="result-card">
+            <div class="rc-header">
+              <div class="rc-title">${r.label}</div>
+              <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
+            </div>
+            <div class="rc-meta">${domainLabel} · ${r.level.toUpperCase()} · ${seen ? 'Vista ' + formatTimeAgo(seen.ts) : 'Nova'}</div>
+            <div class="rc-why"><b>POR QUE:</b> + ${why.join(' · ')}</div>
+            <div class="rc-gap"><b>GAP:</b> ${gap}</div>
+            <div class="rc-actions">
+              <a href="${r.url}" target="_blank" rel="noopener">Abrir busca</a>
+              <button data-fb="interesting">👍 Interessante</button>
+              <button data-fb="apply">🔥 Aplicaria</button>
+              <button data-fb="reject">👎 Não é para mim</button>
+              <button data-fb="dream">⭐ Sonho</button>
+              <button data-fb="applied">✓ Apliquei</button>
+            </div>
+          </div>`;
+        }).join('');
+      }
+      if (rejected.length) {
+        debug.innerHTML = '<b>🚫 DESCARTADAS</b><br>' + rejected.map(r => `Cargo: ${r.label}<br>Motivo: ${r.reason}<br>SCOPE_SCORE = ${r.scopeScore}<br><br>`).join('');
+      } else {
+        debug.innerHTML = '';
+      }
       container.querySelectorAll('button[data-fb]').forEach(btn => {
         btn.addEventListener('click', () => {
           const fb = btn.dataset.fb;
