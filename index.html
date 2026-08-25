@@ -619,18 +619,6 @@
           const url = q.url + (urlTerms ? `+AND+(${urlTerms})` : '');
           return { ...q, url, baseBoolean: altered };
         });
-        if (wa.length || role.length || sen.length) {
-          effective = effective.filter(q => {
-            const label = q.label.toLowerCase();
-            const domain = (q.domain || '').toLowerCase();
-            if (role.includes('content') && !['content','marketing'].includes(domain)) return false;
-            if (role.includes('creative') && domain !== 'creative') return false;
-            if (role.includes('head') && q.level !== 'head') return false;
-            if (sen.includes('lead') && !['head','lider','gerente','coordenador'].includes(q.level)) return false;
-            if (sen.includes('analyst') && !['coordenador','gerente'].includes(q.level) && !label.includes('analista') && !label.includes('sênior')) return false;
-            return true;
-          });
-        }
       }
       const allClassified = effective.map(q => {
         const classification = classificarDominio(q);
