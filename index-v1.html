@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPQ · Boulevard de Oportunidades</title>
+<style>
+  :root {
+    --bg:#03040a;
+    --panel:rgba(15,23,42,.55);
+    --line:rgba(255,255,255,.08);
+    --text:#e6e9ef;
+    --muted:#8a93a6;
+    --blue:#3b82f6;
+    --green:#10b981;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --purple:#7c3aed;
+    --gold:#c8a96e;
+    --radius:16px;
+    --glass-border:rgba(255,255,255,.12);
+    --glass-bg:rgba(255,255,255,.04);
+    --glass-shine:rgba(255,255,255,.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial;
+    background:
+      radial-gradient(1200px 800px at 15% -10%, rgba(59,130,246,.22), transparent),
+      radial-gradient(1000px 700px at 85% 10%, rgba(124,58,237,.18), transparent),
+      radial-gradient(900px 600px at 50% 110%, rgba(16,185,129,.12), transparent),
+      var(--bg);
+    color: var(--text);
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+    mix-blend-mode: screen;
+  }
+  body > * { position: relative; z-index: 1; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  header {
+    padding: 18px 18px 14px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(15,23,42,.55), rgba(15,23,42,.25));
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    position: sticky; top: 0; z-index: 50;
+    border: 1px solid var(--glass-border);
+    border-top: none; border-left: none; border-right: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  header h1 { font-size: 18px; margin: 0; letter-spacing: .2px; }
+  header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+  .section { margin-top: 18px; }
+  .section h2 { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; }
+  .board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .08s ease, border-color .2s ease, box-shadow .2s ease;
+    background: linear-gradient(180deg, rgba(15,23,42,.75), rgba(17,27,45,.55)); color: var(--text); border-color: var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    position: relative; overflow: hidden;
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: -40px;
+    background: radial-gradient(circle at 30% 20%, rgba(59,130,246,.25), transparent 60%),
+                radial-gradient(circle at 70% 80%, rgba(124,58,237,.2), transparent 60%);
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .btn:hover::before { opacity: 1; }
+  .btn > * { position: relative; z-index: 1; }
+  .btn:hover { transform: translateY(-2px); border-color: #2a3a55; box-shadow: 0 14px 36px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1); }
+  .btn.primary { background: linear-gradient(90deg, var(--blue), var(--purple)); color: #fff; border-color: transparent; box-shadow: 0 12px 30px rgba(59,130,246,.25); }
+  .btn.primary:hover { background: linear-gradient(90deg, #4f8ef7, #8b5cf6); }
+  .btn.random { background: linear-gradient(90deg, var(--green), var(--blue)); color: #fff; border-color: transparent; box-shadow: 0 12px 30px rgba(16,185,129,.25); }
+  .btn.random:hover { background: linear-gradient(90deg, #10b981, #3b82f6); }
+  .btn.active { outline: 2px solid #fff; }
+  .query {
+    margin-top: 10px; padding: 12px; border-radius: 10px; background: var(--panel); border: 1px solid var(--glass-border); color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; line-height: 1.5;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .link {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid transparent;
+  }
+  .link.primary { background: rgba(59,130,246,.14); color: #e8f1ff; border-color: rgba(59,130,246,.35); }
+  .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-chip {
+    padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--glass-bg); color: var(--text); font-size: 12px; cursor: pointer;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .filter-chip.active { background: linear-gradient(135deg, rgba(230,168,92,.25), rgba(230,168,92,.05)); border-color: transparent; color: #fff; }
+  .summary { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* Motors */
+  .motors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+  .motor-btn {
+    padding: 16px; border-radius: var(--radius); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--glass-border); color: #fff; text-align: left; position: relative; overflow: hidden;
+    background: var(--panel); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .motor-btn::before {
+    content: '';
+    position: absolute;
+    inset: -50px;
+    background: radial-gradient(circle at 25% 25%, rgba(59,130,246,.22), transparent 55%),
+                radial-gradient(circle at 75% 75%, rgba(124,58,237,.18), transparent 55%);
+    opacity: 0;
+    transition: opacity .25s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .motor-btn:hover::before { opacity: 1; }
+  .motor-btn > * { position: relative; z-index: 1; }
+  .motor-btn .motor-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; letter-spacing: .2px; }
+  .motor-btn .motor-desc { font-size: 11px; opacity: 0.85; line-height: 1.4; }
+  .motor-btn.silver { border-color: rgba(180,83,9,.45); box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08), 0 0 20px rgba(180,83,9,.12); }
+  .motor-btn.silver:hover { background: linear-gradient(135deg, rgba(180,83,9,.18), rgba(120,53,15,.12)); border-color: rgba(180,83,9,.65); }
+  .motor-btn.lucky { border-color: rgba(5,150,105,.45); box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08), 0 0 20px rgba(16,185,129,.12); }
+  .motor-btn.lucky:hover { background: linear-gradient(135deg, rgba(5,150,105,.18), rgba(6,78,59,.12)); border-color: rgba(16,185,129,.65); }
+  .motor-btn.spy { border-color: rgba(124,58,237,.45); box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08), 0 0 20px rgba(124,58,237,.12); }
+  .motor-btn.spy:hover { background: linear-gradient(135deg, rgba(124,58,237,.18), rgba(76,29,149,.12)); border-color: rgba(124,58,237,.65); }
+  .motor-btn.scanning { opacity: 0.85; }
+  .motor-btn .scan-line {
+    position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    animation: scan 1.6s infinite;
+  }
+  @keyframes scan { to { left: 100%; } }
+
+  /* Radar status */
+  .radar {
+    margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+    background: var(--panel); border: 1px solid var(--glass-border); font-size: 12px; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  }
+  .radar .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px rgba(16,185,129,.7); }
+  .radar .stat { display: inline-flex; gap: 6px; align-items: center; }
+  .radar .stat b { color: var(--text); font-weight: 600; }
+
+  /* Results */
+  .result-card {
+    padding: 18px; border-radius: var(--radius); background: var(--panel); border: 1px solid var(--glass-border);
+    margin-bottom: 10px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    position: relative; overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; left: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(59,130,246,.35), transparent 70%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .result-card:hover::before { opacity: 1; }
+  .result-card > * { position: relative; z-index: 1; }
+  .result-card .rc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+  .result-card .rc-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .result-card .rc-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .result-card .rc-why { font-size: 12px; color: var(--text); margin-bottom: 6px; }
+  .result-card .rc-why b { color: var(--green); }
+  .result-card .rc-gap { font-size: 12px; color: var(--amber); margin-bottom: 8px; }
+  .result-card .rc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .result-card .rc-actions a { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(59,130,246,.12); color: #e8f1ff; border: 1px solid rgba(59,130,246,.25); text-decoration: none; }
+  .result-card .rc-actions button { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text); border: 1px solid var(--line); cursor: pointer; }
+  .score-pill { font-size: 11px; font-weight: 700; padding: 6px 10px; border-radius: 999px; background: rgba(16,185,129,.15); color: var(--green); border: 1px solid rgba(16,185,129,.35); }
+
+  /* Feedback toast */
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; padding: 12px 16px; border-radius: 10px;
+    background: rgba(15,23,42,.7); border: 1px solid var(--glass-border); color: var(--text); font-size: 12px; z-index: 200;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Debug */
+  .debug-log {
+    margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--panel); border: 1px solid var(--glass-border);
+    color: var(--muted); font-size: 11px; line-height: 1.6; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  }
+
+  @media (max-width: 860px) {
+    .motors { grid-template-columns: 1fr; }
+    .board { grid-template-columns: 1fr; }
+    .filter-bar { gap: 6px; }
+    .filter-chip { padding: 5px 8px; font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Boulevard de Oportunidades</h1>
+        <p>Motor inteligente de descoberta: Bala de Prata, Estou com Sorte e Espião.</p>
+      </div>
+    </header>
+
+    <div class="section">
+      <div class="filter-bar" id="tabs">
+        <button class="filter-chip active" data-tab="search">Busca</button>
+        <button class="filter-chip" data-tab="followup">Follow-up</button>
+      </div>
+    </div>
+
+    <div id="tab-search">
+      <div class="section">
+        <h2>Motores</h2>
+        <div class="motors" id="motors">
+          <button class="motor-btn silver" data-motor="silver">
+            <div class="motor-title">✦ Bala de Prata</div>
+            <div class="motor-desc">Máxima aderência · últimas 2h</div>
+          </button>
+          <button class="motor-btn lucky" data-motor="lucky">
+            <div class="motor-title">⚡ Estou com Sorte</div>
+            <div class="motor-desc">Descobertas · últimos 20 min</div>
+          </button>
+          <button class="motor-btn spy" data-motor="spy">
+            <div class="motor-title">◉ Espião</div>
+            <div class="motor-desc">Alto valor · radar ampliado</div>
+          </button>
+        </div>
+        <div class="radar" id="radar">
+          <span class="status-dot"></span>
+          <span class="stat">🟢 <b>RADAR ATIVO</b></span>
+          <span class="stat">Última varredura: <b id="radar-last">--</b></span>
+          <span class="stat">Analisadas: <b id="radar-analyzed">0</b></span>
+          <span class="stat">Novas: <b id="radar-new">0</b></span>
+          <span class="stat">Alta aderência: <b id="radar-high">0</b></span>
+        </div>
+        <div id="spy-panel" style="display:none;margin-top:14px;">
+          <div class="section">
+            <h2>📍 LOCALIZAÇÃO</h2>
+            <select id="spy-cluster-select" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:260px;">
+              <option value="">Selecione o grupo</option>
+            </select>
+            <div class="filter-bar" id="spy-terms" style="margin-top:10px;"></div>
+          </div>
+          <div class="section">
+            <h2>Filtros</h2>
+            <div class="filter-bar" id="spy-whatsapp-tags">
+              <button class="filter-chip" data-wa="whatsapp">whatsapp</button>
+              <button class="filter-chip" data-wa="wa.me">wa.me</button>
+            </div>
+            <div class="filter-bar" id="spy-role-tags" style="margin-top:8px;">
+              <button class="filter-chip" data-role="content">Content / Conteúdo</button>
+              <button class="filter-chip" data-role="creative">Criação / Design</button>
+            </div>
+            <div class="filter-bar" id="spy-role-tags-2" style="margin-top:8px;">
+              <button class="filter-chip" data-role="head">Head / Diretor</button>
+              <button class="filter-chip" data-role="brand">Marca / Brand</button>
+            </div>
+            <div class="filter-bar" id="spy-role-tags-3" style="margin-top:8px;">
+              <button class="filter-chip" data-role="av">Audiovisual / Vídeo</button>
+              <button class="filter-chip" data-role="motion">Motion Design</button>
+            </div>
+            <div class="filter-bar" id="spy-role-tags-4" style="margin-top:8px;">
+              <button class="filter-chip" data-role="strategy">Estratégia / Planejamento</button>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
+                <input type="checkbox" id="spy-remote"> Remoto
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
+                <input type="checkbox" id="spy-latam"> LATAM
+              </label>
+              <button class="btn primary" id="spy-search-btn">🔎 BUSCAR OPORTUNIDADES</button>
+            </div>
+            <div class="query" id="spy-query-preview" style="margin-top:10px;display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Resultados do motor</h2>
+        <div id="motor-results"></div>
+        <div class="debug-log" id="debug-log"></div>
+      </div>
+
+      <div class="section">
+        <h2>Buscar por cargo</h2>
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="section">
+        <h2>Filtros</h2>
+        <div class="filter-bar" id="level-filters">
+          <button class="filter-chip active" data-level="all">Nível: Todos</button>
+          <button class="filter-chip" data-level="coordenador">Coordenador</button>
+          <button class="filter-chip" data-level="lider">Líder</button>
+          <button class="filter-chip" data-level="gerente">Gerente</button>
+          <button class="filter-chip" data-level="head">Head</button>
+        </div>
+        <div class="filter-bar" id="filters">
+          <button class="filter-chip active" data-range="1h">1 hora</button>
+          <button class="filter-chip" data-range="10m">10 min</button>
+          <button class="filter-chip" data-range="30m">30 min</button>
+          <button class="filter-chip" data-range="1h">1 hora</button>
+          <button class="filter-chip" data-range="2h">2 horas</button>
+          <button class="filter-chip" data-range="3h">3 horas</button>
+          <button class="filter-chip" data-range="5h">5 horas</button>
+          <button class="filter-chip" data-range="1d">1 dia</button>
+          <button class="filter-chip" data-range="2d">2 dias</button>
+          <button class="filter-chip" data-range="unclicked">Não clicados</button>
+        </div>
+        <div class="summary" id="summary">Mostrando todos os cargos.</div>
+      </div>
+
+      <div class="section">
+        <h2>Query base</h2>
+        <div class="query" id="query-base">
+          ("Creative Director" OR "Creative Lead" OR "Head of Creative" OR "Design Lead" OR "Head of Design" OR "Diretor de Criação" OR "Coordenador de Criação" OR "Head de Conteúdo" OR "Content Lead" OR "Content Director" OR "Content Strategy" OR "Head of Content" OR "Marketing Manager" OR "Head de Marketing" OR "Marketing Director" OR "Brand Manager" OR "Marketing Strategy") NOT ("Social Media" OR "Account Manager" OR "Account Executive" OR "Copywriter" OR "Redator" OR "Content Writer" OR "Graphic Designer" OR "Designer Senior" OR "Media Buyer" OR "Paid Media" OR "SEO Analyst" OR "Marketing Analyst")
+        </div>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px;">Busca booleana efetiva aplicada aos motores: CRIAÇÃO / CONTEÚDO / GESTÃO DE MARKETING, com exclusões operacionais.</p>
+      </div>
+    </div>
+
+    <div id="tab-followup" style="display:none;">
+      <div class="section">
+        <h2>Follow-up de Candidaturas</h2>
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <input id="followup-name" placeholder="Nome" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <input id="followup-role" placeholder="Cargo" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <input id="followup-company" placeholder="Empresa" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <input id="followup-contact" placeholder="WhatsApp/Email" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <button class="filter-chip active" id="followup-add">Salvar follow-up</button>
+        </div>
+        <div class="debug-log" id="followup-list"></div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="link primary" href="https://github.com/flavio-guedes/painel-oportunidades" target="_blank" rel="noopener">Abrir repositório</a>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'painel_oportunidades_v1';
+    const MEMORY_KEY = 'painel_memory_v1';
+    const DOMAINS = {
+      creative: ['Creative Director','Diretor de Criação','Creative Lead','Creative Manager','Head of Creative','Head de Criação','Coordenador de Criação','Coordenação Criativa','Design Director','Design Lead','Design Manager','Head of Design','Head de Design','Diretor de Design','Coordenador de Design','Art Director','Diretor de Arte','Design Strategy','Creative Strategy','Brand Creative','Creative Strategy Lead','Creative Operations','Innovation Creative'],
+      content: ['Head de Conteúdo','Head of Content','Content Director','Content Lead','Content Manager','Content Strategy','Content Strategy Lead','Diretor de Conteúdo','Coordenador de Conteúdo','Gerente de Conteúdo','Estratégia de Conteúdo','Branded Content','Brand Content','Content Marketing','Content Operations','Editorial Strategy','Creative Content','Content & Brand','Content & Creative'],
+      marketing: ['Marketing Manager','Gerente de Marketing','Marketing Lead','Head de Marketing','Head of Marketing','Diretor de Marketing','Marketing Director','Coordenador de Marketing','Marketing Strategy Lead','Brand Marketing Manager','Brand Manager','Brand Strategy','Communication & Marketing Manager','Creative Marketing Lead','Content Marketing Manager','Marketing & Brand','Growth Marketing Lead']
+    };
+    const NEGATIVE = {
+      social: ['Social Media','Social Media Analyst','Social Media Manager','Social Media Coordinator','Community Manager','Community Specialist','Social Content Creator','Social Media Specialist'],
+      account: ['Account Executive','Account Manager','Account Director','Atendimento','Executivo de Contas','Gerente de Contas','Coordenador de Contas','Client Services','Customer Success','Client Success','Customer Experience'],
+      writing: ['Redator','Copywriter','Copywriter Senior','Content Writer','Writer','UX Writer','Technical Writer','Editor','Proofreader'],
+      design_ops: ['Graphic Designer','Designer Gráfico','Designer Jr','Designer Pleno','Designer Senior','Visual Designer','Production Designer','Layout Designer'],
+      production_ops: ['Produtor','Production Assistant','Editor de Vídeo','Video Editor','Motion Designer','Motion Graphics','Fotógrafo','Videomaker','Content Creator'],
+      performance_ops: ['Analista de Mídia','Media Buyer','Paid Media Analyst','Tráfego Pago','SEO Analyst','SEM Analyst','Performance Analyst','CRM Analyst','Marketing Analyst']
+    };
+
+    const queries = [
+      { label: 'Designer', level: 'lider', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Social Media', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Art Director', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Diretor Criativo', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Customer Success', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Gestão de Projetos', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Copy e Redação', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
+      { label: 'Community Management', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Gestor de Tráfego', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Head de Mídia', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Brand Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Redator', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
+      { label: 'Social Media', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Gestor de Projetos (Marketing)', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Gestor de Projetos (Produto)', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Customer Success', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Account Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Account%20Manager%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Gestor de Projetos', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Analista de Marketing', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Analista%20de%20Marketing%22%20OR%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Head de Marketing', level: 'head', whatsapp: '85920098075', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Marketing%22%20OR%20%22Head%20of%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Design Lead', level: 'lider', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Design%20Lead%22%20OR%20%22Lead%20Designer%22%20OR%20%22UX%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Growth Marketing', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Marketing%22%20OR%20%22Performance%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Growth Hacker', level: 'lider', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Hacker%22%20OR%20%22Growth%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Product Marketing Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Product%20Marketing%20Manager%22%20OR%20%22PMM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Content Strategist', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Strategist%22%20OR%20%22Estrategista%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
+      { label: 'Head de Conteúdo', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Conte%C3%BAdo%22%20OR%20%22Head%20of%20Content%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
+      { label: 'Content Marketing Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Marketing%20Manager%22%20OR%20%22Marketing%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Marketing Digital', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Digital%22%20OR%20%22Digital%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Performance Marketing', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Performance%20Marketing%22%20OR%20%22Marketing%20de%20Performance%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'CRM Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22CRM%20Manager%22%20OR%20%22Especialista%20CRM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Marketing Automation', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Automation%22%20OR%20%22Automa%C3%A7%C3%A3o%20de%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Content Producer', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Producer%22%20OR%20%22Produtor%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' }
+    ];
+
+    const profileVectors = {
+      lideranca: ['Coordenação de Criação','Creative Lead','Design Lead','Head de Conteúdo','Head of Creative','Head of Design','Creative Strategy','liderança de times','gestão de projetos criativos'],
+      conteudo: ['Content Strategy','Content Lead','Brand Content','Branded Content','Content Director','estratégia editorial','storytelling','conteúdo multiplataforma','social/content','audiovisual'],
+      design: ['Design Leadership','Art Direction','Design Strategy','Brand Design','Creative Direction','sistemas de design','direção visual','branding'],
+      estrategia: ['estratégia de marca','comunicação','marketing','inovação','IA aplicada','transformação digital','growth','performance','negócios']
+    };
+
+    let currentLevel = 'all';
+    let currentRange = 'all';
+    let activeMotor = null;
+    let motorResults = [];
+    let lastScan = null;
+    let scanStats = { analyzed: 0, new: 0, high: 0, rejected: 0 };
+    let debugLog = [];
+    let spyCluster = null;
+    const SPY_CLUSTERS = [
+      { id: 1, label: 'SP Faria Lima / Itaim', terms: ['Faria Lima','Itaim Bibi','Vila Olímpia','JK'] },
+      { id: 2, label: 'SP Jardins / Pinheiros', terms: ['Jardins','Jardim Paulista','Cerqueira César','Pinheiros','Vila Madalena'] },
+      { id: 3, label: 'SP Paulista / Centro', terms: ['Avenida Paulista','Bela Vista','Consolação','Paraíso','Centro'] },
+      { id: 4, label: 'SP Moema / Zona Sul', terms: ['Moema','Campo Belo','Brooklin','Chácara Santo Antônio'] },
+      { id: 5, label: 'SP Alphaville', terms: ['Barueri','Alphaville','Tamboré','Santana de Parnaíba'] },
+      { id: 6, label: 'SP Grande SP', terms: ['Osasco','Santo André','São Bernardo','São Caetano','Guarulhos'] },
+      { id: 7, label: 'RIO Zona Sul', terms: ['Leblon','Ipanema','Lagoa','Gávea','Jardim Botânico'] },
+      { id: 8, label: 'RIO Botafogo / Flamengo', terms: ['Botafogo','Humaitá','Urca','Flamengo','Catete'] },
+      { id: 9, label: 'RIO Centro', terms: ['Centro','Lapa','Glória','Santa Teresa'] },
+      { id: 10, label: 'RIO Barra', terms: ['Barra da Tijuca','Recreio','Jacarepaguá'] },
+      { id: 11, label: 'Belo Horizonte', terms: ['Savassi','Lourdes','Funcionários','Belvedere','Nova Lima'] },
+      { id: 12, label: 'Brasília', terms: ['Asa Sul','Asa Norte','Lago Sul','Setor Comercial','Sudoeste'] },
+      { id: 13, label: 'Curitiba', terms: ['Batel','Centro','Água Verde','Cabral','Ecoville'] },
+      { id: 14, label: 'Porto Alegre', terms: ['Moinhos de Vento','Bela Vista','Auxiliadora','Centro'] },
+      { id: 15, label: 'Florianópolis', terms: ['Centro','Agronômica','Itacorubi','Trindade','Saco Grande'] },
+      { id: 16, label: 'Recife', terms: ['Boa Viagem','Pina','Ilha do Leite','Recife Antigo','Ilha do Retiro'] },
+      { id: 17, label: 'Salvador', terms: ['Rio Vermelho','Caminho das Árvores','Itaigara','Pituba','Comércio'] },
+      { id: 18, label: 'Fortaleza', terms: ['Aldeota','Meireles','Cocó','Varjota','Praia de Iracema'] },
+      { id: 19, label: 'Goiânia', terms: ['Setor Bueno','Marista','Oeste','Jardim Goiás','Setor Sul'] },
+      { id: 20, label: 'Campinas / Interior SP', terms: ['Campinas','Cambuí','Taquaral','Barão Geraldo','Valinhos','Vinhedo','Jundiaí'] }
+    ];
+    function loadCustomClusters() {
+      try { const raw = localStorage.getItem('painel_spy_clusters_v1'); return raw ? JSON.parse(raw) : []; } catch { return []; }
+    }
+    function saveCustomClusters(list) { localStorage.setItem('painel_spy_clusters_v1', JSON.stringify(list)); }
+    function getAllClusters() { return [...SPY_CLUSTERS, ...loadCustomClusters()]; }
+
+    function loadClicks() {
+      try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+    }
+    function saveClick(label) {
+      const clicks = loadClicks(); clicks[label] = Date.now(); localStorage.setItem(STORAGE_KEY, JSON.stringify(clicks));
+    }
+    function loadMemory() {
+      try { const raw = localStorage.getItem(MEMORY_KEY); return raw ? JSON.parse(raw) : { seen: {}, feedback: {}, preferences: {} }; } catch { return { seen: {}, feedback: {}, preferences: {} }; }
+    }
+    function saveMemory(mem) { localStorage.setItem(MEMORY_KEY, JSON.stringify(mem)); }
+    function within(ts, minutes) { return (Date.now() - ts) <= minutes * 60 * 1000; }
+    function formatTimeAgo(ts) {
+      if (!ts) return 'não clicado';
+      const diff = Date.now() - ts; const minutes = Math.floor(diff / 60000);
+      if (minutes < 1) return 'agora'; if (minutes < 60) return `há ${minutes} min`;
+      const hours = Math.floor(minutes / 60); if (hours < 24) return `há ${hours}h`; const days = Math.floor(hours / 24); return `há ${days}d`;
+    }
+
+    function classificarDominio(query) {
+      const label = query.label.toLowerCase();
+      const domain = query.domain || '';
+      const creativeKeywords = ['creative','diretor de criação','design lead','design director','art director','diretor de arte','head of design','head de design','coordenador de criação','coordenação criativa','design strategy','creative strategy','brand creative','innovation creative'];
+      const contentKeywords = ['content','conteúdo','branded content','content strategy','editorial','storytelling','audiovisual','content marketing'];
+      const marketingKeywords = ['marketing','head de marketing','head of marketing','diretor de marketing','marketing manager','brand manager','marketing strategy','communication & marketing','creative marketing','growth marketing lead'];
+      const negativeKeywords = {
+        social: ['social media','community manager','social content creator','community specialist'],
+        account: ['account manager','account executive','customer success','client success','customer experience','atendimento'],
+        writing: ['redator','copywriter','content writer','writer','ux writer','technical writer','editor','proofreader'],
+        design_ops: ['designer gráfico','designer junior','designer pleno','designer senior','visual designer','production designer','layout designer','graphic designer'],
+        production_ops: ['produtor','production assistant','editor de vídeo','video editor','motion designer','motion graphics','fotógrafo','videomaker','content creator'],
+        performance_ops: ['analista de mídia','media buyer','paid media','tráfego pago','seo analyst','sem analyst','performance analyst','crm analyst','marketing analyst']
+      };
+
+      if (domain === 'social' || negativeKeywords.social.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = SOCIAL_MEDIA' };
+      if (domain === 'account' || negativeKeywords.account.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = ACCOUNT' };
+      if (domain === 'writing' || negativeKeywords.writing.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = WRITING' };
+      if (domain === 'design_ops' || negativeKeywords.design_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = DESIGN_OPERACIONAL' };
+      if (domain === 'production_ops' || negativeKeywords.production_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = PRODUÇÃO_OPERACIONAL' };
+      if (domain === 'performance_ops' || negativeKeywords.performance_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = PERFORMANCE_OPERACIONAL' };
+
+      if (domain === 'brand') return { primaryDomain: 'MARKETING_MANAGEMENT', scopeScore: 85, reason: '' };
+      if (domain === 'av' || domain === 'motion') return { primaryDomain: 'CREATIVE', scopeScore: 90, reason: '' };
+      if (domain === 'strategy') return { primaryDomain: 'CONTENT', scopeScore: 85, reason: '' };
+      if (creativeKeywords.some(k => label.includes(k))) return { primaryDomain: 'CREATIVE', scopeScore: 95, reason: '' };
+      if (contentKeywords.some(k => label.includes(k))) return { primaryDomain: 'CONTENT', scopeScore: 95, reason: '' };
+      if (marketingKeywords.some(k => label.includes(k))) return { primaryDomain: 'MARKETING_MANAGEMENT', scopeScore: 90, reason: '' };
+      return { primaryDomain: 'REJECTED', scopeScore: 40, reason: 'FORA DOS DOMÍNIOS: CRIAÇÃO / CONTEÚDO / GESTÃO DE MARKETING' };
+    }
+
+    function scoreOpportunity(query, memory) {
+      let fit = 50;
+      const label = query.label.toLowerCase();
+      Object.entries(profileVectors).forEach(([k, terms]) => {
+        terms.forEach(t => { if (label.includes(t.toLowerCase())) fit += 6; });
+      });
+      if (query.level === 'head') fit += 12; else if (query.level === 'lider') fit += 9; else if (query.level === 'gerente') fit += 6;
+      const fb = memory.feedback[query.label];
+      if (fb) {
+        if (fb === 'apply') fit += 10; else if (fb === 'interesting') fit += 5; else if (fb === 'dream') fit += 8; else if (fb === 'reject') fit -= 15;
+      }
+      return Math.min(100, Math.max(0, fit));
+    }
+
+    function opportunityScore(fit, salaryHint = 0, recencyHours = 999, locationMatch = 0) {
+      return Math.min(100, Math.max(0, fit * 0.55 + locationMatch * 0.15 + (salaryHint > 10000 ? 10 : 0) + (recencyHours <= 2 ? 15 : 0) + 10));
+    }
+
+    function renderBoard(range) {
+      currentRange = range || currentRange;
+      const board = document.getElementById('board');
+      const summary = document.getElementById('summary');
+      const clicks = loadClicks();
+      const mem = loadMemory();
+      const map = { '10m': 10, '30m': 30, '1h': 60, '2h': 120, '3h': 180, '5h': 300, '1d': 1440, '2d': 2880 };
+      const minutes = map[currentRange];
+      const filtered = queries.filter(q => {
+        const classification = classificarDominio(q);
+        if (classification.primaryDomain === 'REJECTED') return false;
+        if (currentLevel !== 'all' && q.level !== currentLevel) return false;
+        if (currentRange === 'all') return true;
+        if (currentRange === 'unclicked') { const ts = clicks[q.label]; return !ts || within(ts, 0) === false; }
+        const ts = clicks[q.label]; if (!ts) return false; return within(ts, minutes);
+      });
+      const ordered = filtered.slice().sort((a, b) => {
+        const ta = clicks[a.label]; const tb = clicks[b.label];
+        if (ta && tb) return tb - ta; if (ta) return -1; if (tb) return 1; return 0;
+      });
+      const levelLabel = currentLevel === 'all' ? '' : currentLevel === 'coordenador' ? 'Coordenador · ' : currentLevel === 'lider' ? 'Líder · ' : currentLevel === 'gerente' ? 'Gerente · ' : currentLevel === 'head' ? 'Head · ' : '';
+      summary.textContent = currentRange === 'all' ? `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos.` : currentRange === 'unclicked' ? `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos não clicados.` : `${levelLabel}Mostrando ${ordered.length} de ${queries.length} cargos clicados ${range === '10m' ? 'nos últimos 10 minutos' : range === '30m' ? 'nos últimos 30 minutos' : range === '1h' ? 'na última hora' : range === '2h' ? 'nas últimas 2 horas' : range === '3h' ? 'nas últimas 3 horas' : range === '5h' ? 'nas últimas 5 horas' : range === '1d' ? 'no último dia' : 'nos últimos 2 dias'}.`;
+      board.innerHTML = ordered.map(q => {
+        const ts = clicks[q.label]; const timeAgo = formatTimeAgo(ts); const isNew = ts && within(ts, 10);
+        return `<a class="btn ${isNew ? 'primary' : ''}" href="${q.url}" target="_blank" rel="noopener" data-label="${q.label}"><span>${q.label}</span><span style="font-size:11px;opacity:.85;">${timeAgo}</span></a>`;
+      }).join('');
+      board.querySelectorAll('.btn').forEach(btn => { btn.addEventListener('click', () => saveClick(btn.dataset.label)); });
+    }
+
+    function applyLevelFilter(level) {
+      currentLevel = level;
+      document.querySelectorAll('#level-filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.level === level));
+      renderBoard(currentRange);
+    }
+    function applyTimeFilter(range) {
+      currentRange = range;
+      document.querySelectorAll('#filters .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+      renderBoard(range);
+    }
+    document.getElementById('level-filters').addEventListener('click', (e) => { if (e.target.dataset.level) applyLevelFilter(e.target.dataset.level); });
+    document.getElementById('filters').addEventListener('click', (e) => { if (e.target.dataset.range) applyTimeFilter(e.target.dataset.range); });
+
+    function getMotorUrls(motor) {
+      if (motor === 'silver') {
+        return queries.filter(q => q.level === 'head' || q.level === 'lider').slice(0, 5).map(q => q.url);
+      }
+      if (motor === 'lucky') {
+        return queries.filter(q => ['lider','gerente','head','coordenador'].includes(q.level)).slice(0, 8).map(q => q.url);
+      }
+      return queries.slice(0, 10).map(q => q.url);
+    }
+
+    function waLink(raw, role) {
+      const phone = String(raw || '').replace(/\D/g,'');
+      if (!phone) return '#';
+      const text = encodeURIComponent(`Olá, estou entrando em contato sobre a vaga de ${role || 'oportunidade'}. Meu portfólio: https://flavio-guedes.github.io/portfolio/parceria.html`);
+      return `https://wa.me/${phone}?text=${text}`;
+    }
+    function inferLocationFromPhone(raw) {
+      const phone = String(raw || '').replace(/\D/g,'');
+      if (!phone) return null;
+      const ddd = phone.length >= 3 ? phone.slice(0,2) : '';
+      const map = {
+        '11':'São Paulo — SP','12':'São José dos Campos — SP','13':'Santos — SP','14':'Bauru — SP','15':'Sorocaba — SP','16':'Ribeirão Preto — SP','17':'São José do Rio Preto — SP','18':'Presidente Prudente — SP','19':'Campinas — SP',
+        '21':'Rio de Janeiro — RJ','22':'Cabo Frio — RJ','24':'Petrópolis — RJ',
+        '27':'Vila Velha/ES','28':'Cachoeiro do Itapemirim — ES',
+        '31':'Belo Horizonte — MG','32':'Juiz de Fora — MG','33':'Governador Valadares — MG','34':'Uberlândia — MG','35':'Poços de Caldas — MG','37':'Divinópolis — MG','38':'Montes Claros — MG',
+        '41':'Curitiba — PR','42':'Ponta Grossa — PR','43':'Londrina — PR','44':'Maringá — PR','45':'Foz do Iguaçu — PR','46':'Francisco Beltrão — PR',
+        '47':'Joinville — SC','48':'Florianópolis — SC','49':'Chapecó — SC',
+        '51':'Porto Alegre — RS','53':'Pelotas — RS','54':'Caxias do Sul — RS','55':'Santa Maria — RS',
+        '61':'Brasília — DF','62':'Goiânia — GO','63':'Palmas — TO','64':'Rio Verde — GO','65':'Cuiabá — MT','66':'Rondonópolis — MT','67':'Campo Grande — MS','68':'Rio Branco — AC',
+        '71':'Salvador — BA','73':'Ilhéus — BA','74':'Juazeiro — BA','75':'Feira de Santana — BA','77':'Vitória da Conquista — BA',
+        '79':'Aracaju — SE','81':'Recife — PE','82':'Maceió — AL','83':'João Pessoa — PB','84':'Natal — RN','85':'Fortaleza — CE','86':'Teresina — PI','87':'Petrolina — PE','88':'Juazeiro do Norte — CE','89':'Picos — PI',
+        '91':'Belém — PA','92':'Manaus — AM','93':'Santarem — PA','94':'Marabá — PA','95':'Boa Vista — RR','96':'Macapá — AP','97':'Coari — AM','98':'São Luís — MA','99':'Imperatriz — MA'
+      };
+      return map[ddd] || null;
+    }
+    function buildSpyBooleanBase(q) {
+      if (q.baseBoolean) return q.baseBoolean;
+      const label = q.label || '';
+      return `("${label}") AND ("vaga") AND ("whatsapp" OR "wa.me")`;
+    }
+    function buildSpyRoleQueries(selectedRoles) {
+      const roleMap = {
+        content: { label: 'Content / Conteúdo', terms: ['Content','Conteúdo','Content Strategy','Content Marketing'] },
+        creative: { label: 'Criação / Design', terms: ['Criação','Design','Creative','Art Director'] },
+        head: { label: 'Head / Diretor', terms: ['Head','Diretor','Director'] },
+        brand: { label: 'Marca / Brand', terms: ['Brand','Marca','Brand Manager'] },
+        av: { label: 'Audiovisual / Vídeo', terms: ['Audiovisual','Vídeo','Video'] },
+        motion: { label: 'Motion Design', terms: ['Motion','Motion Design'] },
+        strategy: { label: 'Estratégia / Planejamento', terms: ['Estratégia','Planejamento','Strategy'] }
+      };
+      const selected = (selectedRoles || []).filter(r => roleMap[r]);
+      if (!selected.length) return [];
+      return selected.map(r => {
+        const terms = roleMap[r].terms;
+        const label = roleMap[r].label;
+        const booleanBase = `("${terms.join('" OR "')}") AND ("vaga")`;
+        const keywords = encodeURIComponent(booleanBase);
+        const url = `https://www.linkedin.com/search/results/content/?keywords=${keywords}&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D`;
+        return { label, level: 'all', whatsapp: '', url, baseBoolean: booleanBase, domain: r };
+      });
+    }
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function scoreMotorResults(motor) {
+      const mem = loadMemory();
+      let effective = queries;
+      let geo = '';
+      if (motor === 'spy' && spyCluster) {
+        const terms = spyCluster._selectedTerms && spyCluster._selectedTerms.length ? spyCluster._selectedTerms.slice(0,7) : spyCluster.terms.slice(0,7);
+        geo = terms.length ? terms[Math.floor(Math.random()*terms.length)] : '';
+        const remote = spyCluster._remote ? ['Remote','Remoto'] : [];
+        const latam = spyCluster._latam ? ['LATAM','Latam','Brasil','Brazil'] : [];
+        const wa = spyCluster._wa || [];
+        const role = spyCluster._role || [];
+        const allGeo = [...terms, ...remote, ...latam];
+        const baseQueries = role.length ? buildSpyRoleQueries(role) : queries;
+        effective = baseQueries.map(q => {
+          const base = q.baseBoolean || buildSpyBooleanBase(q);
+          const geoClause = allGeo.length ? `AND (${allGeo.map(t => `"${t}"`).join(' OR ')})` : '';
+          const parts = base.split('NOT');
+          let altered = parts[0].trim() + ' ' + geoClause;
+          const added = [];
+          if (wa.includes('whatsapp')) added.push('"whatsapp"');
+          if (wa.includes('wa.me')) added.push('"wa.me"');
+          if (role.includes('content')) added.push('"Content"', '"Conteúdo"', '"Content Strategy"', '"Content Marketing"');
+          if (role.includes('creative')) added.push('"Creative"', '"Criação"', '"Design"', '"Art Director"');
+          if (role.includes('head')) added.push('"Head"', '"Diretor"', '"Director"');
+          if (role.includes('brand')) added.push('"Brand"', '"Marca"', '"Brand Manager"');
+          if (role.includes('av')) added.push('"Audiovisual"', '"Vídeo"', '"Video"');
+          if (role.includes('motion')) added.push('"Motion"', '"Motion Design"');
+          if (role.includes('strategy')) added.push('"Estratégia"', '"Planejamento"', '"Strategy"');
+          if (added.length) altered += ' AND (' + added.join(' OR ') + ')';
+          if (parts[1]) altered += ' NOT ' + parts[1].trim();
+          const keywords = encodeURIComponent(altered);
+          const url = `https://www.linkedin.com/search/results/content/?keywords=${keywords}&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D`;
+          return { ...q, url, baseBoolean: altered };
+        });
+      }
+      const allClassified = effective.map(q => {
+        const classification = classificarDominio(q);
+        const scopeScore = classification.scopeScore;
+        const fit = scopeScore < 80 ? 0 : scoreOpportunity(q, mem);
+        const oppScore = scopeScore < 80 ? 0 : opportunityScore(fit, 0, 1, 70);
+        const location = inferLocationFromPhone(q.whatsapp || q.contact) || (spyCluster ? spyCluster.label : null) || (motor === 'spy' && geo ? geo : null);
+        return { ...q, scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason, location };
+      });
+      const rejected = allClassified.filter(r => r.primaryDomain === 'REJECTED');
+      motorResults = allClassified.filter(r => r.primaryDomain !== 'REJECTED').sort((a, b) => b.oppScore - a.oppScore).slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
+      const mem2 = loadMemory();
+      scanStats.analyzed = effective.length;
+      scanStats.new = motorResults.filter(r => !mem2.seen[r.label]).length;
+      scanStats.high = motorResults.filter(r => r.oppScore >= 80).length;
+      scanStats.rejected = rejected.length;
+      lastScan = new Date();
+      updateRadar();
+      return { motorResults, rejected, geo: spyCluster ? spyCluster.label : '' };
+    }
+
+    function renderMotorResults(motor) {
+      const container = document.getElementById('motor-results');
+      const debug = document.getElementById('debug-log');
+      if (!motor) { container.innerHTML = ''; debug.innerHTML = ''; return; }
+      const { motorResults: filteredResults, rejected, geo } = scoreMotorResults(motor);
+      const mem = loadMemory();
+      if (!filteredResults.length) { container.innerHTML = '<div class="summary">Nenhuma oportunidade dentro do escopo para este motor.</div>'; }
+      else {
+        container.innerHTML = filteredResults.map(r => {
+          const seen = mem.seen[r.label];
+          const why = [];
+          if (r.level === 'head') why.push('liderança');
+          if (r.level === 'lider') why.push('liderança');
+          if (r.level === 'gerente') why.push('gestão');
+          if (r.label.toLowerCase().includes('conteúdo')) why.push('conteúdo');
+          if (r.label.toLowerCase().includes('design')) why.push('design');
+          if (r.label.toLowerCase().includes('growth')) why.push('growth');
+          if (r.label.toLowerCase().includes('marketing')) why.push('marketing');
+          if (!why.length) why.push('aderência ao perfil');
+          const gap = r.fit < 85 ? 'Revisar requisitos de senioridade/idioma' : 'Sem gaps aparentes';
+          const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
+          const domainLabel = r.primaryDomain === 'CREATIVE' ? '🎨 CRIAÇÃO' : r.primaryDomain === 'CONTENT' ? '🎯 CONTEÚDO' : '📈 GESTÃO DE MARKETING';
+          const locationLabel = r.location || (motor === 'spy' && geo ? `📍 ${geo}` : '') || '🌎 Remoto — Brasil';
+          const roleLabel = motor === 'spy' && spyCluster && spyCluster._role && spyCluster._role.length ? spyCluster._role.map(x => x.toUpperCase()).join(' + ') : '';
+          return `<div class="result-card">
+            <div class="rc-header">
+              <div>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${locationLabel}</div>
+                <div class="rc-title">${r.label}</div>
+                ${roleLabel ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;">${roleLabel}</div>` : ''}
+              </div>
+              <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
+            </div>
+            <div class="rc-meta">${domainLabel} · ${r.level.toUpperCase()} · ${seen ? 'Vista ' + formatTimeAgo(seen.ts) : 'Nova'}</div>
+            <div class="rc-why"><b>POR QUE:</b> + ${why.join(' · ')}</div>
+            <div class="rc-gap"><b>GAP:</b> ${gap}</div>
+            <div class="rc-actions">
+              <a href="${r.url}" target="_blank" rel="noopener">Abrir busca</a>
+              <button data-fb="interesting">👍 Interessante</button>
+              <button data-fb="apply">🔥 Aplicaria</button>
+              <button data-fb="reject">👎 Não é para mim</button>
+              <button data-fb="dream">⭐ Sonho</button>
+              <button data-fb="applied">✓ Apliquei</button>
+            </div>
+          </div>`;
+        }).join('');
+        if (motor === 'spy' && geo) {
+          const booleanBox = document.createElement('div');
+          booleanBox.className = 'debug-log';
+          booleanBox.style.marginTop = '10px';
+          const sample = filteredResults[0];
+          booleanBox.innerHTML = `<b>🕵️ BOOLEAN APLICADA</b><br><pre style="white-space:pre-wrap;word-break:break-word;opacity:.85;">${escapeHtml(sample ? sample.baseBoolean : '')}</pre><br><b>📍 GEO ATIVO:</b> ${geo}`;
+          container.appendChild(booleanBox);
+        }
+      }
+      if (rejected.length) {
+        debug.innerHTML = '<b>🚫 DESCARTADAS</b><br>' + rejected.map(r => `Cargo: ${r.label}<br>Motivo: ${r.reason}<br>SCOPE_SCORE = ${r.scopeScore}<br><br>`).join('');
+      } else {
+        debug.innerHTML = '';
+      }
+      container.querySelectorAll('button[data-fb]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fb = btn.dataset.fb;
+          const card = btn.closest('.result-card');
+          const label = card.querySelector('.rc-title').textContent;
+          const mem = loadMemory();
+          mem.feedback[label] = fb;
+          mem.seen[label] = { ts: Date.now(), motor };
+          if (fb === 'reject') {
+            mem.rejected = mem.rejected || {};
+            mem.rejected[label] = Date.now();
+            card.style.transition = 'opacity .25s ease, transform .25s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(8px)';
+            setTimeout(() => card.remove(), 260);
+          }
+          if (fb === 'apply') {
+            const q = queries.find(x => x.label === label);
+            if (q && q.whatsapp) {
+              addFollowup({ name: '', role: label, company: '', contact: q.whatsapp });
+              window.open(waLink(q.whatsapp, label), '_blank');
+            }
+          }
+          saveMemory(mem);
+          showToast('Feedback salvo: ' + btn.textContent.trim());
+          if (fb !== 'reject') renderMotorResults(activeMotor);
+        });
+      });
+      filteredResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
+      if (motor === 'spy' && filteredResults.length) {
+        window.open(filteredResults[0].url, '_blank');
+      }
+    }
+
+    function updateRadar() {
+      document.getElementById('radar-last').textContent = lastScan ? lastScan.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--';
+      document.getElementById('radar-analyzed').textContent = scanStats.analyzed;
+      document.getElementById('radar-new').textContent = scanStats.new;
+      document.getElementById('radar-high').textContent = scanStats.high;
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
+      setTimeout(() => t.remove(), 1800);
+    }
+
+    function runMotor(motor) {
+      activeMotor = motor;
+      const btn = document.querySelector(`.motor-btn[data-motor="${motor}"]`);
+      if (!btn) return;
+      document.querySelectorAll('.motor-btn').forEach(b => b.classList.remove('scanning'));
+      btn.classList.add('scanning');
+      const line = document.createElement('div'); line.className = 'scan-line'; btn.appendChild(line);
+      if (motor === 'spy') {
+        const picker = document.getElementById('spy-panel');
+        if (picker) picker.style.display = '';
+        if (!spyCluster) {
+          renderSpyClusters();
+          setTimeout(() => { btn.classList.remove('scanning'); if (line.parentNode) line.remove(); }, 0);
+          return;
+        }
+      }
+      setTimeout(() => {
+        btn.classList.remove('scanning'); if (line.parentNode) line.remove();
+        renderMotorResults(motor);
+        showToast(`${motor === 'silver' ? 'Bala de Prata' : motor === 'lucky' ? 'Estou com Sorte' : 'Espião'} varreu ${queries.length} oportunidades.`);
+      }, 1200);
+    }
+    function renderSpyClusters() {
+      const select = document.getElementById('spy-cluster-select');
+      const all = getAllClusters();
+      select.innerHTML = '<option value="">Selecione o grupo</option>' + all.map(c => `<option value="${c.id}">${String(c.id).padStart(2,'0')} · ${c.label}</option>`).join('');
+      select.onchange = () => {
+        const id = Number(select.value);
+        const cluster = getAllClusters().find(c => c.id === id);
+        spyCluster = cluster || null;
+        if (cluster) renderSpyTerms(cluster);
+        else document.getElementById('spy-terms').innerHTML = '';
+      };
+    }
+    function renderSpyTerms(cluster) {
+      const termsContainer = document.getElementById('spy-terms');
+      termsContainer.innerHTML = cluster.terms.map((t, i) => `<button class="filter-chip ${i < 3 ? 'active' : ''}" data-term="${t}">${t}</button>`).join('');
+      termsContainer.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('active');
+          const selected = Array.from(termsContainer.querySelectorAll('.filter-chip.active')).map(b => b.dataset.term);
+          if (selected.length >= 7) termsContainer.querySelectorAll('.filter-chip:not(.active)').forEach(b => b.style.pointerEvents = 'none');
+          else termsContainer.querySelectorAll('.filter-chip').forEach(b => b.style.pointerEvents = '');
+          updateSpyQueryPreview();
+        });
+      });
+      updateSpyQueryPreview();
+    }
+    function updateSpyQueryPreview() {
+      const preview = document.getElementById('spy-query-preview');
+      if (!preview) return;
+      const cluster = spyCluster;
+      if (!cluster) { preview.style.display = 'none'; return; }
+      const terms = Array.from(document.querySelectorAll('#spy-terms .filter-chip.active')).map(b => b.dataset.term);
+      if (!terms.length) { preview.style.display = 'none'; return; }
+      const wa = getSelectedValues('spy-whatsapp-tags','wa');
+      const role = getSelectedValues('spy-role-tags','role').concat(getSelectedValues('spy-role-tags-2','role'), getSelectedValues('spy-role-tags-3','role'), getSelectedValues('spy-role-tags-4','role'));
+      const remote = document.getElementById('spy-remote').checked;
+      const latam = document.getElementById('spy-latam').checked;
+      const parts = [];
+      parts.push(`("${terms.join('" OR "')}")`);
+      if (wa.includes('whatsapp')) parts.push('"whatsapp"');
+      if (wa.includes('wa.me')) parts.push('"wa.me"');
+      if (role.includes('content')) parts.push('("Content" OR "Conteúdo")');
+      if (role.includes('creative')) parts.push('("Creative" OR "Criação" OR "Design")');
+      if (role.includes('head')) parts.push('("Head" OR "Diretor")');
+      if (role.includes('brand')) parts.push('("Brand" OR "Marca" OR "Brand Manager")');
+      if (role.includes('av')) parts.push('("Audiovisual" OR "Vídeo" OR "Video")');
+      if (role.includes('motion')) parts.push('("Motion" OR "Motion Design")');
+      if (role.includes('strategy')) parts.push('("Estratégia" OR "Planejamento" OR "Strategy")');
+      if (remote) parts.push('("Remote" OR "Remoto")');
+      if (latam) parts.push('("LATAM" OR "Latam" OR "Brasil" OR "Brazil")');
+      preview.textContent = parts.join(' AND ');
+      preview.style.display = '';
+    }
+    function getSelectedValues(containerId, attr) {
+      return Array.from(document.querySelectorAll(`#${containerId} .filter-chip.active`)).map(b => b.dataset[attr]);
+    }
+    document.getElementById('spy-cluster-select').addEventListener('change', (e) => {
+      const id = Number(e.target.value);
+      const cluster = getAllClusters().find(c => c.id === id) || null;
+      spyCluster = cluster;
+      if (cluster) renderSpyTerms(cluster); else document.getElementById('spy-terms').innerHTML = '';
+      updateSpyQueryPreview();
+    });
+    document.getElementById('spy-whatsapp-tags').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-wa]'); if (!btn) return;
+      document.querySelectorAll('#spy-whatsapp-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+      updateSpyQueryPreview();
+    });
+    document.getElementById('spy-search-btn').addEventListener('click', () => {
+      const select = document.getElementById('spy-cluster-select');
+      const id = Number(select.value);
+      const cluster = getAllClusters().find(c => c.id === id);
+      if (!cluster) { showToast('Selecione um grupo'); return; }
+      spyCluster = cluster;
+      const selectedTerms = Array.from(document.querySelectorAll('#spy-terms .filter-chip.active')).map(b => b.dataset.term);
+      if (!selectedTerms.length) { showToast('Selecione ao menos 1 termo'); return; }
+      spyCluster._selectedTerms = selectedTerms.slice(0, 7);
+      spyCluster._wa = getSelectedValues('spy-whatsapp-tags','wa');
+      spyCluster._role = getSelectedValues('spy-role-tags','role').concat(getSelectedValues('spy-role-tags-2','role'), getSelectedValues('spy-role-tags-3','role'), getSelectedValues('spy-role-tags-4','role'));
+      spyCluster._remote = document.getElementById('spy-remote').checked;
+      spyCluster._latam = document.getElementById('spy-latam').checked;
+      updateSpyQueryPreview();
+      runMotor('spy');
+    });
+    ['spy-remote','spy-latam'].forEach(id => document.getElementById(id).addEventListener('change', updateSpyQueryPreview));
+    ['spy-role-tags','spy-role-tags-2','spy-role-tags-3','spy-role-tags-4'].forEach(containerId => {
+      document.getElementById(containerId).addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-role]'); if (!btn) return;
+        btn.classList.toggle('active');
+        updateSpyQueryPreview();
+      });
+    });
+
+    document.getElementById('motors').addEventListener('click', (e) => {
+      const btn = e.target.closest('.motor-btn'); if (!btn) return; runMotor(btn.dataset.motor);
+    });
+
+    document.getElementById('tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-tab]'); if (!btn) return;
+      document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('tab-search').style.display = btn.dataset.tab === 'search' ? '' : 'none';
+      document.getElementById('tab-followup').style.display = btn.dataset.tab === 'followup' ? '' : 'none';
+    });
+
+    const FOLLOWUP_KEY = 'painel_followup_v1';
+    const FOLLOWUP_SEED = [
+      { id: 'seed-1', name: '', role: 'Lead Audiovisual Editor', company: '', contact: '21986168728', createdAt: new Date(Date.now() - 1000*60*60*2).toISOString() },
+      { id: 'seed-2', name: '', role: 'Copy / Redação', company: '', contact: '31998654672', createdAt: new Date(Date.now() - 1000*60*60*2).toISOString() },
+      { id: 'seed-3', name: '', role: 'Product Owner de Dados', company: 'DOMVS IT', contact: '11911876264', createdAt: new Date(Date.now() - 1000*60*60*3).toISOString() },
+      { id: 'seed-4', name: '', role: 'Vagas A PROSPER & CONTAS', company: 'A PROSPER & CONTAS', contact: '244929560455', createdAt: new Date(Date.now() - 1000*60*60*4).toISOString() },
+      { id: 'seed-5', name: '', role: 'Gerente de Marketing', company: '', contact: '11944740968', createdAt: new Date(Date.now() - 1000*60*60*5).toISOString() },
+      { id: 'seed-6', name: '', role: 'Growth Analyst', company: 'Saint Germain', contact: '47991015327', createdAt: new Date(Date.now() - 1000*60*60*6).toISOString() },
+      { id: 'seed-7', name: '', role: 'Product Owner II', company: 'Stefanini Group', contact: '11979732117', createdAt: new Date(Date.now() - 1000*60*60*7).toISOString() },
+      { id: 'seed-8', name: '', role: 'Customer Success Analyst', company: '4juris', contact: '8892030258', createdAt: new Date(Date.now() - 1000*60*60*8).toISOString() },
+      { id: 'seed-9', name: '', role: 'Head de Marketing', company: '', contact: '85920098075', createdAt: new Date(Date.now() - 1000*60*60*9).toISOString() }
+    ];
+    function loadFollowup() {
+      try { const raw = localStorage.getItem(FOLLOWUP_KEY); if (raw) return JSON.parse(raw); } catch {}
+      return [...FOLLOWUP_SEED];
+    }
+    function saveFollowup(items) { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(items)); }
+    function addFollowup(item) {
+      const items = loadFollowup();
+      items.unshift({ ...item, id: Date.now().toString(), createdAt: new Date().toISOString() });
+      saveFollowup(items);
+      renderFollowup();
+      showToast('Follow-up salvo');
+    }
+    function renderFollowup() {
+      const container = document.getElementById('followup-list');
+      const items = loadFollowup();
+      if (!items.length) { container.innerHTML = '<div class="summary">Nenhum follow-up ainda.</div>'; return; }
+      container.innerHTML = items.map(it => `<div class="result-card"><div class="rc-header"><div class="rc-title">${it.name || 'Sem nome'}</div><div class="score-pill">${it.role || 'Cargo não informado'}</div></div><div class="rc-meta">${it.company || ''} · ${it.contact || ''}</div><div class="rc-meta">${new Date(it.createdAt).toLocaleString('pt-BR')}</div><div class="rc-actions"><a href="${waLink(it.contact, it.role)}" target="_blank" rel="noopener">Fale comigo</a></div></div>`).join('');
+    }
+    document.getElementById('followup-add').addEventListener('click', () => {
+      addFollowup({
+        name: document.getElementById('followup-name').value.trim(),
+        role: document.getElementById('followup-role').value.trim(),
+        company: document.getElementById('followup-company').value.trim(),
+        contact: document.getElementById('followup-contact').value.trim()
+      });
+      ['followup-name','followup-role','followup-company','followup-contact'].forEach(id => document.getElementById(id).value = '');
+    });
+
+    renderBoard('all');
+    updateRadar();
+    renderFollowup();
+  </script>
+</body>
+</html>
