@@ -217,72 +217,95 @@
     </header>
 
     <div class="section">
-      <h2>Motores</h2>
-      <div class="motors" id="motors">
-        <button class="motor-btn silver" data-motor="silver">
-          <div class="motor-title">✦ Bala de Prata</div>
-          <div class="motor-desc">Máxima aderência · últimas 2h</div>
-        </button>
-        <button class="motor-btn lucky" data-motor="lucky">
-          <div class="motor-title">⚡ Estou com Sorte</div>
-          <div class="motor-desc">Descobertas · últimos 20 min</div>
-        </button>
-        <button class="motor-btn spy" data-motor="spy">
-          <div class="motor-title">◉ Espião</div>
-          <div class="motor-desc">Alto valor · radar ampliado</div>
-        </button>
-      </div>
-      <div class="radar" id="radar">
-        <span class="status-dot"></span>
-        <span class="stat">🟢 <b>RADAR ATIVO</b></span>
-        <span class="stat">Última varredura: <b id="radar-last">--</b></span>
-        <span class="stat">Analisadas: <b id="radar-analyzed">0</b></span>
-        <span class="stat">Novas: <b id="radar-new">0</b></span>
-        <span class="stat">Alta aderência: <b id="radar-high">0</b></span>
+      <div class="filter-bar" id="tabs">
+        <button class="filter-chip active" data-tab="search">Busca</button>
+        <button class="filter-chip" data-tab="followup">Follow-up</button>
       </div>
     </div>
 
-    <div class="section">
-      <h2>Resultados do motor</h2>
-      <div id="motor-results"></div>
-      <div class="debug-log" id="debug-log"></div>
+    <div id="tab-search">
+      <div class="section">
+        <h2>Motores</h2>
+        <div class="motors" id="motors">
+          <button class="motor-btn silver" data-motor="silver">
+            <div class="motor-title">✦ Bala de Prata</div>
+            <div class="motor-desc">Máxima aderência · últimas 2h</div>
+          </button>
+          <button class="motor-btn lucky" data-motor="lucky">
+            <div class="motor-title">⚡ Estou com Sorte</div>
+            <div class="motor-desc">Descobertas · últimos 20 min</div>
+          </button>
+          <button class="motor-btn spy" data-motor="spy">
+            <div class="motor-title">◉ Espião</div>
+            <div class="motor-desc">Alto valor · radar ampliado</div>
+          </button>
+        </div>
+        <div class="radar" id="radar">
+          <span class="status-dot"></span>
+          <span class="stat">🟢 <b>RADAR ATIVO</b></span>
+          <span class="stat">Última varredura: <b id="radar-last">--</b></span>
+          <span class="stat">Analisadas: <b id="radar-analyzed">0</b></span>
+          <span class="stat">Novas: <b id="radar-new">0</b></span>
+          <span class="stat">Alta aderência: <b id="radar-high">0</b></span>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Resultados do motor</h2>
+        <div id="motor-results"></div>
+        <div class="debug-log" id="debug-log"></div>
+      </div>
+
+      <div class="section">
+        <h2>Buscar por cargo</h2>
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="section">
+        <h2>Filtros</h2>
+        <div class="filter-bar" id="level-filters">
+          <button class="filter-chip active" data-level="all">Nível: Todos</button>
+          <button class="filter-chip" data-level="coordenador">Coordenador</button>
+          <button class="filter-chip" data-level="lider">Líder</button>
+          <button class="filter-chip" data-level="gerente">Gerente</button>
+          <button class="filter-chip" data-level="head">Head</button>
+        </div>
+        <div class="filter-bar" id="filters">
+          <button class="filter-chip active" data-range="all">Todos</button>
+          <button class="filter-chip" data-range="10m">10 min</button>
+          <button class="filter-chip" data-range="30m">30 min</button>
+          <button class="filter-chip" data-range="1h">1 hora</button>
+          <button class="filter-chip" data-range="2h">2 horas</button>
+          <button class="filter-chip" data-range="3h">3 horas</button>
+          <button class="filter-chip" data-range="5h">5 horas</button>
+          <button class="filter-chip" data-range="1d">1 dia</button>
+          <button class="filter-chip" data-range="2d">2 dias</button>
+          <button class="filter-chip" data-range="unclicked">Não clicados</button>
+        </div>
+        <div class="summary" id="summary">Mostrando todos os cargos.</div>
+      </div>
+
+      <div class="section">
+        <h2>Query base</h2>
+        <div class="query" id="query-base">
+          ("Creative Director" OR "Creative Lead" OR "Head of Creative" OR "Design Lead" OR "Head of Design" OR "Diretor de Criação" OR "Coordenador de Criação" OR "Head de Conteúdo" OR "Content Lead" OR "Content Director" OR "Content Strategy" OR "Head of Content" OR "Marketing Manager" OR "Head de Marketing" OR "Marketing Director" OR "Brand Manager" OR "Marketing Strategy") NOT ("Social Media" OR "Account Manager" OR "Account Executive" OR "Copywriter" OR "Redator" OR "Content Writer" OR "Graphic Designer" OR "Designer Senior" OR "Media Buyer" OR "Paid Media" OR "SEO Analyst" OR "Marketing Analyst")
+        </div>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px;">Busca booleana efetiva aplicada aos motores: CRIAÇÃO / CONTEÚDO / GESTÃO DE MARKETING, com exclusões operacionais.</p>
+      </div>
     </div>
 
-    <div class="section">
-      <h2>Filtros</h2>
-      <div class="filter-bar" id="level-filters">
-        <button class="filter-chip active" data-level="all">Nível: Todos</button>
-        <button class="filter-chip" data-level="coordenador">Coordenador</button>
-        <button class="filter-chip" data-level="lider">Líder</button>
-        <button class="filter-chip" data-level="gerente">Gerente</button>
-        <button class="filter-chip" data-level="head">Head</button>
+    <div id="tab-followup" style="display:none;">
+      <div class="section">
+        <h2>Follow-up de Candidaturas</h2>
+        <div class="filter-bar" style="margin-bottom:12px;">
+          <input id="followup-name" placeholder="Nome" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <input id="followup-role" placeholder="Cargo" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <input id="followup-company" placeholder="Empresa" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <input id="followup-contact" placeholder="WhatsApp/Email" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+          <button class="filter-chip active" id="followup-add">Salvar follow-up</button>
+        </div>
+        <div class="debug-log" id="followup-list"></div>
       </div>
-      <div class="filter-bar" id="filters">
-        <button class="filter-chip active" data-range="all">Todos</button>
-        <button class="filter-chip" data-range="10m">10 min</button>
-        <button class="filter-chip" data-range="30m">30 min</button>
-        <button class="filter-chip" data-range="1h">1 hora</button>
-        <button class="filter-chip" data-range="2h">2 horas</button>
-        <button class="filter-chip" data-range="3h">3 horas</button>
-        <button class="filter-chip" data-range="5h">5 horas</button>
-        <button class="filter-chip" data-range="1d">1 dia</button>
-        <button class="filter-chip" data-range="2d">2 dias</button>
-        <button class="filter-chip" data-range="unclicked">Não clicados</button>
-      </div>
-      <div class="summary" id="summary">Mostrando todos os cargos.</div>
-    </div>
-
-    <div class="section">
-      <h2>Buscar por cargo</h2>
-      <div class="board" id="board"></div>
-    </div>
-
-    <div class="section">
-      <h2>Query base</h2>
-      <div class="query" id="query-base">
-        ("Creative Director" OR "Creative Lead" OR "Head of Creative" OR "Design Lead" OR "Head of Design" OR "Diretor de Criação" OR "Coordenador de Criação" OR "Head de Conteúdo" OR "Content Lead" OR "Content Director" OR "Content Strategy" OR "Head of Content" OR "Marketing Manager" OR "Head de Marketing" OR "Marketing Director" OR "Brand Manager" OR "Marketing Strategy") NOT ("Social Media" OR "Account Manager" OR "Account Executive" OR "Copywriter" OR "Redator" OR "Content Writer" OR "Graphic Designer" OR "Designer Senior" OR "Media Buyer" OR "Paid Media" OR "SEO Analyst" OR "Marketing Analyst")
-      </div>
-      <p style="color:var(--muted);font-size:12px;margin-top:8px;">Busca booleana efetiva aplicada aos motores: CRIAÇÃO / CONTEÚDO / GESTÃO DE MARKETING, com exclusões operacionais.</p>
     </div>
 
     <div class="actions">
@@ -308,38 +331,38 @@
     };
 
     const queries = [
-      { label: 'Designer', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
-      { label: 'Social Media', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
-      { label: 'Art Director', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
-      { label: 'Diretor Criativo', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
-      { label: 'Customer Success', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
-      { label: 'Gestão de Projetos', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Copy e Redação', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
-      { label: 'Community Management', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
-      { label: 'Gestor de Tráfego', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Head de Mídia', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Brand Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Redator', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
-      { label: 'Social Media', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
-      { label: 'Gestor de Projetos (Marketing)', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Gestor de Projetos (Produto)', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Customer Success', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
-      { label: 'Account Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Account%20Manager%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
-      { label: 'Gestor de Projetos', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Analista de Marketing', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Analista%20de%20Marketing%22%20OR%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Head de Marketing', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Marketing%22%20OR%20%22Head%20of%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Design Lead', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Design%20Lead%22%20OR%20%22Lead%20Designer%22%20OR%20%22UX%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
-      { label: 'Growth Marketing', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Marketing%22%20OR%20%22Performance%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Growth Hacker', level: 'lider', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Hacker%22%20OR%20%22Growth%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Product Marketing Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Product%20Marketing%20Manager%22%20OR%20%22PMM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Content Strategist', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Strategist%22%20OR%20%22Estrategista%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
-      { label: 'Head de Conteúdo', level: 'head', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Conte%C3%BAdo%22%20OR%20%22Head%20of%20Content%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
-      { label: 'Content Marketing Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Marketing%20Manager%22%20OR%20%22Marketing%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
-      { label: 'Marketing Digital', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Digital%22%20OR%20%22Digital%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Performance Marketing', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Performance%20Marketing%22%20OR%20%22Marketing%20de%20Performance%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'CRM Manager', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22CRM%20Manager%22%20OR%20%22Especialista%20CRM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Marketing Automation', level: 'gerente', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Automation%22%20OR%20%22Automa%C3%A7%C3%A3o%20de%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
-      { label: 'Content Producer', level: 'coordenador', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Producer%22%20OR%20%22Produtor%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' }
+      { label: 'Designer', level: 'lider', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22designer%22%20OR%20%22Diretor%20de%20Arte%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Social Media', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Designer%20Gr%C3%A1fico%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Art Director', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Art%20Director%22%20OR%20%22Motion%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Diretor Criativo', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Diretor%20Criativo%22%20OR%20%22UX%20Designer%22%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Customer Success', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Gestão de Projetos', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Copy e Redação', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Copy%22%20OR%20%22Reda%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
+      { label: 'Community Management', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Community%20Management%22%20OR%20%22Planejamento%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Gestor de Tráfego', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Tr%C3%A1fego%22%20OR%20%22Head%20de%20Comunica%C3%A7%C3%A3o%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Head de Mídia', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20M%C3%ADdia%22%20OR%20%22Design%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Brand Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Brand%20Manager%22%20OR%20%22Planejamento%20Estrat%C3%A9gico%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Redator', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Redator%22%20OR%20%22Copywriter%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'writing' },
+      { label: 'Social Media', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Social%20Media%22%20OR%20%22Social%20Media%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'social' },
+      { label: 'Gestor de Projetos (Marketing)', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Marketing%22%20OR%20%22Project%20Manager%22%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Gestor de Projetos (Produto)', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gestor%20de%20Projetos%22%20%22Produto%22%20OR%20%22Project%20Manager%22%20%22Produto%22%20OR%20%22Product%20Owner%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Customer Success', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Customer%20Success%22%20OR%20%22Account%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Account Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Account%20Manager%22%20OR%20%22Account%20Management%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'account' },
+      { label: 'Gestor de Projetos', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Gest%C3%A3o%20de%20Projetos%22%20OR%20%22Project%20Manager%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Analista de Marketing', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Analista%20de%20Marketing%22%20OR%20%22Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Head de Marketing', level: 'head', whatsapp: '85920098075', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Marketing%22%20OR%20%22Head%20of%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Design Lead', level: 'lider', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Design%20Lead%22%20OR%20%22Lead%20Designer%22%20OR%20%22UX%20Lead%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'creative' },
+      { label: 'Growth Marketing', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Marketing%22%20OR%20%22Performance%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Growth Hacker', level: 'lider', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Growth%20Hacker%22%20OR%20%22Growth%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Product Marketing Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Product%20Marketing%20Manager%22%20OR%20%22PMM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Content Strategist', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Strategist%22%20OR%20%22Estrategista%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
+      { label: 'Head de Conteúdo', level: 'head', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Head%20de%20Conte%C3%BAdo%22%20OR%20%22Head%20of%20Content%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' },
+      { label: 'Content Marketing Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Marketing%20Manager%22%20OR%20%22Marketing%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'marketing' },
+      { label: 'Marketing Digital', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Digital%22%20OR%20%22Digital%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Performance Marketing', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Performance%20Marketing%22%20OR%20%22Marketing%20de%20Performance%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'CRM Manager', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22CRM%20Manager%22%20OR%20%22Especialista%20CRM%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Marketing Automation', level: 'gerente', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Marketing%20Automation%22%20OR%20%22Automa%C3%A7%C3%A3o%20de%20Marketing%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'performance_ops' },
+      { label: 'Content Producer', level: 'coordenador', whatsapp: '21986168728', url: 'https://www.linkedin.com/search/results/content/?keywords=%28%20%22Content%20Producer%22%20OR%20%22Produtor%20de%20Conte%C3%BAdo%22%20%29%20and%20%28%20%22vaga%22%20%29%20AND%20%28%20%22whatsapp%22%20OR%20%22wa.me%22%20%29&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D', domain: 'content' }
     ];
 
     const profileVectors = {
@@ -549,18 +572,25 @@
       container.querySelectorAll('button[data-fb]').forEach(btn => {
         btn.addEventListener('click', () => {
           const fb = btn.dataset.fb;
-          const label = btn.closest('.result-card').querySelector('.rc-title').textContent;
+          const card = btn.closest('.result-card');
+          const label = card.querySelector('.rc-title').textContent;
           const mem = loadMemory();
           mem.feedback[label] = fb;
           mem.seen[label] = { ts: Date.now(), motor };
           if (fb === 'reject') {
             mem.rejected = mem.rejected || {};
             mem.rejected[label] = Date.now();
-            const card = btn.closest('.result-card');
             card.style.transition = 'opacity .25s ease, transform .25s ease';
             card.style.opacity = '0';
             card.style.transform = 'translateY(8px)';
             setTimeout(() => card.remove(), 260);
+          }
+          if (fb === 'apply') {
+            const q = queries.find(x => x.label === label);
+            if (q && q.whatsapp) {
+              addFollowup({ name: '', role: label, company: '', contact: q.whatsapp });
+              window.open(q.whatsapp, '_blank');
+            }
           }
           saveMemory(mem);
           showToast('Feedback salvo: ' + btn.textContent.trim());
@@ -600,8 +630,44 @@
       const btn = e.target.closest('.motor-btn'); if (!btn) return; runMotor(btn.dataset.motor);
     });
 
+    document.getElementById('tabs').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-tab]'); if (!btn) return;
+      document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('tab-search').style.display = btn.dataset.tab === 'search' ? '' : 'none';
+      document.getElementById('tab-followup').style.display = btn.dataset.tab === 'followup' ? '' : 'none';
+    });
+
+    const FOLLOWUP_KEY = 'painel_followup_v1';
+    function loadFollowup() {
+      try { const raw = localStorage.getItem(FOLLOWUP_KEY); return raw ? JSON.parse(raw) : []; } catch { return []; }
+    }
+    function saveFollowup(items) { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(items)); }
+    function addFollowup(item) {
+      const items = loadFollowup();
+      items.unshift({ ...item, id: Date.now().toString(), createdAt: new Date().toISOString() });
+      saveFollowup(items);
+      renderFollowup();
+      showToast('Follow-up salvo');
+    }
+    function renderFollowup() {
+      const container = document.getElementById('followup-list');
+      const items = loadFollowup();
+      if (!items.length) { container.innerHTML = '<div class="summary">Nenhum follow-up ainda.</div>'; return; }
+      container.innerHTML = items.map(it => `<div class="result-card"><div class="rc-header"><div class="rc-title">${it.name || 'Sem nome'}</div><div class="score-pill">${it.role || 'Cargo não informado'}</div></div><div class="rc-meta">${it.company || ''} · ${it.contact || ''}</div><div class="rc-meta">${new Date(it.createdAt).toLocaleString('pt-BR')}</div></div>`).join('');
+    }
+    document.getElementById('followup-add').addEventListener('click', () => {
+      addFollowup({
+        name: document.getElementById('followup-name').value.trim(),
+        role: document.getElementById('followup-role').value.trim(),
+        company: document.getElementById('followup-company').value.trim(),
+        contact: document.getElementById('followup-contact').value.trim()
+      });
+      ['followup-name','followup-role','followup-company','followup-contact'].forEach(id => document.getElementById(id).value = '');
+    });
+
     renderBoard('all');
     updateRadar();
+    renderFollowup();
   </script>
 </body>
 </html>
