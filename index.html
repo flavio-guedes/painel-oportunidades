@@ -275,8 +275,12 @@
               <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
                 <input type="checkbox" id="spy-remote"> Remoto
               </label>
+              <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
+                <input type="checkbox" id="spy-latam"> LATAM
+              </label>
               <button class="btn primary" id="spy-search-btn">🔎 BUSCAR OPORTUNIDADES</button>
             </div>
+            <div class="query" id="spy-query-preview" style="margin-top:10px;display:none;"></div>
           </div>
         </div>
       </div>
@@ -593,13 +597,14 @@
       let effective = queries;
       let geo = '';
       if (motor === 'spy' && spyCluster) {
-        const terms = spyCluster._selectedTerms && spyCluster._selectedTerms.length ? spyCluster._selectedTerms : spyCluster.terms;
+        const terms = spyCluster._selectedTerms && spyCluster._selectedTerms.length ? spyCluster._selectedTerms.slice(0,7) : spyCluster.terms.slice(0,7);
         geo = terms.length ? terms[Math.floor(Math.random()*terms.length)] : '';
-        const remote = spyCluster._remote ? ['Remote','Remoto','Brasil','Brazil','LATAM'] : [];
+        const remote = spyCluster._remote ? ['Remote','Remoto'] : [];
+        const latam = spyCluster._latam ? ['LATAM','Latam','Brasil','Brazil'] : [];
         const wa = spyCluster._wa || [];
         const role = spyCluster._role || [];
         const sen = spyCluster._sen || [];
-        const allGeo = [...terms, ...remote];
+        const allGeo = [...terms, ...remote, ...latam];
         effective = queries.map(q => {
           const base = q.baseBoolean || buildSpyBooleanBase(q);
           const geoClause = allGeo.length ? `AND (${allGeo.map(t => `"${t}"`).join(' OR ')})` : '';
@@ -785,10 +790,38 @@
         btn.addEventListener('click', () => {
           btn.classList.toggle('active');
           const selected = Array.from(termsContainer.querySelectorAll('.filter-chip.active')).map(b => b.dataset.term);
-          if (selected.length >= 3) termsContainer.querySelectorAll('.filter-chip:not(.active)').forEach(b => b.style.pointerEvents = 'none');
+          if (selected.length >= 7) termsContainer.querySelectorAll('.filter-chip:not(.active)').forEach(b => b.style.pointerEvents = 'none');
           else termsContainer.querySelectorAll('.filter-chip').forEach(b => b.style.pointerEvents = '');
+          updateSpyQueryPreview();
         });
       });
+      updateSpyQueryPreview();
+    }
+    function updateSpyQueryPreview() {
+      const preview = document.getElementById('spy-query-preview');
+      if (!preview) return;
+      const cluster = spyCluster;
+      if (!cluster) { preview.style.display = 'none'; return; }
+      const terms = Array.from(document.querySelectorAll('#spy-terms .filter-chip.active')).map(b => b.dataset.term);
+      if (!terms.length) { preview.style.display = 'none'; return; }
+      const wa = getSelectedValues('spy-whatsapp-tags','wa');
+      const role = getSelectedValues('spy-role-tags','role');
+      const sen = getSelectedValues('spy-seniority-tags','sen');
+      const remote = document.getElementById('spy-remote').checked;
+      const latam = document.getElementById('spy-latam').checked;
+      const parts = [];
+      parts.push(`("${terms.join('" OR "')}")`);
+      if (wa.includes('whatsapp')) parts.push('"whatsapp"');
+      if (wa.includes('wa.me')) parts.push('"wa.me"');
+      if (role.includes('content')) parts.push('("Content" OR "Conteúdo")');
+      if (role.includes('creative')) parts.push('("Creative" OR "Criação" OR "Design")');
+      if (role.includes('head')) parts.push('("Head" OR "Diretor")');
+      if (sen.includes('lead')) parts.push('("Head" OR "Lead" OR "Coordenador" OR "Gerente" OR "Diretor" OR "Líder")');
+      if (sen.includes('analyst')) parts.push('("Analista" OR "Sênior" OR "Manager")');
+      if (remote) parts.push('("Remote" OR "Remoto")');
+      if (latam) parts.push('("LATAM" OR "Latam" OR "Brasil" OR "Brazil")');
+      preview.textContent = parts.join(' AND ');
+      preview.style.display = '';
     }
     function getSelectedValues(containerId, attr) {
       return Array.from(document.querySelectorAll(`#${containerId} .filter-chip.active`)).map(b => b.dataset[attr]);
@@ -796,14 +829,17 @@
     document.getElementById('spy-whatsapp-tags').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-wa]'); if (!btn) return;
       document.querySelectorAll('#spy-whatsapp-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+      updateSpyQueryPreview();
     });
     document.getElementById('spy-role-tags').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-role]'); if (!btn) return;
       document.querySelectorAll('#spy-role-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+      updateSpyQueryPreview();
     });
     document.getElementById('spy-seniority-tags').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-sen]'); if (!btn) return;
       document.querySelectorAll('#spy-seniority-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+      updateSpyQueryPreview();
     });
     document.getElementById('spy-search-btn').addEventListener('click', () => {
       const select = document.getElementById('spy-cluster-select');
@@ -813,13 +849,15 @@
       spyCluster = cluster;
       const selectedTerms = Array.from(document.querySelectorAll('#spy-terms .filter-chip.active')).map(b => b.dataset.term);
       if (!selectedTerms.length) { showToast('Selecione ao menos 1 termo'); return; }
-      spyCluster._selectedTerms = selectedTerms;
+      spyCluster._selectedTerms = selectedTerms.slice(0, 7);
       spyCluster._wa = getSelectedValues('spy-whatsapp-tags','wa');
       spyCluster._role = getSelectedValues('spy-role-tags','role');
       spyCluster._sen = getSelectedValues('spy-seniority-tags','sen');
       spyCluster._remote = document.getElementById('spy-remote').checked;
+      spyCluster._latam = document.getElementById('spy-latam').checked;
       runMotor('spy');
     });
+    ['spy-remote','spy-latam'].forEach(id => document.getElementById(id).addEventListener('change', updateSpyQueryPreview));
 
     document.getElementById('motors').addEventListener('click', (e) => {
       const btn = e.target.closest('.motor-btn'); if (!btn) return; runMotor(btn.dataset.motor);
