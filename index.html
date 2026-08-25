@@ -129,6 +129,11 @@
         <option value="">Selecione o grupo de cidades</option>
       </select>
       <div class="query" id="v2-geo-preview" style="margin-top:8px;display:none;"></div>
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <input id="v2-extra-location" placeholder="Adicionar cidade/bairro" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);">
+        <button class="btn primary" id="v2-add-location">Adicionar</button>
+      </div>
+      <div class="chips" id="v2-extra-locations"></div>
     </div>
 
     <div class="section">
@@ -225,6 +230,7 @@
 
     let v2State = {
       cityGroup: null,
+      extraLocations: [],
       roles: [],
       remote: true,
       whatsapp: true,
@@ -271,15 +277,42 @@
       renderRoles();
     }
 
+    function addExtraLocation(loc) {
+      const trimmed = loc.trim();
+      if (!trimmed) return;
+      if (v2State.extraLocations.includes(trimmed)) { showToast('Local já adicionado'); return; }
+      v2State.extraLocations.push(trimmed);
+      renderExtraLocations();
+    }
+
+    function removeExtraLocation(index) {
+      v2State.extraLocations.splice(index, 1);
+      renderExtraLocations();
+    }
+
+    function renderExtraLocations() {
+      const container = document.getElementById('v2-extra-locations');
+      container.innerHTML = v2State.extraLocations.map((r, i) =>
+        `<div class="chip">${r} <button data-index="${i}">×</button></div>`
+      ).join('');
+      updateV2Preview();
+    }
+
     function buildV2Query() {
       const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
-      const geoTerms = geo ? geo.terms : [];
-      const remoteTerms = v2State.remote ? ['Remoto'] : [];
+      const geoTerms = geo ? [...geo.terms] : [];
+      if (v2State.extraLocations.length) geoTerms.push(...v2State.extraLocations);
+      const uniqueGeo = Array.from(new Set(geoTerms));
       const waTerms = v2State.whatsapp ? ['whatsapp','wa.me'] : [];
-      const allTerms = [...geoTerms, ...remoteTerms, ...waTerms, ...v2State.roles];
-      if (!allTerms.length) return '';
-      const clauses = allTerms.map(t => `"${t}"`);
-      return `(${clauses.join(' OR ')})`;
+      const roleTerms = v2State.roles;
+      const remoteTerms = v2State.remote ? ['Remoto'] : [];
+      const blocks = [
+        `("vaga")`,
+        roleTerms.length ? `(${roleTerms.map(t => `"${t}"`).join(' OR ')})` : null,
+        uniqueGeo.length ? `(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})` : null,
+        waTerms.length ? `(${waTerms.map(t => `"${t}"`).join(' OR ')})` : null
+      ].filter(Boolean);
+      return blocks.join(' AND ');
     }
 
     function buildV2URL() {
@@ -294,7 +327,10 @@
       const queryPreview = document.getElementById('v2-query-preview');
       const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
       if (geo) {
-        preview.innerHTML = `<b>📍 Grupo:</b> ${geo.label} <br><b>Termos:</b> ${geo.terms.join(', ')}`;
+        preview.innerHTML = `<b>📍 Grupo:</b> ${geo.label} <br><b>Termos:</b> ${geo.terms.join(', ')}${v2State.extraLocations.length ? '<br><b>Extras:</b> ' + v2State.extraLocations.join(', ') : ''}`;
+        preview.style.display = '';
+      } else if (v2State.extraLocations.length) {
+        preview.innerHTML = `<b>📍 Locais:</b> ${v2State.extraLocations.join(', ')}`;
         preview.style.display = '';
       } else {
         preview.style.display = 'none';
@@ -331,6 +367,24 @@
     document.getElementById('v2-city-group').addEventListener('change', (e) => {
       v2State.cityGroup = e.target.value ? Number(e.target.value) : null;
       updateV2Preview();
+    });
+
+    document.getElementById('v2-add-location').addEventListener('click', () => {
+      const input = document.getElementById('v2-extra-location');
+      addExtraLocation(input.value);
+      input.value = '';
+    });
+
+    document.getElementById('v2-extra-location').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addExtraLocation(e.target.value);
+        e.target.value = '';
+      }
+    });
+
+    document.getElementById('v2-extra-locations').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-index]'); if (!btn) return;
+      removeExtraLocation(Number(btn.dataset.index));
     });
 
     document.getElementById('v2-add-role').addEventListener('click', () => {
@@ -392,6 +446,7 @@
     renderCityGroups();
     renderRolePresets();
     renderRoles();
+    renderExtraLocations();
     updateV2Preview();
   </script>
 </body>
