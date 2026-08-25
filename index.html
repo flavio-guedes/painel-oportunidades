@@ -700,11 +700,13 @@
           const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
           const domainLabel = r.primaryDomain === 'CREATIVE' ? '🎨 CRIAÇÃO' : r.primaryDomain === 'CONTENT' ? '🎯 CONTEÚDO' : '📈 GESTÃO DE MARKETING';
           const locationLabel = r.location || (motor === 'spy' && geo ? `📍 ${geo}` : '') || '🌎 Remoto — Brasil';
+          const roleLabel = motor === 'spy' && spyCluster && spyCluster._role && spyCluster._role.length ? spyCluster._role.map(x => x.toUpperCase()).join(' + ') : '';
           return `<div class="result-card">
             <div class="rc-header">
               <div>
                 <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${locationLabel}</div>
                 <div class="rc-title">${r.label}</div>
+                ${roleLabel ? `<div style="font-size:11px;color:var(--muted);margin-top:4px;">${roleLabel}</div>` : ''}
               </div>
               <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
             </div>
