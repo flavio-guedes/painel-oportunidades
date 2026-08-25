@@ -324,7 +324,9 @@
     function buildV2Query() {
       const blocks = ['("vaga")'];
       const selectedGeo = v2State.selectedCityTerms.length ? v2State.selectedCityTerms : (v2State.cityGroup ? (CITY_GROUPS.find(g => g.id === v2State.cityGroup) || {}).terms || [] : []);
-      [...selectedGeo, ...v2State.extraLocations].forEach(t => blocks.push(`("${t}")`));
+      const allGeo = [...selectedGeo, ...v2State.extraLocations];
+      const uniqueGeo = Array.from(new Set(allGeo));
+      if (uniqueGeo.length) blocks.push(`(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})`);
       v2State.roles.forEach(t => blocks.push(`("${t}")`));
       if (v2State.remote) blocks.push(`("Remoto")`);
       if (v2State.whatsapp) blocks.push(`("whatsapp")`);
