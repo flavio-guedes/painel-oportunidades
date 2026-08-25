@@ -548,7 +548,8 @@
         const scopeScore = classification.scopeScore;
         const fit = scopeScore < 80 ? 0 : scoreOpportunity(q, mem);
         const oppScore = scopeScore < 80 ? 0 : opportunityScore(fit, 0, 1, 70);
-        return { ...q, scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason };
+        const location = inferLocationFromPhone(q.whatsapp || q.contact) || (motor === 'spy' && geo ? geo : null);
+        return { ...q, scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason, location };
       });
       const rejected = allClassified.filter(r => r.primaryDomain === 'REJECTED');
       motorResults = allClassified.filter(r => r.primaryDomain !== 'REJECTED').sort((a, b) => b.oppScore - a.oppScore).slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
@@ -589,9 +590,13 @@
           const gap = r.fit < 85 ? 'Revisar requisitos de senioridade/idioma' : 'Sem gaps aparentes';
           const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
           const domainLabel = r.primaryDomain === 'CREATIVE' ? '🎨 CRIAÇÃO' : r.primaryDomain === 'CONTENT' ? '🎯 CONTEÚDO' : '📈 GESTÃO DE MARKETING';
+          const locationLabel = r.location || (motor === 'spy' && geo ? `📍 ${geo}` : '') || '🌎 Remoto — Brasil';
           return `<div class="result-card">
             <div class="rc-header">
-              <div class="rc-title">${r.label}</div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${locationLabel}</div>
+                <div class="rc-title">${r.label}</div>
+              </div>
               <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
             </div>
             <div class="rc-meta">${domainLabel} · ${r.level.toUpperCase()} · ${seen ? 'Vista ' + formatTimeAgo(seen.ts) : 'Nova'}</div>
@@ -649,7 +654,7 @@
           if (fb !== 'reject') renderMotorResults(activeMotor);
         });
       });
-      motorResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
+      filteredResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
     }
     function escapeHtml(text) {
       return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -671,6 +676,25 @@
       if (!phone) return '#';
       const text = encodeURIComponent(`Olá, estou entrando em contato sobre a vaga de ${role || 'oportunidade'}. Meu portfólio: https://flavio-guedes.github.io/portfolio/parceria.html`);
       return `https://wa.me/${phone}?text=${text}`;
+    }
+    function inferLocationFromPhone(raw) {
+      const phone = String(raw || '').replace(/\D/g,'');
+      if (!phone) return null;
+      const ddd = phone.length >= 3 ? phone.slice(0,2) : '';
+      const map = {
+        '11':'São Paulo — SP','12':'São José dos Campos — SP','13':'Santos — SP','14':'Bauru — SP','15':'Sorocaba — SP','16':'Ribeirão Preto — SP','17':'São José do Rio Preto — SP','18':'Presidente Prudente — SP','19':'Campinas — SP',
+        '21':'Rio de Janeiro — RJ','22':'Cabo Frio — RJ','24':'Petrópolis — RJ',
+        '27':'Vila Velha/ES','28':'Cachoeiro do Itapemirim — ES',
+        '31':'Belo Horizonte — MG','32':'Juiz de Fora — MG','33':'Governador Valadares — MG','34':'Uberlândia — MG','35':'Poços de Caldas — MG','37':'Divinópolis — MG','38':'Montes Claros — MG',
+        '41':'Curitiba — PR','42':'Ponta Grossa — PR','43':'Londrina — PR','44':'Maringá — PR','45':'Foz do Iguaçu — PR','46':'Francisco Beltrão — PR',
+        '47':'Joinville — SC','48':'Florianópolis — SC','49':'Chapecó — SC',
+        '51':'Porto Alegre — RS','53':'Pelotas — RS','54':'Caxias do Sul — RS','55':'Santa Maria — RS',
+        '61':'Brasília — DF','62':'Goiânia — GO','63':'Palmas — TO','64':'Rio Verde — GO','65':'Cuiabá — MT','66':'Rondonópolis — MT','67':'Campo Grande — MS','68':'Rio Branco — AC',
+        '71':'Salvador — BA','73':'Ilhéus — BA','74':'Juazeiro — BA','75':'Feira de Santana — BA','77':'Vitória da Conquista — BA',
+        '79':'Aracaju — SE','81':'Recife — PE','82':'Maceió — AL','83':'João Pessoa — PB','84':'Natal — RN','85':'Fortaleza — CE','86':'Teresina — PI','87':'Petrolina — PE','88':'Juazeiro do Norte — CE','89':'Picos — PI',
+        '91':'Belém — PA','92':'Manaus — AM','93':'Santarem — PA','94':'Marabá — PA','95':'Boa Vista — RR','96':'Macapá — AP','97':'Coari — AM','98':'São Luís — MA','99':'Imperatriz — MA'
+      };
+      return map[ddd] || null;
     }
 
     function runMotor(motor) {
