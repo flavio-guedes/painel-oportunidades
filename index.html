@@ -258,13 +258,20 @@
           </div>
           <div class="section">
             <h2>Filtros</h2>
-            <div class="filter-bar" id="spy-tags">
-              <button class="filter-chip" data-tag="content">Content</button>
-              <button class="filter-chip" data-tag="creative">Criação</button>
-              <button class="filter-chip" data-tag="head">Head</button>
+            <div class="filter-bar" id="spy-whatsapp-tags">
+              <button class="filter-chip" data-wa="whatsapp">whatsapp</button>
+              <button class="filter-chip" data-wa="wa.me">wa.me</button>
+            </div>
+            <div class="filter-bar" id="spy-role-tags" style="margin-top:8px;">
+              <button class="filter-chip" data-role="content">Content / Conteúdo</button>
+              <button class="filter-chip" data-role="creative">Criação / Design</button>
+              <button class="filter-chip" data-role="head">Head / Diretor</button>
+            </div>
+            <div class="filter-bar" id="spy-seniority-tags" style="margin-top:8px;">
+              <button class="filter-chip" data-sen="lead">Head / Lead / Coordenador / Gerente / Diretor / Líder</button>
+              <button class="filter-chip" data-sen="analyst">Analista / Sênior / Manager</button>
             </div>
             <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
-              <input id="spy-whatsapp" placeholder="WhatsApp" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
               <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
                 <input type="checkbox" id="spy-remote"> Remoto
               </label>
@@ -404,7 +411,6 @@
     let scanStats = { analyzed: 0, new: 0, high: 0, rejected: 0 };
     let debugLog = [];
     let spyCluster = null;
-    let spyFront = null;
     const SPY_CLUSTERS = [
       { id: 1, label: 'SP Faria Lima / Itaim', terms: ['Faria Lima','Itaim Bibi','Vila Olímpia','JK'] },
       { id: 2, label: 'SP Jardins / Pinheiros', terms: ['Jardins','Jardim Paulista','Cerqueira César','Pinheiros','Vila Madalena'] },
@@ -590,16 +596,41 @@
         const terms = spyCluster._selectedTerms && spyCluster._selectedTerms.length ? spyCluster._selectedTerms : spyCluster.terms;
         geo = terms.length ? terms[Math.floor(Math.random()*terms.length)] : '';
         const remote = spyCluster._remote ? ['Remote','Remoto','Brasil','Brazil','LATAM'] : [];
-        const allTerms = [...terms, ...remote];
+        const wa = spyCluster._wa || [];
+        const role = spyCluster._role || [];
+        const sen = spyCluster._sen || [];
+        const allGeo = [...terms, ...remote];
         effective = queries.map(q => {
           const base = q.baseBoolean || buildSpyBooleanBase(q);
-          const geoClause = allTerms.length ? `AND (${allTerms.map(t => `"${t}"`).join(' OR ')})` : '';
+          const geoClause = allGeo.length ? `AND (${allGeo.map(t => `"${t}"`).join(' OR ')})` : '';
           const parts = base.split('NOT');
-          const altered = parts[0].trim() + ' ' + geoClause + (parts[1] ? ' NOT ' + parts[1].trim() : '');
-          const urlTerms = allTerms.map(t => encodeURIComponent(t)).join('+OR+');
+          let altered = parts[0].trim() + ' ' + geoClause;
+          const added = [];
+          if (wa.includes('whatsapp')) added.push('"whatsapp"');
+          if (wa.includes('wa.me')) added.push('"wa.me"');
+          if (role.includes('content')) added.push('"Content"', '"Conteúdo"', '"Content Strategy"', '"Content Marketing"');
+          if (role.includes('creative')) added.push('"Creative"', '"Criação"', '"Design"', '"Art Director"');
+          if (role.includes('head')) added.push('"Head"', '"Diretor"', '"Director"');
+          if (sen.includes('lead')) added.push('"Head"', '"Lead"', '"Coordenador"', '"Gerente"', '"Diretor"', '"Líder"');
+          if (sen.includes('analyst')) added.push('"Analista"', '"Sênior"', '"Manager"');
+          if (added.length) altered += ' AND (' + added.join(' OR ') + ')';
+          if (parts[1]) altered += ' NOT ' + parts[1].trim();
+          const urlTerms = allGeo.map(t => encodeURIComponent(t)).join('+OR+');
           const url = q.url + (urlTerms ? `+AND+(${urlTerms})` : '');
           return { ...q, url, baseBoolean: altered };
         });
+        if (wa.length || role.length || sen.length) {
+          effective = effective.filter(q => {
+            const label = q.label.toLowerCase();
+            const domain = (q.domain || '').toLowerCase();
+            if (role.includes('content') && !['content','marketing'].includes(domain)) return false;
+            if (role.includes('creative') && domain !== 'creative') return false;
+            if (role.includes('head') && q.level !== 'head') return false;
+            if (sen.includes('lead') && !['head','lider','gerente','coordenador'].includes(q.level)) return false;
+            if (sen.includes('analyst') && !['coordenador','gerente'].includes(q.level) && !label.includes('analista') && !label.includes('sênior')) return false;
+            return true;
+          });
+        }
       }
       const allClassified = effective.map(q => {
         const classification = classificarDominio(q);
@@ -708,6 +739,9 @@
         });
       });
       filteredResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
+      if (motor === 'spy' && filteredResults.length) {
+        window.open(filteredResults[0].url, '_blank');
+      }
     }
 
     function updateRadar() {
@@ -768,9 +802,20 @@
         });
       });
     }
-    document.getElementById('spy-tags').addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-tag]'); if (!btn) return;
-      document.querySelectorAll('#spy-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+    function getSelectedValues(containerId, attr) {
+      return Array.from(document.querySelectorAll(`#${containerId} .filter-chip.active`)).map(b => b.dataset[attr]);
+    }
+    document.getElementById('spy-whatsapp-tags').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-wa]'); if (!btn) return;
+      document.querySelectorAll('#spy-whatsapp-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+    });
+    document.getElementById('spy-role-tags').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role]'); if (!btn) return;
+      document.querySelectorAll('#spy-role-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+    });
+    document.getElementById('spy-seniority-tags').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-sen]'); if (!btn) return;
+      document.querySelectorAll('#spy-seniority-tags .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
     });
     document.getElementById('spy-search-btn').addEventListener('click', () => {
       const select = document.getElementById('spy-cluster-select');
@@ -780,13 +825,11 @@
       spyCluster = cluster;
       const selectedTerms = Array.from(document.querySelectorAll('#spy-terms .filter-chip.active')).map(b => b.dataset.term);
       if (!selectedTerms.length) { showToast('Selecione ao menos 1 termo'); return; }
-      const selectedTag = document.querySelector('#spy-tags .filter-chip.active');
-      spyFront = selectedTag ? selectedTag.dataset.tag : null;
-      const wa = document.getElementById('spy-whatsapp').value.trim();
-      const remote = document.getElementById('spy-remote').checked;
       spyCluster._selectedTerms = selectedTerms;
-      spyCluster._wa = wa;
-      spyCluster._remote = remote;
+      spyCluster._wa = getSelectedValues('spy-whatsapp-tags','wa');
+      spyCluster._role = getSelectedValues('spy-role-tags','role');
+      spyCluster._sen = getSelectedValues('spy-seniority-tags','sen');
+      spyCluster._remote = document.getElementById('spy-remote').checked;
       runMotor('spy');
     });
 
