@@ -305,9 +305,11 @@
     function buildV2Query() {
       const blocks = ['("vaga")'];
       const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
-      if (geo) geo.terms.forEach(t => blocks.push(`("${t}")`));
-      v2State.extraLocations.forEach(t => blocks.push(`("${t}")`));
-      v2State.roles.forEach(t => blocks.push(`("${t}")`));
+      const geoTerms = geo ? geo.terms : [];
+      const allGeo = [...geoTerms, ...v2State.extraLocations];
+      const uniqueGeo = Array.from(new Set(allGeo));
+      if (uniqueGeo.length) blocks.push(`(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})`);
+      if (v2State.roles.length) blocks.push(`(${v2State.roles.map(t => `"${t}"`).join(' OR ')})`);
       if (v2State.remote) blocks.push(`("Remoto")`);
       if (v2State.whatsapp) blocks.push(`("whatsapp")`);
       if (v2State.wa) blocks.push(`("wa.me")`);
