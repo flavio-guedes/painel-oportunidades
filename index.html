@@ -299,19 +299,13 @@
     }
 
     function buildV2Query() {
+      const blocks = ['("vaga")'];
       const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
-      const geoTerms = geo ? [...geo.terms] : [];
-      if (v2State.extraLocations.length) geoTerms.push(...v2State.extraLocations);
-      const uniqueGeo = Array.from(new Set(geoTerms));
-      const waTerms = v2State.whatsapp ? ['whatsapp','wa.me'] : [];
-      const roleTerms = v2State.roles;
-      const remoteTerms = v2State.remote ? ['Remoto'] : [];
-      const blocks = [
-        `("vaga")`,
-        roleTerms.length ? `(${roleTerms.map(t => `"${t}"`).join(' OR ')})` : null,
-        uniqueGeo.length ? `(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})` : null,
-        waTerms.length ? `(${waTerms.map(t => `"${t}"`).join(' OR ')})` : null
-      ].filter(Boolean);
+      if (geo) geo.terms.forEach(t => blocks.push(`("${t}")`));
+      v2State.extraLocations.forEach(t => blocks.push(`("${t}")`));
+      v2State.roles.forEach(t => blocks.push(`("${t}")`));
+      if (v2State.remote) blocks.push(`("Remoto")`);
+      if (v2State.whatsapp) { blocks.push(`("whatsapp")`); blocks.push(`("wa.me")`); }
       return blocks.join(' AND ');
     }
 
