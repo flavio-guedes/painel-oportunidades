@@ -162,7 +162,10 @@
           <input type="checkbox" id="v2-remote" checked> Remoto
         </label>
         <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
-          <input type="checkbox" id="v2-whatsapp" checked> WhatsApp OR wa.me
+          <input type="checkbox" id="v2-whatsapp" checked> whatsapp
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
+          <input type="checkbox" id="v2-wa" checked> wa.me
         </label>
       </div>
     </div>
@@ -234,6 +237,7 @@
       roles: [],
       remote: true,
       whatsapp: true,
+      wa: true,
       limit: 10
     };
 
@@ -305,7 +309,8 @@
       v2State.extraLocations.forEach(t => blocks.push(`("${t}")`));
       v2State.roles.forEach(t => blocks.push(`("${t}")`));
       if (v2State.remote) blocks.push(`("Remoto")`);
-      if (v2State.whatsapp) { blocks.push(`("whatsapp")`); blocks.push(`("wa.me")`); }
+      if (v2State.whatsapp) blocks.push(`("whatsapp")`);
+      if (v2State.wa) blocks.push(`("wa.me")`);
       return blocks.join(' AND ');
     }
 
@@ -406,6 +411,11 @@
 
     document.getElementById('v2-whatsapp').addEventListener('change', (e) => {
       v2State.whatsapp = e.target.checked;
+      updateV2Preview();
+    });
+
+    document.getElementById('v2-wa').addEventListener('change', (e) => {
+      v2State.wa = e.target.checked;
       updateV2Preview();
     });
 
