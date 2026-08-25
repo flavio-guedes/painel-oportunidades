@@ -193,7 +193,7 @@
     <div class="section">
       <h2>Versão anterior</h2>
       <p style="color:var(--muted);font-size:12px;">A versão atual está em <strong>stand-by</strong>. A V2 é a versão ativa principal.</p>
-      <a class="link primary" href="index-v1.html" target="_blank" rel="noopener">Abrir versão atual (stand-by)</a>
+      <a class="link primary" href="index.html" target="_blank" rel="noopener">Abrir versão atual (stand-by)</a>
     </div>
 
     <div class="actions">
@@ -305,11 +305,9 @@
     function buildV2Query() {
       const blocks = ['("vaga")'];
       const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
-      const geoTerms = geo ? geo.terms : [];
-      const allGeo = [...geoTerms, ...v2State.extraLocations];
-      const uniqueGeo = Array.from(new Set(allGeo));
-      if (uniqueGeo.length) blocks.push(`(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})`);
-      if (v2State.roles.length) blocks.push(`(${v2State.roles.map(t => `"${t}"`).join(' OR ')})`);
+      if (geo) geo.terms.forEach(t => blocks.push(`("${t}")`));
+      v2State.extraLocations.forEach(t => blocks.push(`("${t}")`));
+      v2State.roles.forEach(t => blocks.push(`("${t}")`));
       if (v2State.remote) blocks.push(`("Remoto")`);
       if (v2State.whatsapp) blocks.push(`("whatsapp")`);
       if (v2State.wa) blocks.push(`("wa.me")`);
