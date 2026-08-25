@@ -566,8 +566,9 @@
     }
 
     function waLink(raw, role) {
-      const phone = String(raw || '').replace(/\D/g,'');
+      let phone = String(raw || '').replace(/\D/g,'');
       if (!phone) return '#';
+      if (!phone.startsWith('55')) phone = '55' + phone;
       const text = encodeURIComponent(`Olá, estou entrando em contato sobre a vaga de ${role || 'oportunidade'}. Meu portfólio: https://flavio-guedes.github.io/portfolio/parceria.html`);
       return `https://wa.me/${phone}?text=${text}`;
     }
