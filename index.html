@@ -489,6 +489,9 @@
       if (domain === 'production_ops' || negativeKeywords.production_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = PRODUÇÃO_OPERACIONAL' };
       if (domain === 'performance_ops' || negativeKeywords.performance_ops.some(k => label.includes(k))) return { primaryDomain: 'REJECTED', scopeScore: 35, reason: 'PRIMARY_DOMAIN = PERFORMANCE_OPERACIONAL' };
 
+      if (domain === 'brand') return { primaryDomain: 'MARKETING_MANAGEMENT', scopeScore: 85, reason: '' };
+      if (domain === 'av' || domain === 'motion') return { primaryDomain: 'CREATIVE', scopeScore: 90, reason: '' };
+      if (domain === 'strategy') return { primaryDomain: 'CONTENT', scopeScore: 85, reason: '' };
       if (creativeKeywords.some(k => label.includes(k))) return { primaryDomain: 'CREATIVE', scopeScore: 95, reason: '' };
       if (contentKeywords.some(k => label.includes(k))) return { primaryDomain: 'CONTENT', scopeScore: 95, reason: '' };
       if (marketingKeywords.some(k => label.includes(k))) return { primaryDomain: 'MARKETING_MANAGEMENT', scopeScore: 90, reason: '' };
@@ -595,6 +598,27 @@
       const label = q.label || '';
       return `("${label}") AND ("vaga") AND ("whatsapp" OR "wa.me")`;
     }
+    function buildSpyRoleQueries(selectedRoles) {
+      const roleMap = {
+        content: { label: 'Content / Conteúdo', terms: ['Content','Conteúdo','Content Strategy','Content Marketing'] },
+        creative: { label: 'Criação / Design', terms: ['Criação','Design','Creative','Art Director'] },
+        head: { label: 'Head / Diretor', terms: ['Head','Diretor','Director'] },
+        brand: { label: 'Marca / Brand', terms: ['Brand','Marca','Brand Manager'] },
+        av: { label: 'Audiovisual / Vídeo', terms: ['Audiovisual','Vídeo','Video'] },
+        motion: { label: 'Motion Design', terms: ['Motion','Motion Design'] },
+        strategy: { label: 'Estratégia / Planejamento', terms: ['Estratégia','Planejamento','Strategy'] }
+      };
+      const selected = (selectedRoles || []).filter(r => roleMap[r]);
+      if (!selected.length) return [];
+      return selected.map(r => {
+        const terms = roleMap[r].terms;
+        const label = roleMap[r].label;
+        const booleanBase = `("${terms.join('" OR "')}") AND ("vaga")`;
+        const keywords = encodeURIComponent(booleanBase);
+        const url = `https://www.linkedin.com/search/results/content/?keywords=${keywords}&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D`;
+        return { label, level: 'all', whatsapp: '', url, baseBoolean: booleanBase, domain: r };
+      });
+    }
     function escapeHtml(text) {
       return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
@@ -610,7 +634,8 @@
         const wa = spyCluster._wa || [];
         const role = spyCluster._role || [];
         const allGeo = [...terms, ...remote, ...latam];
-        effective = queries.map(q => {
+        const baseQueries = role.length ? buildSpyRoleQueries(role) : queries;
+        effective = baseQueries.map(q => {
           const base = q.baseBoolean || buildSpyBooleanBase(q);
           const geoClause = allGeo.length ? `AND (${allGeo.map(t => `"${t}"`).join(' OR ')})` : '';
           const parts = base.split('NOT');
@@ -621,10 +646,14 @@
           if (role.includes('content')) added.push('"Content"', '"Conteúdo"', '"Content Strategy"', '"Content Marketing"');
           if (role.includes('creative')) added.push('"Creative"', '"Criação"', '"Design"', '"Art Director"');
           if (role.includes('head')) added.push('"Head"', '"Diretor"', '"Director"');
+          if (role.includes('brand')) added.push('"Brand"', '"Marca"', '"Brand Manager"');
+          if (role.includes('av')) added.push('"Audiovisual"', '"Vídeo"', '"Video"');
+          if (role.includes('motion')) added.push('"Motion"', '"Motion Design"');
+          if (role.includes('strategy')) added.push('"Estratégia"', '"Planejamento"', '"Strategy"');
           if (added.length) altered += ' AND (' + added.join(' OR ') + ')';
           if (parts[1]) altered += ' NOT ' + parts[1].trim();
-          const urlTerms = allGeo.map(t => encodeURIComponent(t)).join('+OR+');
-          const url = q.url + (urlTerms ? `+AND+(${urlTerms})` : '');
+          const keywords = encodeURIComponent(altered);
+          const url = `https://www.linkedin.com/search/results/content/?keywords=${keywords}&origin=FACETED_SEARCH&sortBy=%5B%22date_posted%22%5D`;
           return { ...q, url, baseBoolean: altered };
         });
       }
