@@ -139,6 +139,15 @@
       </div>
       <div class="chips" id="v2-roles"></div>
       <div class="limit-msg" id="v2-limit-msg" style="display:none;">Limite máximo de 7 termos atingido.</div>
+
+      <h2 style="margin-top:14px;">Criação</h2>
+      <div class="filter-bar" id="v2-role-preset-creative"></div>
+
+      <h2 style="margin-top:10px;">Conteúdo</h2>
+      <div class="filter-bar" id="v2-role-preset-content"></div>
+
+      <h2 style="margin-top:10px;">Head / Marketing</h2>
+      <div class="filter-bar" id="v2-role-preset-marketing"></div>
     </div>
 
     <div class="section">
@@ -208,6 +217,12 @@
       { id: 20, label: 'Campinas / Interior SP', terms: ['Campinas','Cambuí','Taquaral','Barão Geraldo','Valinhos','Vinhedo','Jundiaí'] }
     ];
 
+    const ROLE_PRESETS = {
+      creative: ['Diretor de Criação','Head de Criação','Creative Director','Art Director','Design Director'],
+      content: ['Head de Conteúdo','Diretor de Conteúdo','Content Director','Content Lead','Estrategista de Conteúdo'],
+      marketing: ['Head de Marketing','Diretor de Marketing','Gerente de Marketing','Coordenador de Marketing','Brand Manager']
+    };
+
     let v2State = {
       cityGroup: null,
       roles: [],
@@ -220,6 +235,16 @@
       const select = document.getElementById('v2-city-group');
       select.innerHTML = '<option value="">Selecione o grupo de cidades</option>' +
         CITY_GROUPS.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
+    }
+
+    function renderRolePresets() {
+      Object.entries(ROLE_PRESETS).forEach(([group, roles]) => {
+        const container = document.getElementById(`v2-role-preset-${group}`);
+        if (!container) return;
+        container.innerHTML = roles.map(role =>
+          `<button class="filter-chip" data-role="${role}">${role}</button>`
+        ).join('');
+      });
     }
 
     function renderRoles() {
@@ -333,7 +358,21 @@
       window.open(url, '_blank');
     });
 
+    document.getElementById('v2-role-preset-creative').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role]'); if (!btn) return;
+      addRole(btn.dataset.role);
+    });
+    document.getElementById('v2-role-preset-content').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role]'); if (!btn) return;
+      addRole(btn.dataset.role);
+    });
+    document.getElementById('v2-role-preset-marketing').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role]'); if (!btn) return;
+      addRole(btn.dataset.role);
+    });
+
     renderCityGroups();
+    renderRolePresets();
     renderRoles();
     updateV2Preview();
   </script>
