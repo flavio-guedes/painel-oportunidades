@@ -191,9 +191,15 @@
     </div>
 
     <div class="section">
-      <h2>Versão anterior</h2>
-      <p style="color:var(--muted);font-size:12px;">A versão atual está em <strong>stand-by</strong>. A V2 é a versão ativa principal.</p>
-      <a class="link primary" href="index.html" target="_blank" rel="noopener">Abrir versão atual (stand-by)</a>
+      <h2>Follow-up de Candidaturas</h2>
+      <div class="filter-bar" style="margin-bottom:12px;">
+        <input id="v2-followup-name" placeholder="Nome" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <input id="v2-followup-role" placeholder="Cargo" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <input id="v2-followup-company" placeholder="Empresa" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <input id="v2-followup-contact" placeholder="WhatsApp/Email" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <button class="filter-chip active" id="v2-followup-add">Salvar follow-up</button>
+      </div>
+      <div class="debug-log" id="v2-followup-list"></div>
     </div>
 
     <div class="actions">
@@ -431,11 +437,72 @@
       addRole(btn.dataset.role);
     });
 
+    const FOLLOWUP_KEY = 'v2_followup_v1';
+
+    function loadFollowup() {
+      try { const raw = localStorage.getItem(FOLLOWUP_KEY); if (raw) return JSON.parse(raw); } catch {}
+      return [];
+    }
+
+    function saveFollowup(items) { localStorage.setItem(FOLLOWUP_KEY, JSON.stringify(items)); }
+
+    function addFollowup(item) {
+      const items = loadFollowup();
+      items.unshift({ ...item, id: Date.now().toString(), createdAt: new Date().toISOString() });
+      saveFollowup(items);
+      renderFollowup();
+      showToast('Follow-up salvo');
+    }
+
+    function renderFollowup() {
+      const container = document.getElementById('v2-followup-list');
+      const items = loadFollowup();
+      if (!items.length) { container.innerHTML = '<div class="summary">Nenhum follow-up ainda.</div>'; return; }
+      container.innerHTML = items.map(it => {
+        const role = it.role || 'Cargo não informado';
+        const contact = it.contact || '';
+        const wa = contact ? waLink(contact, role) : '#';
+        const msg = encodeURIComponent(`Olá, estou entrando em contato sobre a vaga de ${role}. Meu portfólio: https://flavio-guedes.github.io/portfolio/parceria.html`);
+        const waMsg = contact ? `https://wa.me/55${contact.replace(/\D/g,'')}?text=${msg}` : '#';
+        return `<div class="result-card">
+          <div class="rc-header">
+            <div class="rc-title">${it.name || 'Sem nome'}</div>
+            <div class="score-pill">${role}</div>
+          </div>
+          <div class="rc-meta">${it.company || ''} · ${contact || ''}</div>
+          <div class="rc-meta">${new Date(it.createdAt).toLocaleString('pt-BR')}</div>
+          <div class="rc-actions">
+            <a href="${waMsg}" target="_blank" rel="noopener">WhatsApp</a>
+            <button data-fb="remove" data-id="${it.id}">Remover</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('v2-followup-add').addEventListener('click', () => {
+      addFollowup({
+        name: document.getElementById('v2-followup-name').value.trim(),
+        role: document.getElementById('v2-followup-role').value.trim(),
+        company: document.getElementById('v2-followup-company').value.trim(),
+        contact: document.getElementById('v2-followup-contact').value.trim()
+      });
+      ['v2-followup-name','v2-followup-role','v2-followup-company','v2-followup-contact'].forEach(id => document.getElementById(id).value = '');
+    });
+
+    document.getElementById('v2-followup-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-fb="remove"]'); if (!btn) return;
+      const id = btn.dataset.id;
+      const items = loadFollowup().filter(it => it.id !== id);
+      saveFollowup(items);
+      renderFollowup();
+    });
+
     renderCityGroups();
     renderRolePresets();
     renderRoles();
     renderExtraLocations();
     updateV2Preview();
+    renderFollowup();
   </script>
 </body>
 </html>
