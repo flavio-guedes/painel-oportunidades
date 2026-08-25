@@ -248,6 +248,20 @@
           <span class="stat">Novas: <b id="radar-new">0</b></span>
           <span class="stat">Alta aderência: <b id="radar-high">0</b></span>
         </div>
+        <div id="spy-cluster-picker" style="display:none;margin-top:12px;">
+          <div class="section">
+            <h2>🕵️ Clusters nacionais</h2>
+            <div class="board" id="spy-clusters"></div>
+          </div>
+          <div class="section" id="spy-front-section" style="display:none;">
+            <h2>Frente</h2>
+            <div class="filter-bar" id="spy-fronts">
+              <button class="filter-chip active" data-front="content">Content</button>
+              <button class="filter-chip" data-front="creative">Criação</button>
+              <button class="filter-chip" data-front="head">Head</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="section">
@@ -379,8 +393,40 @@
     let lastScan = null;
     let scanStats = { analyzed: 0, new: 0, high: 0, rejected: 0 };
     let debugLog = [];
-
-    function loadClicks() {
+    let spyGeoState = loadSpyGeo();
+    let spyCluster = null;
+    let spyFront = null;
+    const SPY_CLUSTERS = [
+      { id: 1, label: 'SP Faria Lima', terms: ['Faria Lima','Itaim Bibi','Vila Olímpia','JK'] },
+      { id: 2, label: 'SP Jardins', terms: ['Jardins','Pinheiros','Jardim Paulista','Vila Madalena'] },
+      { id: 3, label: 'SP Paulista', terms: ['Paulista','Bela Vista','Consolação','Paraíso','Centro'] },
+      { id: 4, label: 'SP Moema', terms: ['Moema','Campo Belo','Brooklin','Chácara Santo Antônio'] },
+      { id: 5, label: 'SP Alphaville', terms: ['Barueri','Alphaville','Tamboré','Santana de Parnaíba'] },
+      { id: 6, label: 'SP Grande SP', terms: ['Osasco','Santo André','São Bernardo','São Caetano','Guarulhos'] },
+      { id: 7, label: 'Rio Zona Sul', terms: ['Leblon','Ipanema','Lagoa','Gávea','Jardim Botânico'] },
+      { id: 8, label: 'Rio Botafogo', terms: ['Botafogo','Humaitá','Urca','Flamengo','Catete'] },
+      { id: 9, label: 'Rio Centro', terms: ['Centro','Lapa','Glória','Santa Teresa'] },
+      { id: 10, label: 'Rio Barra', terms: ['Barra da Tijuca','Recreio','Jacarepaguá'] },
+      { id: 11, label: 'Belo Horizonte', terms: ['Savassi','Lourdes','Funcionários','Belvedere','Nova Lima'] },
+      { id: 12, label: 'Brasília', terms: ['Asa Sul','Asa Norte','Lago Sul','Setor Comercial','Sudoeste'] },
+      { id: 13, label: 'Curitiba', terms: ['Batel','Centro','Água Verde','Cabral','Ecoville'] },
+      { id: 14, label: 'Porto Alegre', terms: ['Moinhos de Vento','Bela Vista','Auxiliadora','Centro'] },
+      { id: 15, label: 'Florianópolis', terms: ['Centro','Agronômica','Itacorubi','Trindade','Saco Grande'] },
+      { id: 16, label: 'Recife', terms: ['Boa Viagem','Pina','Ilha do Leite','Recife Antigo','Ilha do Retiro'] },
+      { id: 17, label: 'Salvador', terms: ['Rio Vermelho','Caminho das Árvores','Itaigara','Pituba','Comércio'] },
+      { id: 18, label: 'Fortaleza', terms: ['Aldeota','Meireles','Cocó','Varjota','Praia de Iracema'] },
+      { id: 19, label: 'Goiânia', terms: ['Setor Bueno','Marista','Oeste','Jardim Goiás','Setor Sul'] },
+      { id: 20, label: 'Campinas', terms: ['Cambuí','Taquaral','Barão Geraldo','Alphaville Campinas','Valinhos'] }
+    ];
+    function loadSpyGeo() {
+      try { const raw = localStorage.getItem('painel_spy_geo_v1'); if (raw) return JSON.parse(raw); } catch {}
+      return {
+        locations: ['Itaim Bibi','Faria Lima','Jardins','Vila Olímpia','Moema','Pinheiros','Brooklin','Berrini','Campinas','Barra da Tijuca','Zona Sul','Botafogo','Leblon','Florianópolis','Balneário Camboriú','Curitiba','Porto Alegre','Belo Horizonte','Nova Lima','Rio de Janeiro'],
+        scores: {},
+        history: [],
+        index: 0
+      };
+    }
       try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
     }
     function saveClick(label) {
@@ -498,40 +544,53 @@
 
     function scoreMotorResults(motor) {
       const mem = loadMemory();
-      return queries.map(q => {
+      let effective = queries;
+      let geo = '';
+      if (motor === 'spy') {
+        geo = nextSpyGeo();
+        effective = queries.map(q => {
+          const base = q.baseBoolean || buildSpyBooleanBase(q);
+          const altered = buildSpyBoolean(base, geo);
+          return { ...q, url: buildSpyUrl(q.url, geo), baseBoolean: altered };
+        });
+      }
+      const allClassified = effective.map(q => {
         const classification = classificarDominio(q);
         const scopeScore = classification.scopeScore;
         const fit = scopeScore < 80 ? 0 : scoreOpportunity(q, mem);
         const oppScore = scopeScore < 80 ? 0 : opportunityScore(fit, 0, 1, 70);
-        return { ...q, scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason };
-      }).filter(r => r.primaryDomain !== 'REJECTED')
-        .sort((a, b) => b.oppScore - a.oppScore)
-        .slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
+        const location = inferLocationFromPhone(q.whatsapp || q.contact) || (motor === 'spy' && geo ? geo : null);
+        return { ...q, scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason, location };
+      });
+      const rejected = allClassified.filter(r => r.primaryDomain === 'REJECTED');
+      motorResults = allClassified.filter(r => r.primaryDomain !== 'REJECTED').sort((a, b) => b.oppScore - a.oppScore).slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
+      const mem2 = loadMemory();
+      scanStats.analyzed = effective.length;
+      scanStats.new = motorResults.filter(r => !mem2.seen[r.label]).length;
+      scanStats.high = motorResults.filter(r => r.oppScore >= 80).length;
+      scanStats.rejected = rejected.length;
+      lastScan = new Date();
+      updateRadar();
+      return { motorResults, rejected, geo };
+    }
+    function buildSpyBooleanBase(q) {
+      if (q.baseBoolean) return q.baseBoolean;
+      const label = q.label || '';
+      return `("${label}") AND ("vaga") AND ("whatsapp" OR "wa.me")`;
+    }
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function renderMotorResults(motor) {
       const container = document.getElementById('motor-results');
       const debug = document.getElementById('debug-log');
       if (!motor) { container.innerHTML = ''; debug.innerHTML = ''; return; }
-      const allClassified = queries.map(q => {
-        const classification = classificarDominio(q);
-        const mem = loadMemory();
-        const fit = classification.scopeScore < 80 ? 0 : scoreOpportunity(q, mem);
-        const oppScore = classification.scopeScore < 80 ? 0 : opportunityScore(fit, 0, 1, 70);
-        return { ...q, scopeScore: classification.scopeScore, primaryDomain: classification.primaryDomain, fit, oppScore, reason: classification.reason };
-      });
-      const rejected = allClassified.filter(r => r.primaryDomain === 'REJECTED');
-      motorResults = allClassified.filter(r => r.primaryDomain !== 'REJECTED').sort((a, b) => b.oppScore - a.oppScore).slice(0, motor === 'silver' ? 5 : motor === 'lucky' ? 8 : 12);
+      const { motorResults: filteredResults, rejected, geo } = scoreMotorResults(motor);
       const mem = loadMemory();
-      scanStats.analyzed = queries.length;
-      scanStats.new = motorResults.filter(r => !mem.seen[r.label]).length;
-      scanStats.high = motorResults.filter(r => r.oppScore >= 80).length;
-      scanStats.rejected = rejected.length;
-      lastScan = new Date();
-      updateRadar();
-      if (!motorResults.length) { container.innerHTML = '<div class="summary">Nenhuma oportunidade dentro do escopo para este motor.</div>'; }
+      if (!filteredResults.length) { container.innerHTML = '<div class="summary">Nenhuma oportunidade dentro do escopo para este motor.</div>'; }
       else {
-        container.innerHTML = motorResults.map(r => {
+        container.innerHTML = filteredResults.map(r => {
           const seen = mem.seen[r.label];
           const why = [];
           if (r.level === 'head') why.push('liderança');
@@ -545,9 +604,13 @@
           const gap = r.fit < 85 ? 'Revisar requisitos de senioridade/idioma' : 'Sem gaps aparentes';
           const tier = r.oppScore >= 90 ? '🔥 Prioridade máxima' : r.oppScore >= 80 ? '⭐ Alta prioridade' : r.oppScore >= 70 ? '◉ Interessante' : '○ Exploratória';
           const domainLabel = r.primaryDomain === 'CREATIVE' ? '🎨 CRIAÇÃO' : r.primaryDomain === 'CONTENT' ? '🎯 CONTEÚDO' : '📈 GESTÃO DE MARKETING';
+          const locationLabel = r.location || (motor === 'spy' && geo ? `📍 ${geo}` : '') || '🌎 Remoto — Brasil';
           return `<div class="result-card">
             <div class="rc-header">
-              <div class="rc-title">${r.label}</div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">${locationLabel}</div>
+                <div class="rc-title">${r.label}</div>
+              </div>
               <div class="score-pill">${r.oppScore}/100 · ${tier}</div>
             </div>
             <div class="rc-meta">${domainLabel} · ${r.level.toUpperCase()} · ${seen ? 'Vista ' + formatTimeAgo(seen.ts) : 'Nova'}</div>
@@ -563,6 +626,14 @@
             </div>
           </div>`;
         }).join('');
+        if (motor === 'spy' && geo) {
+          const booleanBox = document.createElement('div');
+          booleanBox.className = 'debug-log';
+          booleanBox.style.marginTop = '10px';
+          const sample = filteredResults[0];
+          booleanBox.innerHTML = `<b>🕵️ BOOLEAN APLICADA</b><br><pre style="white-space:pre-wrap;word-break:break-word;opacity:.85;">${escapeHtml(sample ? sample.baseBoolean : '')}</pre><br><b>📍 GEO ATIVO:</b> ${geo} ${spyGeoState.scores[geo] ? '🎯' : ''}`;
+          container.appendChild(booleanBox);
+        }
       }
       if (rejected.length) {
         debug.innerHTML = '<b>🚫 DESCARTADAS</b><br>' + rejected.map(r => `Cargo: ${r.label}<br>Motivo: ${r.reason}<br>SCOPE_SCORE = ${r.scopeScore}<br><br>`).join('');
@@ -589,7 +660,7 @@
             const q = queries.find(x => x.label === label);
             if (q && q.whatsapp) {
               addFollowup({ name: '', role: label, company: '', contact: q.whatsapp });
-              window.open(q.whatsapp, '_blank');
+              window.open(waLink(q.whatsapp, label), '_blank');
             }
           }
           saveMemory(mem);
@@ -597,7 +668,7 @@
           if (fb !== 'reject') renderMotorResults(activeMotor);
         });
       });
-      motorResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
+      filteredResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
     }
 
     function updateRadar() {
@@ -612,8 +683,78 @@
       setTimeout(() => t.remove(), 1800);
     }
 
+    function renderSpyClusters() {
+      const board = document.getElementById('spy-clusters');
+      board.innerHTML = SPY_CLUSTERS.map(c => `<button class="btn" data-cluster="${c.id}"><span>${String(c.id).padStart(2,'0')} · ${c.label}</span></button>`).join('');
+      board.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectSpyCluster(Number(btn.dataset.cluster));
+        });
+      });
+    }
+    function selectSpyCluster(id) {
+      const cluster = SPY_CLUSTERS.find(c => c.id === id);
+      if (!cluster) return;
+      spyCluster = cluster;
+      spyFront = null;
+      document.getElementById('spy-front-section').style.display = '';
+      document.querySelectorAll('#spy-fronts .filter-chip').forEach(b => b.classList.toggle('active', b.dataset.front === 'content'));
+      runMotor('spy');
+    }
+    document.getElementById('spy-fronts').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-front]'); if (!btn) return;
+      document.querySelectorAll('#spy-fronts .filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+      spyFront = btn.dataset.front;
+      runMotor('spy');
+    });
+    function buildSpyBoolean(base, geo) {
+      if (!geo) return base;
+      const parts = base.split('NOT');
+      const geoClause = `AND ("${geo}")`;
+      return parts[0].trim() + ' ' + geoClause + (parts[1] ? ' NOT ' + parts[1].trim() : '');
+    }
+    function buildSpyUrl(baseUrl, geo) {
+      if (!geo) return baseUrl;
+      return baseUrl.replace('origin=FACETED_SEARCH', `origin=FACETED_SEARCH`).replace('keywords=', `keywords= AND ("${geo}")`);
+    }
+    function nextSpyGeo() {
+      if (!spyCluster) return '';
+      const terms = spyCluster.terms;
+      if (!terms.length) return '';
+      const state = spyGeoState;
+      const loc = terms[Math.floor(Math.random()*terms.length)];
+      state.history = state.history || [];
+      state.history.unshift({ term: loc, ts: Date.now() });
+      if (state.history.length > 200) state.history = state.history.slice(0, 200);
+      state.scores[loc] = (state.scores[loc] || 50) + 1;
+      saveSpyGeo(state);
+      return loc;
+    }
+    function saveSpyGeo(state) { localStorage.setItem('painel_spy_geo_v1', JSON.stringify(state)); }
+
     function runMotor(motor) {
       activeMotor = motor;
+      const btn = document.querySelector(`.motor-btn[data-motor="${motor}"]`);
+      if (!btn) return;
+      document.querySelectorAll('.motor-btn').forEach(b => b.classList.remove('scanning'));
+      btn.classList.add('scanning');
+      const line = document.createElement('div'); line.className = 'scan-line'; btn.appendChild(line);
+      if (motor === 'spy') {
+        const picker = document.getElementById('spy-cluster-picker');
+        if (picker) picker.style.display = 'none';
+        if (!spyCluster) {
+          if (picker) picker.style.display = '';
+          renderSpyClusters();
+          setTimeout(() => { btn.classList.remove('scanning'); if (line.parentNode) line.remove(); }, 0);
+          return;
+        }
+      }
+      setTimeout(() => {
+        btn.classList.remove('scanning'); if (line.parentNode) line.remove();
+        renderMotorResults(motor);
+        showToast(`${motor === 'silver' ? 'Bala de Prata' : motor === 'lucky' ? 'Estou com Sorte' : 'Espião'} varreu ${queries.length} oportunidades.`);
+      }, 1200);
+    }
       const btn = document.querySelector(`.motor-btn[data-motor="${motor}"]`);
       if (!btn) return;
       document.querySelectorAll('.motor-btn').forEach(b => b.classList.remove('scanning'));
@@ -649,6 +790,31 @@
       { id: 'seed-8', name: '', role: 'Customer Success Analyst', company: '4juris', contact: '8892030258', createdAt: new Date(Date.now() - 1000*60*60*8).toISOString() },
       { id: 'seed-9', name: '', role: 'Head de Marketing', company: '', contact: '85920098075', createdAt: new Date(Date.now() - 1000*60*60*9).toISOString() }
     ];
+    function waLink(raw, role) {
+      const phone = String(raw || '').replace(/\D/g,'');
+      if (!phone) return '#';
+      const text = encodeURIComponent(`Olá, estou entrando em contato sobre a vaga de ${role || 'oportunidade'}. Meu portfólio: https://flavio-guedes.github.io/portfolio/parceria.html`);
+      return `https://wa.me/${phone}?text=${text}`;
+    }
+    function inferLocationFromPhone(raw) {
+      const phone = String(raw || '').replace(/\D/g,'');
+      if (!phone) return null;
+      const ddd = phone.length >= 3 ? phone.slice(0,2) : '';
+      const map = {
+        '11':'São Paulo — SP','12':'São José dos Campos — SP','13':'Santos — SP','14':'Bauru — SP','15':'Sorocaba — SP','16':'Ribeirão Preto — SP','17':'São José do Rio Preto — SP','18':'Presidente Prudente — SP','19':'Campinas — SP',
+        '21':'Rio de Janeiro — RJ','22':'Cabo Frio — RJ','24':'Petrópolis — RJ',
+        '27':'Vila Velha/ES','28':'Cachoeiro do Itapemirim — ES',
+        '31':'Belo Horizonte — MG','32':'Juiz de Fora — MG','33':'Governador Valadares — MG','34':'Uberlândia — MG','35':'Poços de Caldas — MG','37':'Divinópolis — MG','38':'Montes Claros — MG',
+        '41':'Curitiba — PR','42':'Ponta Grossa — PR','43':'Londrina — PR','44':'Maringá — PR','45':'Foz do Iguaçu — PR','46':'Francisco Beltrão — PR',
+        '47':'Joinville — SC','48':'Florianópolis — SC','49':'Chapecó — SC',
+        '51':'Porto Alegre — RS','53':'Pelotas — RS','54':'Caxias do Sul — RS','55':'Santa Maria — RS',
+        '61':'Brasília — DF','62':'Goiânia — GO','63':'Palmas — TO','64':'Rio Verde — GO','65':'Cuiabá — MT','66':'Rondonópolis — MT','67':'Campo Grande — MS','68':'Rio Branco — AC',
+        '71':'Salvador — BA','73':'Ilhéus — BA','74':'Juazeiro — BA','75':'Feira de Santana — BA','77':'Vitória da Conquista — BA',
+        '79':'Aracaju — SE','81':'Recife — PE','82':'Maceió — AL','83':'João Pessoa — PB','84':'Natal — RN','85':'Fortaleza — CE','86':'Teresina — PI','87':'Petrolina — PE','88':'Juazeiro do Norte — CE','89':'Picos — PI',
+        '91':'Belém — PA','92':'Manaus — AM','93':'Santarem — PA','94':'Marabá — PA','95':'Boa Vista — RR','96':'Macapá — AP','97':'Coari — AM','98':'São Luís — MA','99':'Imperatriz — MA'
+      };
+      return map[ddd] || null;
+    }
     function loadFollowup() {
       try { const raw = localStorage.getItem(FOLLOWUP_KEY); if (raw) return JSON.parse(raw); } catch {}
       return [...FOLLOWUP_SEED];
@@ -665,7 +831,7 @@
       const container = document.getElementById('followup-list');
       const items = loadFollowup();
       if (!items.length) { container.innerHTML = '<div class="summary">Nenhum follow-up ainda.</div>'; return; }
-      container.innerHTML = items.map(it => `<div class="result-card"><div class="rc-header"><div class="rc-title">${it.name || 'Sem nome'}</div><div class="score-pill">${it.role || 'Cargo não informado'}</div></div><div class="rc-meta">${it.company || ''} · ${it.contact || ''}</div><div class="rc-meta">${new Date(it.createdAt).toLocaleString('pt-BR')}</div></div>`).join('');
+      container.innerHTML = items.map(it => `<div class="result-card"><div class="rc-header"><div class="rc-title">${it.name || 'Sem nome'}</div><div class="score-pill">${it.role || 'Cargo não informado'}</div></div><div class="rc-meta">${it.company || ''} · ${it.contact || ''}</div><div class="rc-meta">${new Date(it.createdAt).toLocaleString('pt-BR')}</div><div class="rc-actions"><a href="${waLink(it.contact, it.role)}" target="_blank" rel="noopener">Fale comigo</a></div></div>`).join('');
     }
     document.getElementById('followup-add').addEventListener('click', () => {
       addFollowup({
