@@ -736,7 +736,9 @@
       });
       filteredResults.forEach(r => { const mem = loadMemory(); if (!mem.seen[r.label]) mem.seen[r.label] = { ts: Date.now(), motor }; saveMemory(mem); });
       if (motor === 'spy' && filteredResults.length) {
-        window.open(filteredResults[0].url, '_blank');
+        const q = filteredResults[0];
+        const phone = q.whatsapp || '';
+        if (phone) window.open(waLink(phone, q.label), '_blank');
       }
     }
 
