@@ -154,9 +154,6 @@
       <h2>Filtros</h2>
       <div class="filter-bar">
         <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
-          <input type="checkbox" id="v2-remote" checked> Remoto
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
           <input type="checkbox" id="v2-whatsapp" checked> WhatsApp OR wa.me
         </label>
       </div>
@@ -226,7 +223,6 @@
     let v2State = {
       cityGroup: null,
       roles: [],
-      remote: true,
       whatsapp: true,
       limit: 10
     };
@@ -274,9 +270,8 @@
     function buildV2Query() {
       const geo = v2State.cityGroup ? CITY_GROUPS.find(g => g.id === v2State.cityGroup) : null;
       const geoTerms = geo ? geo.terms : [];
-      const remoteTerms = v2State.remote ? ['Remote','Remoto'] : [];
       const waTerms = v2State.whatsapp ? ['whatsapp','wa.me'] : [];
-      const allTerms = [...geoTerms, ...remoteTerms, ...waTerms, ...v2State.roles];
+      const allTerms = [...geoTerms, ...waTerms, ...v2State.roles];
       if (!allTerms.length) return '';
       const clauses = allTerms.map(t => `"${t}"`);
       return `(${clauses.join(' OR ')})`;
@@ -349,11 +344,6 @@
     document.getElementById('v2-roles').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-index]'); if (!btn) return;
       removeRole(Number(btn.dataset.index));
-    });
-
-    document.getElementById('v2-remote').addEventListener('change', (e) => {
-      v2State.remote = e.target.checked;
-      updateV2Preview();
     });
 
     document.getElementById('v2-whatsapp').addEventListener('change', (e) => {
