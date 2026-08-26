@@ -163,10 +163,10 @@
           <input type="checkbox" id="v2-remote" checked> Remoto
         </label>
         <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
-          <input type="radio" name="v2-messaging" id="v2-whatsapp" value="whatsapp"> whatsapp
+          <input type="radio" name="v2-messaging" id="v2-whatsapp" value="whatsapp" checked> whatsapp
         </label>
         <label style="display:flex;align-items:center;gap:8px;color:var(--text);font-size:12px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);">
-          <input type="radio" name="v2-messaging" id="v2-wa" value="wa.me" checked> wa.me
+          <input type="radio" name="v2-messaging" id="v2-whatsapp-none" value="none"> sem filtro
         </label>
       </div>
     </div>
@@ -259,7 +259,7 @@
       extraLocations: [],
       roles: [],
       remote: true,
-      messaging: 'wa.me',
+      messaging: 'whatsapp',
       limit: 10
     };
 
@@ -343,8 +343,7 @@
       if (uniqueGeo.length) blocks.push(`(${uniqueGeo.map(t => `"${t}"`).join(' OR ')})`);
       v2State.roles.forEach(t => blocks.push(`("${t}")`));
       if (v2State.remote) blocks.push(`("Remoto")`);
-      if (v2State.messaging === 'whatsapp' || v2State.messaging === 'both') blocks.push(`("whatsapp")`);
-      if (v2State.messaging === 'wa.me' || v2State.messaging === 'both') blocks.push(`("wa.me")`);
+      if (v2State.messaging === 'whatsapp') blocks.push(`("whatsapp")`);
       return blocks.join(' AND ');
     }
 
@@ -441,12 +440,7 @@
     });
 
     document.getElementById('v2-whatsapp').addEventListener('change', (e) => {
-      if (e.target.checked) v2State.messaging = 'whatsapp';
-      updateV2Preview();
-    });
-
-    document.getElementById('v2-wa').addEventListener('change', (e) => {
-      if (e.target.checked) v2State.messaging = 'wa.me';
+      v2State.messaging = e.target.checked ? 'whatsapp' : 'none';
       updateV2Preview();
     });
 
