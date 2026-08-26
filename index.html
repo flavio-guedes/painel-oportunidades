@@ -192,6 +192,21 @@
     </div>
 
     <div class="section">
+      <h2>Minha Rede</h2>
+      <div class="filter-bar" style="margin-bottom:12px;">
+        <input id="v2-network-role" placeholder="Cargo" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <input id="v2-network-company" placeholder="Empresa" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <input id="v2-network-city" placeholder="Cidade" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+        <input id="v2-network-contact" placeholder="Quem compartilhou" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
+      </div>
+      <div class="filter-bar" style="margin-bottom:12px;">
+        <input id="v2-network-link" placeholder="Link da oportunidade" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);">
+        <button class="filter-chip active" id="v2-network-add">Salvar</button>
+      </div>
+      <div class="debug-log" id="v2-network-list"></div>
+    </div>
+
+    <div class="section">
       <h2>Follow-up de Candidaturas</h2>
       <div class="filter-bar" style="margin-bottom:12px;">
         <input id="v2-followup-name" placeholder="Nome" style="padding:10px 12px;border-radius:10px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text);min-width:220px;">
@@ -460,6 +475,75 @@
       addRole(btn.dataset.role);
     });
 
+    const NETWORK_KEY = 'v2_network_v1';
+
+    function loadNetwork() {
+      try { const raw = localStorage.getItem(NETWORK_KEY); if (raw) return JSON.parse(raw); } catch {}
+      return [];
+    }
+
+    function saveNetwork(items) { localStorage.setItem(NETWORK_KEY, JSON.stringify(items)); }
+
+    function addNetwork(item) {
+      const items = loadNetwork();
+      const entry = {
+        ...item,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString()
+      };
+      items.unshift(entry);
+      saveNetwork(items);
+      renderNetwork();
+      showToast('Oportunidade salva em Minha Rede');
+    }
+
+    function removeNetwork(id) {
+      saveNetwork(loadNetwork().filter(it => it.id !== id));
+      renderNetwork();
+    }
+
+    function renderNetwork() {
+      const container = document.getElementById('v2-network-list');
+      const items = loadNetwork();
+      if (!items.length) {
+        container.innerHTML = '<div class="summary">Nenhuma oportunidade salva ainda.</div>';
+        return;
+      }
+      container.innerHTML = items.map(it => {
+        const contact = it.contact || '';
+        const link = it.link || '#';
+        return `<div class="result-card">
+          <div class="rc-header">
+            <div class="rc-title">${it.role || 'Cargo não informado'}</div>
+            <div class="score-pill">${it.company || ''}</div>
+          </div>
+          <div class="rc-meta">${it.city || ''} ${contact ? '· 👤 ' + contact : ''}</div>
+          <div class="rc-meta">${new Date(it.createdAt).toLocaleString('pt-BR')}</div>
+          <div class="rc-actions">
+            <a href="${link}" target="_blank" rel="noopener">Abrir oportunidade</a>
+            <button data-net="remove" data-id="${it.id}">Remover</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    document.getElementById('v2-network-add').addEventListener('click', () => {
+      addNetwork({
+        role: document.getElementById('v2-network-role').value.trim(),
+        company: document.getElementById('v2-network-company').value.trim(),
+        city: document.getElementById('v2-network-city').value.trim(),
+        contact: document.getElementById('v2-network-contact').value.trim(),
+        link: document.getElementById('v2-network-link').value.trim()
+      });
+      ['v2-network-role','v2-network-company','v2-network-city','v2-network-contact','v2-network-link'].forEach(id => document.getElementById(id).value = '');
+    });
+
+    document.getElementById('v2-network-list').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-net="remove"]');
+      if (!btn) return;
+      removeNetwork(btn.dataset.id);
+    });
+
     const FOLLOWUP_KEY = 'v2_followup_v1';
 
     function loadFollowup() {
@@ -527,6 +611,7 @@
     renderCityTerms();
     updateV2Preview();
     renderFollowup();
+    renderNetwork();
   </script>
 </body>
 </html>

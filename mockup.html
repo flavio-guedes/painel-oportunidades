@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPQ · Boulevard de Oportunidades V2 — Mockup</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  header {
+    text-align: center;
+  }
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #f8fafc;
+  }
+  p.subtitle {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+  .card {
+    background: rgba(30, 41, 59, 0.65);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 16px;
+    padding: 16px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+  .section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .section h2 {
+    margin: 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #cbd5e1;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  select, input[type="text"] {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.55);
+    color: #e5e7eb;
+    outline: none;
+    min-width: 220px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.55);
+    color: #e5e7eb;
+    font-size: 12px;
+  }
+  .chip button {
+    background: transparent;
+    border: none;
+    color: #e5e7eb;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .filter-chip {
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: rgba(15, 23, 42, 0.55);
+    color: #cbd5e1;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .filter-chip.active {
+    background: #4169E1;
+    border-color: #4169E1;
+    color: #fff;
+  }
+  .primary {
+    background: #4169E1;
+    color: #fff;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .preview {
+    font-size: 12px;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.55);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px dashed rgba(148, 163, 184, 0.35);
+  }
+  .actions {
+    display: flex;
+    justify-content: center;
+  }
+  .actions .primary {
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>EPQ · Boulevard de Oportunidades V2</h1>
+      <p class="subtitle">Mockup visual da interface</p>
+    </header>
+
+    <div class="card">
+      <div class="section">
+        <h2>Localização</h2>
+        <select>
+          <option>Selecione o grupo de cidades</option>
+          <option>SP — Faria Lima / Itaim</option>
+          <option>SP — Jardins / Pinheiros</option>
+          <option>RIO — Zona Sul</option>
+        </select>
+        <div class="row">
+          <span class="chip">Faria Lima <button>×</button></span>
+          <span class="chip">Itaim <button>×</button></span>
+        </div>
+        <div class="row">
+          <input type="text" placeholder="Adicionar cidade/bairro">
+          <button class="primary">Adicionar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section">
+        <h2>Cargos — até 7</h2>
+        <div class="row">
+          <input type="text" placeholder="Digite o cargo e pressione Enter">
+          <button class="primary">Adicionar</button>
+        </div>
+        <div class="row">
+          <span class="chip">Head de Marketing <button>×</button></span>
+          <span class="chip">Diretor de Marketing <button>×</button></span>
+        </div>
+        <div class="row" style="margin-top:6px;">
+          <button class="filter-chip active">Head de Marketing</button>
+          <button class="filter-chip">Diretor de Marketing</button>
+          <button class="filter-chip">Head de Conteúdo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section">
+        <h2>Filtros</h2>
+        <div class="row">
+          <label class="filter-chip active">Remoto</label>
+          <label class="filter-chip">whatsapp</label>
+          <label class="filter-chip active">wa.me</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section">
+        <h2>Limite de resultados</h2>
+        <div class="row">
+          <button class="filter-chip active">10</button>
+          <button class="filter-chip">20</button>
+          <button class="filter-chip">50</button>
+          <button class="filter-chip">100</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="primary">🔎 BUSCAR</button>
+    </div>
+
+    <div class="card">
+      <div class="section">
+        <h2>Preview da busca</h2>
+        <div class="preview">
+          ("vaga") AND ("Faria Lima" OR "Itaim") AND ("Head de Marketing") AND ("Remoto") AND ("wa.me")
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section">
+        <h2>Follow-up de Candidaturas</h2>
+        <div class="row">
+          <input type="text" placeholder="Nome">
+          <input type="text" placeholder="Cargo">
+          <input type="text" placeholder="Empresa">
+          <input type="text" placeholder="WhatsApp/Email">
+        </div>
+        <button class="primary" style="align-self:flex-start;">Salvar follow-up</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
